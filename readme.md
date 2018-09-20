@@ -67,7 +67,111 @@ let l = cc.galactic.l;
 
 ## API
 
+`static horizontal(options, ob_options)`
 
+基于地平系统实例化天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`static hourAngle(options, ob_options)`
+
+基于时角系统实例化天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`static equinoctial(options, ob_options)`
+
+基于赤道系统实例化天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`static ecliptic(options, ob_options)`
+
+基于黄道系统实例化天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`static galactic(options, ob_options)`
+
+基于银道系统实例化天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`from(options, ob_options)`
+
+设定起始天球坐标
+
+* options 坐标系统参数
+* ob_options 观测参数
+
+`changeObserver(options)`
+
+设置观测参数
+
+* options.time 观测历元
+* options.geoLong 观测点地理经度
+* options.geoLat 观测点地理纬度
+
+`clearCache()`
+
+清除坐标实例缓存
+
+`set horizontal(horizontal)`
+
+设定 天球地平坐标对象
+
+`get horizontal()`
+
+获取 天球地平坐标对象
+
+`set hourAngle(hourangle)`
+
+设定 天球时角坐标对象
+
+`get hourAngle()`
+
+获取 天球时角坐标对象
+
+`set equinoctial(equinoctial)`
+
+设定 天球赤道坐标对象
+
+`get equinoctial()`
+
+获取 天球黄道坐标对象
+
+`set ecliptic(ecliptic)`
+
+设定 天球黄道坐标对象
+
+`get ecliptic()`
+
+获取 天球黄道坐标对象
+
+`set galactic(galactic)`
+
+设定 天球银道坐标对象
+
+`get galactic()`
+
+获取 天球银道坐标对象
+
+`get obTime()`
+
+获取 观测时间
+
+`get obGeoLong()`
+
+获取 观测点地理经度
+
+`get obGeoLat()`
+
+获取 观测点地理纬度
 
 ## 许可证书
 

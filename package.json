@@ -1,0 +1,38 @@
+{
+  "name": "@behaver/celestial-coordinate",
+  "version": "1.0.0",
+  "description": "The package for handling celestial coordinate.",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/behaver/celestial-coordinate.git"
+  },
+  "keywords": [
+    "celestial",
+    "coordinate"
+  ],
+  "author": "Sanwan, Dong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/behaver/celestial-coordinate/issues"
+  },
+  "homepage": "https://github.com/behaver/celestial-coordinate#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "@behaver/angle": "^2.0.2",
+    "@behaver/coordinate": "^3.2.3",
+    "@behaver/jdate": "^2.1.0",
+    "@behaver/nutation": "^1.0.0",
+    "@behaver/precession": "^1.1.0",
+    "@behaver/sidereal-time": "^1.0.1"
+  }
+}

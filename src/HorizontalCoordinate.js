@@ -4,6 +4,8 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const { JDateRepository } = require('@behaver/jdate');
 const SiderealTime = require('@behaver/sidereal-time');
 const Angle = require('@behaver/angle');
+const DiurnalParallax = require('@behaver/diurnal-parallax');
+const AtmosphericRefraction = require('@behaver/atmospheric-refraction');
 const EquinoctialCoordinate = require('./EquinoctialCoordinate');
 
 const angle = new Angle;
@@ -24,6 +26,7 @@ class HorizontalCoordinate {
    * @param  {JDateRepository}       options.obTime          观测历元
    * @param  {Number}                options.obGeoLong       观测点地理经度，单位：度，值域：[180, 180]
    * @param  {Number}                options.obGeoLat        观测点地理纬度，单位：度，值域：[-90, 90]
+   * @param  {Number}                options.obElevation     观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
    * @param  {SphericalCoordinate3D} options.sc              球坐标
    * @param  {Number}                options.h               地平高度，单位：度，值域：[-90, 90]
    * @param  {Number}                options.z               天顶角，单位：度，值域：[0, 180]
@@ -44,6 +47,7 @@ class HorizontalCoordinate {
    * @param  {JDateRepository}       options.obTime          观测历元
    * @param  {Number}                options.obGeoLong       观测点地理经度，单位：度，值域：[180, 180]
    * @param  {Number}                options.obGeoLat        观测点地理纬度，单位：度，值域：[-90, 90]
+   * @param  {Number}                options.obElevation     观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
    * @param  {SphericalCoordinate3D} options.sc              球坐标
    * @param  {Number}                options.h               地平高度，单位：度，值域：[-90, 90]
    * @param  {Number}                options.z               天顶角，单位：度，值域：[0, 180]
@@ -59,11 +63,14 @@ class HorizontalCoordinate {
     obTime,
     obGeoLong,
     obGeoLat,
+    obElevation,
     sc,
     a,
     h,
     z,
     radius,
+    centerMode,
+    withAR,
     precessionModel, 
     nutationModel, 
   }) {
@@ -75,6 +82,16 @@ class HorizontalCoordinate {
 
     if (typeof(obGeoLat) !== 'number') throw Error('The param obGeoLat should be a Number.');
     else if (obGeoLat < -90 || obGeoLat > 90) throw Error('The param obGeoLat should be in [-90, 90]');
+
+    if (obElevation === undefined) obElevation = 0;
+    else if (typeof(obElevation) !== 'number') throw Error('The param obElevation should be a Number.');
+    else if (obElevation > 3e7 || obElevation < -12000) throw Error('The param obElevation should be in (-12000, 3e7).');
+
+    if (centerMode === undefined) centerMode = 'geocentric';
+    else if (centerMode !== 'geocentric' && centerMode !== 'topocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
+
+    if (withAR === undefined) withAR = false;
+    else withAR = !!withAR;
 
     if (precessionModel === undefined) precessionModel = 'IAU2006';
     else if (typeof(precessionModel) !== 'string') throw Error('The param precessionModel should be a String.');
@@ -102,6 +119,7 @@ class HorizontalCoordinate {
       obTime,
       obGeoLong,
       obGeoLat,
+      obElevation,
       precessionModel,
       nutationModel,
     };
@@ -120,15 +138,20 @@ class HorizontalCoordinate {
   /**
    * 转换当前坐标的系统参数
    * 
-   * @param  {JDateRepository}       options.obTime    观测历元
-   * @param  {Number}                options.obGeoLong 观测点地理经度
-   * @param  {Number}                options.obGeoLat  观测点地理纬度
-   * @return {EquinoctialCoordinate}                   返回 this 引用
+   * @param  {JDateRepository}       options.obTime      观测历元
+   * @param  {Number}                options.obGeoLong   观测点地理经度
+   * @param  {Number}                options.obGeoLat    观测点地理纬度
+   * @param  {Number}                options.obElevation 观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
+   * 
+   * @return {EquinoctialCoordinate}                     返回 this 引用
    */
   on({
     obTime,
     obGeoLong,
     obGeoLat,
+    obElevation,
+    centerMode,
+    withAR,
   }) {
     let changeObTime = false;
 
@@ -145,6 +168,14 @@ class HorizontalCoordinate {
     else if (typeof(obGeoLat) !== 'number') throw Error('The param obGeoLat should be a Number.');
     else if (obGeoLat < -90 || obGeoLat > 90) throw Error('The param obGeoLat should be in [-90, 90]');
 
+    if (obElevation === undefined) obElevation = this.private.obElevation;
+    else if (typeof(obElevation) !== 'number') throw Error('The param obElevation should be a Number.');
+    else if (obElevation > 3e7 || obElevation < -12000) throw Error('The param obElevation should be in (-12000, 3e7).');
+
+    // 将原始坐标转换成地心坐标
+    this.onGeocentric();
+
+    // 处理转换为新观测条件下的地心坐标
     if (changeObTime) { // 针对观测时间改变的情况，引入赤道坐标对象处理
       let ec = new EquinoctialCoordinate(this.toEquinoctial());
       let hc_obj = ec.toHorizontal({
@@ -158,6 +189,7 @@ class HorizontalCoordinate {
       this.private.obTime = obTime;
       this.private.obGeoLong = obGeoLong;
       this.private.obGeoLat = obGeoLat;
+      this.private.obElevation = obElevation;
     } else {
       // 将地平球坐标转换至瞬时赤道球坐标
       this.private.sc
@@ -172,6 +204,7 @@ class HorizontalCoordinate {
       });
       this.private.obGeoLong = obGeoLong;
       this.private.obGeoLat = obGeoLat;
+      this.private.obElevation = obElevation;
 
       // 将瞬时赤道坐标转换至地平球坐标
       this.private.sc
@@ -180,7 +213,116 @@ class HorizontalCoordinate {
         .inverse('y');
     }
 
+    // 转换成新站心坐标以及处理大气折射（如果设定需要的话）
+    if (centerMode === 'topocentric') {
+      // 转化为新站心坐标
+      this.onTopocentric();
+
+      // 添加大气折射
+      if (withAR) this.withAR();
+    }
+
     return this;
+  }
+
+  /**
+   * 转换坐标至站心坐标
+   * 
+   * @return {EquinoctialCoordinate} 返回 this 引用
+   */
+  onTopocentric() {
+    if (this.private.centerMode === 'geocentric') {
+      // 在原有地心坐标的基础上进行转换
+      
+      let dp = new DiurnalParallax({
+        gc: this.private.sc,
+        siderealTime: this.siderealTime,
+        obGeoLat: this.private.obGeoLat,
+        obElevation: this.private.obElevation,
+        system: 'horizontal',
+      });
+
+      let tc = dp.TC;
+
+      this.private.sc = new SphericalCoordinate3D(tc.r, tc.theta, tc.phi);
+      this.private.centerMode = 'topocentric';
+    }
+
+    return this;
+  }
+
+  /**
+   * 转换坐标至地心坐标
+   * 
+   * @return {EquinoctialCoordinate} 返回 this 引用
+   */
+  onGeocentric() {
+    if (this.private.centerMode === 'topocentric') {
+      this.withoutAR();
+
+      let dp = new DiurnalParallax({
+        tc: sc,
+        siderealTime: this.siderealTime,
+        obGeoLat: this.private.obGeoLat,
+        obElevation: this.private.obElevation,
+        system: 'horizontal',
+      });
+
+      // 获取地心球坐标（由站心坐标转化的）
+      let gc = dp.GC;
+
+      this.private.sc = new SphericalCoordinate3D(gc.r, gc.theta, gc.phi);
+      this.private.centerMode = 'geocentric';
+    }
+  }
+
+  /**
+   * 添加大气折射的影响
+   * 
+   * @return {EquinoctialCoordinate} 返回 this 引用
+   */
+  withAR() {
+    if (!this.private.withAR) {
+      let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
+      let ar = new AtmosphericRefraction({
+        trueH: h,
+      });
+
+      // 更新修正后的球坐标
+      this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+      this.private.withAR = true;
+    }
+
+    return this;
+  }
+
+  /**
+   * 去除大气折射的影响
+   * 
+   * @return {EquinoctialCoordinate} 返回 this 引用
+   */
+  withoutAR() {
+    if (this.private.withAR) {
+      let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
+      let ar = new AtmosphericRefraction({
+        apparentH: h,
+      });
+
+      // 更新修正后的球坐标
+      this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+      this.private.withAR = false;
+    }
+
+    return this;
+  }
+
+  /**
+   * 转换坐标至观测视角坐标
+   * 
+   * @return {EquinoctialCoordinate} 返回 this 引用
+   */
+  onObservedView() {
+    return this.onTopocentric().withAR();
   }
 
   /**
@@ -245,6 +387,9 @@ class HorizontalCoordinate {
         obTime: this.obTime, 
         obGeoLong: this.obGeoLong, 
         obGeoLat: this.obGeoLat, 
+        obElevation: this.obElevation,
+        centerMode: this.centerMode,
+        withAR: this.withAR,
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
       };
@@ -254,6 +399,9 @@ class HorizontalCoordinate {
       let obTime_0 = this.obTime;
       let obGeoLong_0 = this.obGeoLong;
       let obGeoLat_0 = this.obGeoLat;
+      let obElevation_0 = this.obElevation;
+      let centerMode_0 = this.centerMode;
+      let withAR_0 = this.withAR;
 
       this.on(options);
 
@@ -262,13 +410,18 @@ class HorizontalCoordinate {
       let obTime = this.obTime;
       let obGeoLong = this.obGeoLong.getDegrees();
       let obGeoLat = this.obGeoLat.getDegrees();
+      let obElevation = this.obElevation;
+      let centerMode = this.centerMode;
+      let withAR = this.withAR;
 
       // 还原为初始坐标和条件
       this.private.sc = sc_0;
       this.private.obTime = obTime_0;
       this.private.obGeoLong = obGeoLong_0.getDegrees();
       this.private.obGeoLat = obGeoLat_0.getDegrees();
-
+      this.private.obElevation = obElevation_0;
+      this.private.centerMode = centerMode_0;
+      this.private.withAR = withAR_0;
       this.siderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees(), { 
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
@@ -279,6 +432,9 @@ class HorizontalCoordinate {
         obTime, 
         obGeoLong, 
         obGeoLat, 
+        obElevation, 
+        centerMode,
+        withAR, 
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
       }
@@ -317,7 +473,10 @@ class HorizontalCoordinate {
    * @return {Object} 时角坐标对象
    */
   toHourAngle() {
-    let sc = this.sc;
+    let sc = this.get({
+      centerMode: 'geocentric',
+      withAR: false,
+    }).sc;
 
     sc.rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian());
 
@@ -396,6 +555,33 @@ class HorizontalCoordinate {
    */
   get obGeoLat() {
     return new Angle(this.private.obGeoLat, 'd');
+  }
+
+  /**
+   * 获取 观测海拔高度，单位：米
+   * 
+   * @return {Number} 观测海拔高度
+   */
+  get obElevation() {
+    return this.private.obElevation;
+  }
+
+  /**
+   * 获取 是否考虑大气折射影响 设定
+   * 
+   * @return {Boolean} 是否考虑大气折射影响 设定
+   */
+  get withAR() {
+    return this.private.withAR;
+  }
+
+  /**
+   * 获取 中心模式 设定
+   * 
+   * @return {String} 中心模式 设定
+   */
+  get centerMode() {
+    return this.private.centerMode;
   }
 
   /**

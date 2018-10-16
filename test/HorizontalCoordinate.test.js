@@ -944,7 +944,7 @@ describe('#HorizontalCoordinate', () => {
         obGeoLat: -30,
       });
 
-      expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'precessionModel', 'nutationModel');
+      expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'withAR', 'precessionModel', 'nutationModel');
     })
   });
 

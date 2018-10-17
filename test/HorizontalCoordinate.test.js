@@ -4,6 +4,8 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Angle = require('@behaver/angle');
 const HorizontalCoordinate = require('../src/HorizontalCoordinate');
 const EquinoctialCoordinate = require('../src/EquinoctialCoordinate');
+const SiderealTime = require('@behaver/sidereal-time');
+const DiurnalParallax = require('@behaver/diurnal-parallax');
 
 const angle = new Angle;
 
@@ -947,6 +949,82 @@ describe('#HorizontalCoordinate', () => {
       expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'withAR', 'precessionModel', 'nutationModel');
     })
   });
+
+  describe('#on', () => {
+    it('#天文算法 例39.a', () => {
+      let date = new Date('2003/08/28 11:17:00');
+      let jdate = new JDateRepository(date, 'date');
+      let obGeoLong = angle.parseDACString('116°51′50″').getDegrees();
+      let obGeoLat = angle.parseDACString('33°21′21″').getDegrees();
+      let obElevation = 1713;
+
+      let siderealTime = new SiderealTime(jdate, obGeoLong);
+
+      let r = 0.37276;
+      let theta = angle.setDegrees(90 + 15.771083).getRadian();
+      let phi = angle.setDegrees(339.530208).getRadian();
+      let egc = new SphericalCoordinate3D(r, theta, phi);
+
+      let ec = new EquinoctialCoordinate({
+        sc: egc,
+        epoch: jdate,
+        withNutation: true,
+      });
+
+      // 地平地心坐标
+      let hgc = ec.toHorizontal({
+        obGeoLong,
+        obGeoLat,
+      }).sc;
+
+      let hdp = new DiurnalParallax({
+        gc: hgc,
+        siderealTime: siderealTime,
+        obGeoLat: obGeoLat,
+        obElevation: 1713,
+        system: 'horizontal',
+      });
+
+      let htc = hdp.TC;
+
+      let hc = new HorizontalCoordinate({
+        sc: hgc,
+        obTime: jdate,
+        obGeoLong,
+        obGeoLat,
+        obElevation: 1713,
+        centerMode: 'geocentric',
+      });
+
+      hc.on({
+        centerMode: 'topocentric',
+      });
+
+      expect(htc.r).to.equal(hc.radius);
+      expect(htc.theta).to.equal(hc.z.getRadian());
+      expect(htc.phi).to.equal(hc.a.getRadian());
+
+      hc.on({
+        centerMode: 'geocentric',
+      });
+
+      expect(hgc.r).to.equal(hc.radius);
+      expect(hgc.theta).to.equal(hc.z.getRadian());
+      expect(hgc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
+
+      hc.onTopocentric();
+
+      expect(htc.r).to.equal(hc.radius);
+      expect(htc.theta).to.equal(hc.z.getRadian());
+      expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
+
+      let egc2 = hc.toEquinoctial().sc;
+
+      expect(egc.r).to.equal(egc2.r);
+      expect(egc.theta).to.closeTo(egc2.theta, 1e-10);
+      expect(egc.phi).to.closeTo(egc2.phi, 1e-10);
+    });
+  })
 
   describe('#to', () => {
     it('The param system should be a String.', () => {

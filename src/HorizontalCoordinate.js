@@ -120,6 +120,8 @@ class HorizontalCoordinate {
       obGeoLong,
       obGeoLat,
       obElevation,
+      centerMode,
+      withAR,
       precessionModel,
       nutationModel,
     };
@@ -157,9 +159,10 @@ class HorizontalCoordinate {
 
     if (obTime === undefined) {
       obTime = this.private.obTime;
-      changeObTime = true;
+      changeObTime = false;
     } else if (!(obTime instanceof JDateRepository)) throw Error('The param obTime should be a JDateRepository.');
-    
+    else changeObTime = true;
+
     if (obGeoLong === undefined) obGeoLong = this.private.obGeoLong;
     else if (typeof(obGeoLong) !== 'number') throw Error('The param obGeoLong should be a Number');
     else if (obGeoLong < -180 || obGeoLong > 180) throw Error('The param obGeoLong should be in [-180, 180]');
@@ -171,6 +174,12 @@ class HorizontalCoordinate {
     if (obElevation === undefined) obElevation = this.private.obElevation;
     else if (typeof(obElevation) !== 'number') throw Error('The param obElevation should be a Number.');
     else if (obElevation > 3e7 || obElevation < -12000) throw Error('The param obElevation should be in (-12000, 3e7).');
+
+    if (centerMode === undefined) centerMode = this.private.centerMode;
+    else if (centerMode !== 'geocentric' && centerMode !== 'topocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
+
+    if (withAR === undefined) withAR = this.private.withAR;
+    else withAR = !!withAR;
 
     // 将原始坐标转换成地心坐标
     this.onGeocentric();
@@ -187,9 +196,6 @@ class HorizontalCoordinate {
       // 更新坐标及系统条件
       this.private.sc = hc_obj.sc;
       this.private.obTime = obTime;
-      this.private.obGeoLong = obGeoLong;
-      this.private.obGeoLat = obGeoLat;
-      this.private.obElevation = obElevation;
     } else {
       // 将地平球坐标转换至瞬时赤道球坐标
       this.private.sc
@@ -202,9 +208,6 @@ class HorizontalCoordinate {
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
       });
-      this.private.obGeoLong = obGeoLong;
-      this.private.obGeoLat = obGeoLat;
-      this.private.obElevation = obElevation;
 
       // 将瞬时赤道坐标转换至地平球坐标
       this.private.sc
@@ -212,6 +215,9 @@ class HorizontalCoordinate {
         .rotateY(- Math.PI / 2 + angle.setDegrees(obGeoLat).getRadian())
         .inverse('y');
     }
+    this.private.obGeoLong = obGeoLong;
+    this.private.obGeoLat = obGeoLat;
+    this.private.obElevation = obElevation;
 
     // 转换成新站心坐标以及处理大气折射（如果设定需要的话）
     if (centerMode === 'topocentric') {
@@ -233,7 +239,6 @@ class HorizontalCoordinate {
   onTopocentric() {
     if (this.private.centerMode === 'geocentric') {
       // 在原有地心坐标的基础上进行转换
-      
       let dp = new DiurnalParallax({
         gc: this.private.sc,
         siderealTime: this.siderealTime,
@@ -242,9 +247,9 @@ class HorizontalCoordinate {
         system: 'horizontal',
       });
 
-      let tc = dp.TC;
+      // 获取站心球坐标（由地心坐标转化的）
+      this.private.sc = dp.TC;
 
-      this.private.sc = new SphericalCoordinate3D(tc.r, tc.theta, tc.phi);
       this.private.centerMode = 'topocentric';
     }
 
@@ -261,7 +266,7 @@ class HorizontalCoordinate {
       this.withoutAR();
 
       let dp = new DiurnalParallax({
-        tc: sc,
+        tc: this.private.sc,
         siderealTime: this.siderealTime,
         obGeoLat: this.private.obGeoLat,
         obElevation: this.private.obElevation,
@@ -269,11 +274,12 @@ class HorizontalCoordinate {
       });
 
       // 获取地心球坐标（由站心坐标转化的）
-      let gc = dp.GC;
+      this.private.sc = dp.GC;
 
-      this.private.sc = new SphericalCoordinate3D(gc.r, gc.theta, gc.phi);
       this.private.centerMode = 'geocentric';
     }
+
+    return this;
   }
 
   /**
@@ -290,6 +296,7 @@ class HorizontalCoordinate {
 
       // 更新修正后的球坐标
       this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+
       this.private.withAR = true;
     }
 
@@ -310,6 +317,7 @@ class HorizontalCoordinate {
 
       // 更新修正后的球坐标
       this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+
       this.private.withAR = false;
     }
 
@@ -406,13 +414,17 @@ class HorizontalCoordinate {
       this.on(options);
 
       // 记录新坐标和条件
-      let sc = this.sc;
-      let obTime = this.obTime;
-      let obGeoLong = this.obGeoLong.getDegrees();
-      let obGeoLat = this.obGeoLat.getDegrees();
-      let obElevation = this.obElevation;
-      let centerMode = this.centerMode;
-      let withAR = this.withAR;
+      let res = {
+        sc: this.sc,
+        obTime: this.obTime,
+        obGeoLong: this.obGeoLong.getDegrees(),
+        obGeoLat: this.obGeoLat.getDegrees(),
+        obElevation: this.obElevation,
+        centerMode: this.centerMode,
+        withAR: this.withAR,
+        precessionModel: this.precessionModel, 
+        nutationModel: this.nutationModel,
+      };
 
       // 还原为初始坐标和条件
       this.private.sc = sc_0;
@@ -427,17 +439,7 @@ class HorizontalCoordinate {
         nutationModel: this.nutationModel,
       });
 
-      return {
-        sc, 
-        obTime, 
-        obGeoLong, 
-        obGeoLat, 
-        obElevation, 
-        centerMode,
-        withAR, 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
-      }
+      return res;
     }
   }
 
@@ -495,7 +497,10 @@ class HorizontalCoordinate {
    * @return {Object} 赤道坐标对象
    */
   toEquinoctial() {
-    let sc = this.sc;
+    let sc = this.get({
+      centerMode: 'geocentric',
+      withAR: false,
+    }).sc;
 
     sc.inverse('y')
       .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())

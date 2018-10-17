@@ -91,23 +91,23 @@ let gc_obj = hac.toGalactic();
 
 观测参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.t 时角，单位：度，值域：[0, 360)
-options.dec 赤纬，单位：度，值域：[-90, 90]
-options.radius 坐标距离半径，值域：[10e-8, +∞)
+* options.t 时角，单位：度，值域：[0, 360)
+* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 其他参数：
 
-options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-options.nutationModel 章动计算模型，接受：iau2000b、lp
+* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
+* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -115,8 +115,8 @@ options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 接受参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度
 
 `position(options)`
 
@@ -124,13 +124,13 @@ options.obGeoLong 观测点地理经度
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.t 时角，单位：度，值域：[0, 360)
-options.dec 赤纬，单位：度，值域：[-90, 90]
-options.radius 坐标距离半径，值域：[10e-8, +∞)
+* options.t 时角，单位：度，值域：[0, 360)
+* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 `get(options)`
 
@@ -138,16 +138,16 @@ options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 接受参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度
 
 返回结果对象的属性：
 
-sc 球坐标
-obTime 观测历元
-obGeoLong 观测点地理经度
-precessionModel 岁差计算模型
-nutationModel 章动计算模型
+* sc 球坐标
+* obTime 观测历元
+* obGeoLong 观测点地理经度
+* precessionModel 岁差计算模型
+* nutationModel 章动计算模型
 
 `to(system, options)`
 
@@ -155,8 +155,8 @@ nutationModel 章动计算模型
 
 接受参数：
 
-system 目标系统
-options 系统参数
+* system 目标系统
+* options 系统参数
 
 `toHorizontal(options)`
 
@@ -164,7 +164,7 @@ options 系统参数
 
 系统参数：
 
-options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
 
 `toEquinoctial()`
 
@@ -179,9 +179,11 @@ options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
 转换当前坐标至天球银道系统
 
 `get obTime()`
+
 获取 观测历元 儒略时间对象
 
 `get obGeoLong()`
+
 获取 观测经度 角度对象
 
 `get sc()`

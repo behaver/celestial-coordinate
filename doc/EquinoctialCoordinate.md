@@ -88,20 +88,20 @@ let gc_obj = eqc.toGalactic();
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.ra 赤经，单位：度，值域：[0, 360)
-options.dec 赤纬，单位：度，值域：[-90, 90]
-options.radius 距离半径，值域：[10e-8, +∞)
+* options.ra 赤经，单位：度，值域：[0, 360)
+* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.radius 距离半径，值域：[10e-8, +∞)
 
 其他参数：
 
-options.epoch 坐标历元
-options.withNutation 是否修正了章动
-options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-options.nutationModel 章动计算模型，接受：iau2000b、lp
+* options.epoch 坐标历元
+* options.withNutation 是否修正了章动
+* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
+* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -109,8 +109,8 @@ options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 接受参数：
 
-options.epoch 坐标历元
-options.withNutation 坐标是否修复章动
+* options.epoch 坐标历元
+* options.withNutation 坐标是否修复章动
 
 `position(options)`
 
@@ -118,13 +118,13 @@ options.withNutation 坐标是否修复章动
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.ra 赤经，单位：度，值域：[0, 360)
-options.dec 赤纬，单位：度，值域：[-90, 90]
-options.radius 距离半径，值域：[10e-8, +∞)
+* options.ra 赤经，单位：度，值域：[0, 360)
+* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.radius 距离半径，值域：[10e-8, +∞)
 
 `get(options)`
 
@@ -132,16 +132,16 @@ options.radius 距离半径，值域：[10e-8, +∞)
 
 接受参数：
 
-options.epoch 坐标历元
-options.withNutation 坐标是否修复章动
+* options.epoch 坐标历元
+* options.withNutation 坐标是否修复章动
 
 返回结果对象的属性：
 
-sc 球坐标
-epoch 坐标历元
-withNutation 是否修正了章动
-precessionModel 岁差计算模型
-nutationModel 章动计算模型
+* sc 球坐标
+* epoch 坐标历元
+* withNutation 是否修正了章动
+* precessionModel 岁差计算模型
+* nutationModel 章动计算模型
 
 `to(system, options)`
 
@@ -149,8 +149,8 @@ nutationModel 章动计算模型
 
 接受参数：
 
-system 目标系统
-options 系统参数
+* system 目标系统
+* options 系统参数
 
 `toHorizontal(options)`
 
@@ -158,9 +158,9 @@ options 系统参数
 
 系统参数：
 
-options.obTime 观测时间
-options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obTime 观测时间
+* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
+* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
 
 `toHourAngle(options)`
 
@@ -168,8 +168,8 @@ options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
 
 系统参数：
 
-options.obTime 观测时间
-options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
+* options.obTime 观测时间
+* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
 
 `toEcliptic()`
 

@@ -135,28 +135,28 @@ hc.onGeocentric();
 
 观测参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
-options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-options.obElevation 观测点海拔高度，单位：米
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度，单位：米
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.h 地平高度，单位：度，值域：[-90, 90]
-options.z 天顶角，单位：度，值域：[0, 180]
-options.a 方位角，单位：度，值域：[0, 360)
-options.radius 坐标距离半径，值域：[10e-8, +∞)
+* options.h 地平高度，单位：度，值域：[-90, 90]
+* options.z 天顶角，单位：度，值域：[0, 180]
+* options.a 方位角，单位：度，值域：[0, 360)
+* options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 其他参数：
 
-options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
-options.withAR 是否包含大气折射影响
-options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-options.nutationModel 章动计算模型，接受：iau2000b、lp
+* options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
+* options.withAR 是否包含大气折射影响
+* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
+* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -164,12 +164,12 @@ options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 接受参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
-options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-options.obElevation 观测点海拔高度，单位：米
-options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
-options.withAR 是否包含大气折射影响
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度，单位：米
+* options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
+* options.withAR 是否包含大气折射影响
 
 `position(options)`
 
@@ -177,14 +177,14 @@ options.withAR 是否包含大气折射影响
 
 坐标参数：
 
-options.sc 球坐标
+* options.sc 球坐标
 
 或
 
-options.h 地平高度，单位：度，值域：[-90, 90]
-options.z 天顶角，单位：度，值域：[0, 180]
-options.a 方位角，单位：度，值域：[0, 360)
-options.radius 坐标距离半径，值域：[10e-8, +∞)
+* options.h 地平高度，单位：度，值域：[-90, 90]
+* options.z 天顶角，单位：度，值域：[0, 180]
+* options.a 方位角，单位：度，值域：[0, 360)
+* options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 `get(options)`
 
@@ -192,21 +192,21 @@ options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 接受参数：
 
-options.obTime 观测历元
-options.obGeoLong 观测点地理经度
-options.obGeoLat 观测点地理纬度
+* options.obTime 观测历元
+* options.obGeoLong 观测点地理经度
+* options.obGeoLat 观测点地理纬度
 
 返回结果对象的属性：
 
-sc 球坐标
-obTime 观测历元
-obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
-obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-obElevation 观测点海拔高度，单位：米
-centerMode 中心模式
-withAR 是否包含大气折射影响
-precessionModel 岁差计算模型
-nutationModel 章动计算模型
+* sc 球坐标
+* obTime 观测历元
+* obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+* obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* obElevation 观测点海拔高度，单位：米
+* centerMode 中心模式
+* withAR 是否包含大气折射影响
+* precessionModel 岁差计算模型
+* nutationModel 章动计算模型
 
 `onTopocentric()`
 
@@ -234,8 +234,8 @@ nutationModel 章动计算模型
 
 接受参数：
 
-system 目标系统
-options 系统参数
+* system 目标系统
+* options 系统参数
 
 `toHourAngle()`
 

@@ -86,6 +86,43 @@ let ecc_obj = hc.toEcliptic();
 let gc_obj = hc.toGalactic();
 ```
 
+使用 HorizontalCoordinate 转换获取站心坐标 和 地心坐标，以及考虑大气折射的影响。
+
+```js
+const { HorizontalCoordinate } = require('@behaver/celestial-coordinate');
+const { JDateRepository } = require('@behaver/jdate');
+
+let time = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
+
+// 实例化 天球地平坐标
+let hc = new HorizontalCoordinate({
+  obTime: time,
+  obGeoLong: 118.8167,
+  obGeoLat: 32.067,
+  obElevation: 1848,
+  a: 123.2343,
+  h: -3.3248,
+  radius: 1.0324,
+  centerMode: 'geocentric',
+  withAR: false,
+});
+
+// 转换为站心坐标
+hc.onTopocentric();
+
+// 添加大气折射的影响
+hc.withAR();
+
+// 转换为观测视角
+hc.onObservedView();
+
+// 去除大气折射的影响
+hc.withoutAR();
+
+// 转换为地心坐标
+hc.onGeocentric();
+```
+
 ## API
 
 `constructor(options)`
@@ -101,6 +138,7 @@ let gc_obj = hc.toGalactic();
 options.obTime 观测历元
 options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
 options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+options.obElevation 观测点海拔高度，单位：米
 
 坐标参数：
 
@@ -115,6 +153,8 @@ options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 其他参数：
 
+options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
+options.withAR 是否包含大气折射影响
 options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
 options.nutationModel 章动计算模型，接受：iau2000b、lp
 
@@ -125,8 +165,11 @@ options.nutationModel 章动计算模型，接受：iau2000b、lp
 接受参数：
 
 options.obTime 观测历元
-options.obGeoLong 观测点地理经度
-options.obGeoLat 观测点地理纬度
+options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+options.obElevation 观测点海拔高度，单位：米
+options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
+options.withAR 是否包含大气折射影响
 
 `position(options)`
 
@@ -157,10 +200,33 @@ options.obGeoLat 观测点地理纬度
 
 sc 球坐标
 obTime 观测历元
-obGeoLong 观测点地理经度
-obGeoLat 观测点地理纬度
+obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
+obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+obElevation 观测点海拔高度，单位：米
+centerMode 中心模式
+withAR 是否包含大气折射影响
 precessionModel 岁差计算模型
 nutationModel 章动计算模型
+
+`onTopocentric()`
+
+转换坐标至站心坐标
+
+`onGeocentric()`
+
+转换坐标至地心坐标
+
+`onObservedView()`
+
+转换坐标至观测视角坐标
+
+`withAR()`
+
+添加大气折射的影响
+
+`withoutAR()`
+
+去除大气折射的影响
 
 `to(system, options)`
 
@@ -188,13 +254,28 @@ options 系统参数
 转换当前坐标至天球银道系统
 
 `get obTime()`
+
 获取 观测历元 儒略时间对象
 
 `get obGeoLong()`
+
 获取 观测经度 角度对象
 
 `get obGeoLat()`
+
 获取 观测纬度 角度对象
+
+`get obElevation()`
+
+获取 观测海拔高度，单位：米
+
+`get withAR()`
+
+获取 是否考虑大气折射影响 设定
+
+`get centerMode()`
+
+获取 中心模式 设定
 
 `get sc()`
 

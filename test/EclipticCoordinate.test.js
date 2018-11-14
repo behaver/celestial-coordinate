@@ -3,6 +3,7 @@ const { JDateRepository } = require('@behaver/jdate');
 const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Angle = require('@behaver/angle');
 const EclipticCoordinate = require('../src/EclipticCoordinate');
+const { VenusHECC } = require('@behaver/solar-planets-hecc');
 
 const angle = new Angle;
 
@@ -196,6 +197,19 @@ describe('#EclipticCoordinate', () => {
       }).to.throw();
     });
 
+    it('The param centerMode should be worked.', () => {
+      expect(() => {
+        let ec  = new EclipticCoordinate({
+          l: 122.3223,
+        });
+
+        ec.on({
+          epoch: new JDateRepository(1643074.5, 'jde'),
+          centerMode: 'heliocentric',
+        });
+      }).not.to.throw();
+    })
+
     it('Verify with Jean Meeus Astronomical algorithms 21.c', () => {
       let ec  = new EclipticCoordinate({
         l: 149.48194,
@@ -208,7 +222,48 @@ describe('#EclipticCoordinate', () => {
 
       expect(ec.l.getDegrees()).to.closeTo(118.704, 0.001);
       expect(ec.b.getDegrees()).to.closeTo(1.615, 0.001);
-    })
+    });
+
+    it('Verify 天文算法 32.a', () => {
+      let epoch = new JDateRepository(2448976.5, 'jde'),
+          epoch2 = new JDateRepository(2448976.5 - 0.0052612, 'jde'),
+          venus_hecc = new VenusHECC(epoch2, 'fine'),
+
+          ec = new EclipticCoordinate({
+            sc: venus_hecc.sc,
+            epoch: epoch,
+            centerMode: 'heliocentric',
+            withNutation: false,
+          });
+
+          ec.earthHECC.accuracy = 'fine'
+
+      ec.on({
+        centerMode: 'geocentric',
+      });
+
+      expect(ec.l.getDegrees()).to.closeTo(313.08102, 0.0002);
+      expect(ec.b.getDegrees()).to.closeTo(-2.08488, 0.00022);
+      expect(ec.radius).to.closeTo(0.910947, 0.000002);
+
+      ec.on({
+        withNutation: true,
+      });
+
+      ec.position({
+        l: ec.l.getDegrees() - 0.00413 - 0.00003,
+        b: ec.b.getDegrees() - 0.00015 + 0.00001,
+        radius: ec.radius,
+      });
+
+      expect(ec.l.getDegrees()).to.closeTo(313.08151, 0.0002);
+
+      let eqc = ec.toEquinoctial().sc;
+
+      expect(angle.setRadian(eqc.phi, 'r').getDegrees()).to.closeTo(angle.parseHACString('21h 04m 41.454s').getDegrees(), 0.00002);
+      expect(angle.setRadian(Math.PI / 2 - eqc.theta, 'r').getDegrees()).to.closeTo(angle.parseDACString('-18°53′16.84″').getDegrees(), 0.0001);
+      expect(eqc.r).to.closeTo(0.91084596, 0.0002);
+    });
   });
 
   describe('#position', () => {
@@ -366,7 +421,7 @@ describe('#EclipticCoordinate', () => {
       }).to.throw();
     });
 
-    it('The property after using position should update.', () => {
+    it('The properties after using position should update.', () => {
       let ec = new EclipticCoordinate({
         l: 123.2332
       });
@@ -378,6 +433,22 @@ describe('#EclipticCoordinate', () => {
       })
 
       expect(ec.l.getDegrees()).to.equal(112.2323);
+    });
+
+    it('The param centerMode should be geocentric or heliocentric.', () => {
+      expect(() => {
+        let ec = new EclipticCoordinate({
+          l: 123.2332,
+          centerMode: 'heliocentric',
+        });
+      }).not.to.throw();
+
+      expect(() => {
+        let ec = new EclipticCoordinate({
+          l: 123.2332,
+          centerMode: 'abc',
+        });
+      }).to.throw();
     });
   });
 
@@ -393,6 +464,19 @@ describe('#EclipticCoordinate', () => {
         });
       }).to.throw();
     });
+
+    it('The param centerMode should not to throw', () => {
+      expect(() => {
+        let ec  = new EclipticCoordinate({
+          l: 122.3223,
+          enterMode: 'heliocentric',
+        });
+
+        ec.get({
+          centerMode: 'geocentric',
+        });
+      }).not.to.throw();
+    })
 
     it('This method wont change the origin condition property.', () => {
       let ec = new EclipticCoordinate({
@@ -419,7 +503,7 @@ describe('#EclipticCoordinate', () => {
         withNutation: true,
       });
 
-      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'precessionModel', 'nutationModel');
+      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'centerMode', 'precessionModel', 'nutationModel');
     })
   });
 
@@ -745,6 +829,38 @@ describe('#EclipticCoordinate', () => {
       ecc.nutationUnpatch();
 
       expect(ecc.withNutation).to.equal(false);
+    });
+  });
+
+  describe('#onGeocentric', () => {
+    it('The properties after onGeocentric should be changed.', () => {
+      let ec  = new EclipticCoordinate({
+        l: 149.48194,
+        b: 1.76549,
+        centerMode: 'heliocentric',
+      });
+
+      ec.onGeocentric();
+
+      expect(ec.centerMode).to.equal('geocentric');
+      expect(ec.l.getDegrees()).not.to.equal(149.48194);
+      expect(ec.b.getDegrees()).not.to.equal(1.76549);
+    });
+  });
+
+  describe('#onHeliocentric', () => {
+    it('The properties after onHeliocentric should be changed.', () => {
+      let ec  = new EclipticCoordinate({
+        l: 149.48194,
+        b: 1.76549,
+        centerMode: 'geocentric',
+      });
+
+      ec.onHeliocentric();
+
+      expect(ec.centerMode).to.equal('heliocentric');
+      expect(ec.l.getDegrees()).not.to.equal(149.48194);
+      expect(ec.b.getDegrees()).not.to.equal(1.76549);
     });
   });
 

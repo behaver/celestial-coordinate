@@ -100,6 +100,7 @@ let gc_obj = ecc.toGalactic();
 
 * options.epoch 坐标历元
 * options.withNutation 是否修正了章动
+* options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 * options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
 * options.nutationModel 章动计算模型，接受：iau2000b、lp
 
@@ -111,6 +112,7 @@ let gc_obj = ecc.toGalactic();
 
 * options.epoch 坐标历元
 * options.withNutation 坐标是否修复章动
+* options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 
 `position(options)`
 
@@ -134,12 +136,14 @@ let gc_obj = ecc.toGalactic();
 
 * options.epoch 坐标历元
 * options.withNutation 坐标是否修复章动
+* options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 
 返回结果对象的属性：
 
 * sc 球坐标
 * epoch 坐标历元
 * withNutation 是否修正了章动
+* centerMode 中心模式
 * precessionModel 岁差计算模型
 * nutationModel 章动计算模型
 
@@ -195,6 +199,14 @@ let gc_obj = ecc.toGalactic();
 
 解除章动修正
 
+`onGeocentric()`
+
+转换为地心坐标
+
+`onHeliocentric()`
+
+转换为日心坐标
+
 `get sc()`
 
 获取 天球球坐标
@@ -218,6 +230,10 @@ let gc_obj = ecc.toGalactic();
 `get withNutation()`
 
 获取 章动修正状态
+
+`get centerMode()`
+
+获取 中心点模式
 
 `get precessionModel()`
 

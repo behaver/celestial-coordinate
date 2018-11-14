@@ -4,6 +4,7 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const { PrecessionIAU2006, PrecessionIAU2000, PrecessionIAU1976 } = require('@behaver/precession');
 const { NutationIAU2000B, NutationLP } = require('@behaver/nutation');
 const { JDateRepository } = require('@behaver/jdate');
+const { EarthHECC } = require('@behaver/solar-planets-hecc');
 const SiderealTime = require('@behaver/sidereal-time');
 const Angle = require('@behaver/angle');
 const EquinoctialCoordinate = require('./EquinoctialCoordinate');
@@ -30,6 +31,7 @@ class EclipticCoordinate {
    * @param  {Number}                options.b               黄纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch           坐标历元
+   * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
    * @param  {Boolean}               options.withNutation    坐标是否修正了章动
    * @param  {String}                options.precessionModel 岁差计算模型
    *                                                         包含：iau2006、iau2000、iau1976
@@ -48,6 +50,7 @@ class EclipticCoordinate {
    * @param  {Number}                options.b               黄纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch           坐标历元
+   * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
    * @param  {Boolean}               options.withNutation    坐标是否修正了章动
    * @param  {String}                options.precessionModel 岁差计算模型
    *                                                         包含：iau2006、iau2000、iau1976
@@ -61,6 +64,7 @@ class EclipticCoordinate {
     b,
     radius,
     epoch, 
+    centerMode,
     withNutation, 
     precessionModel, 
     nutationModel, 
@@ -69,6 +73,9 @@ class EclipticCoordinate {
     if (epoch === undefined) epoch = new JDateRepository(0, 'j2000');
     else if (!(epoch instanceof JDateRepository)) throw Error('The param epoch should be a instance of JDateRepository');
     
+    if (centerMode === undefined) centerMode = 'geocentric';
+    else if (centerMode !== 'geocentric' && centerMode !== 'heliocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
+
     if (withNutation === undefined) withNutation = false;
     
     if (precessionModel === undefined) precessionModel = 'IAU2006';
@@ -108,6 +115,7 @@ class EclipticCoordinate {
 
     this.private = { 
       epoch, 
+      centerMode,
       withNutation, 
       precessionModel, 
       nutationModel,
@@ -120,6 +128,8 @@ class EclipticCoordinate {
       radius,
     });
 
+    this.earthHECC = new EarthHECC(this.private.epoch);
+
     return this;
   }
 
@@ -127,23 +137,32 @@ class EclipticCoordinate {
    * 转换当前坐标的系统参数
    * 
    * @param  {JDateRepository}       options.epoch        坐标历元
+   * @param  {String}                options.centerMode   中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
    * @param  {Boolean}               options.withNutation 坐标是否修复章动
    * @return {EclipticCoordinate}                         返回 this 引用
    */
   on({
     epoch, 
+    centerMode,
     withNutation, 
   }) {
     // 参数预处理
     if (epoch === undefined) epoch = this.private.epoch;
+
     if (withNutation === undefined) withNutation = this.withNutation;
     withNutation = !!withNutation;
+
+    if (centerMode === undefined) centerMode = this.private.centerMode;
+
+    this.onGeocentric();
 
     this.onEpoch(epoch);
 
     if (withNutation) { // 尝试修正章动
       this.nutationPatch();
     }
+
+    if (centerMode === 'heliocentric') this.onHeliocentric();
 
     return this;
   }
@@ -201,35 +220,41 @@ class EclipticCoordinate {
       return {
         sc: this.sc,
         epoch: this.epoch,
+        centerMode: this.centerMode,
         withNutation: this.withNutation,
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
       }
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
-      let sc_0 = this.sc;
-      let epoch_0 = this.epoch;
-      let withNutation_0 = this.withNutation;
+      let sc_0 = this.sc,
+          epoch_0 = this.epoch,
+          withNutation_0 = this.withNutation,
+          centerMode_0 = this.centerMode;
 
       this.on(options);
 
       // 记录新坐标和条件
-      let sc = this.sc;
-      let epoch = this.epoch;
-      let withNutation = this.withNutation;
+      let sc = this.sc,
+          epoch = this.epoch,
+          withNutation = this.withNutation,
+          centerMode = this.centerMode;
 
       // 还原为初始坐标和条件
       this.private.sc = sc_0;
       this.private.epoch = epoch_0;
       this.private.withNutation = withNutation_0;
+      this.private.centerMode = centerMode_0;
 
       this.nutation.on(epoch_0);
       this.precession.on(epoch_0);
+      this.earthHECC.obTime = epoch_0;
 
       return { 
         sc, 
         epoch,
         withNutation,
+        centerMode,
         precessionModel: this.precessionModel, 
         nutationModel: this.nutationModel,
       };
@@ -300,7 +325,9 @@ class EclipticCoordinate {
    * @return {Object} 赤道坐标对象
    */
   toEquinoctial() {
-    let sc = this.sc;
+    let sc = this.get({
+      centerMode: 'geocentric',
+    }).sc;
 
     let e0 = angle.setSeconds(this.precession.epsilon).getRadian();
 
@@ -338,11 +365,11 @@ class EclipticCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   onJ2000() {
-    let zeta = angle.setSeconds(this.precession.zeta).getRadian();
-    let theta = angle.setSeconds(this.precession.theta).getRadian();
-    let z = angle.setSeconds(this.precession.z).getRadian();
-    let e = angle.setSeconds(this.precession.epsilon).getRadian();
-    let e0 = angle.setSeconds(this.precession.epsilon0).getRadian();
+    let zeta = angle.setSeconds(this.precession.zeta).getRadian(),
+        theta = angle.setSeconds(this.precession.theta).getRadian(),
+        z = angle.setSeconds(this.precession.z).getRadian(),
+        e = angle.setSeconds(this.precession.epsilon).getRadian(),
+        e0 = angle.setSeconds(this.precession.epsilon0).getRadian();
 
     if (this.withNutation) { // 逆向章动处理，转换至平坐标
       this.nutationUnpatch();
@@ -356,9 +383,11 @@ class EclipticCoordinate {
       .rotateX(-e0);
 
     let epoch = new JDateRepository(2000, 'jepoch');
+
     this.private.epoch = epoch;
     this.precession.on(epoch);
     this.nutation.on(epoch);
+
     return this;
   }
 
@@ -411,12 +440,9 @@ class EclipticCoordinate {
   nutationPatch() {
     if (this.withNutation) return this;
 
-    let delta_e = angle.setMilliseconds(this.nutation.obliquity).getRadian();
     let delta_psi = angle.setMilliseconds(this.nutation.longitude).getRadian();
 
-    this.private.sc
-      .rotateZ(delta_psi)
-      .rotateX(delta_e);
+    this.private.sc.rotateZ(delta_psi);
 
     this.private.withNutation = true;
 
@@ -431,14 +457,59 @@ class EclipticCoordinate {
   nutationUnpatch() {
     if (!this.withNutation) return this;
 
-    let delta_e = angle.setMilliseconds(this.nutation.obliquity).getRadian();
     let delta_psi = angle.setMilliseconds(this.nutation.longitude).getRadian();
 
-    this.private.sc
-      .rotateX(-delta_e)
-      .rotateZ(-delta_psi)
+    this.private.sc.rotateZ(-delta_psi);
 
     this.private.withNutation = false;
+
+    return this;
+  }
+
+  /**
+   * 转换坐标至地心坐标
+   * 
+   * @return {EclipticCoordinate} 返回 this 引用
+   */
+  onGeocentric() {
+    if (this.private.centerMode === 'heliocentric') {
+      let earth_hecc_sc = this.earthHECC.sc;
+
+      if (this.private.withNutation) {
+        let delta_psi = angle.setMilliseconds(this.nutation.longitude).getRadian();
+
+        earth_hecc_sc.rotateZ(-delta_psi);
+      }
+
+      let earth_hecc_rc = earth_hecc_sc.toRC();
+
+      this.private.sc.translate(-earth_hecc_rc.x, -earth_hecc_rc.y, -earth_hecc_rc.z);
+      this.private.centerMode = 'geocentric';
+    }
+
+    return this;
+  }
+
+  /**
+   * 转换坐标至日心坐标
+   * 
+   * @return {EclipticCoordinate} 返回 this 引用
+   */
+  onHeliocentric() {
+    if (this.private.centerMode === 'geocentric') {
+      let earth_hecc_sc = this.earthHECC.sc;
+
+      if (this.private.withNutation) {
+        let delta_psi = angle.setMilliseconds(this.nutation.longitude).getRadian();
+
+        earth_hecc_sc.rotateZ(-delta_psi);
+      }
+
+      let earth_hecc_rc = earth_hecc_sc.toRC();
+
+      this.private.sc.translate(earth_hecc_rc.x, earth_hecc_rc.y, earth_hecc_rc.z);
+      this.private.centerMode = 'heliocentric';
+    }
 
     return this;
   }
@@ -496,6 +567,15 @@ class EclipticCoordinate {
    */
   get withNutation() {
     return this.private.withNutation;
+  }
+
+  /**
+   * 获取 中心点模式
+   * 
+   * @return {String} 中心点模式
+   */
+  get centerMode() {
+    return this.private.centerMode;
   }
 
   /**

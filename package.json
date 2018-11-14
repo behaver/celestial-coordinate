@@ -35,6 +35,7 @@
     "@behaver/jdate": "^2.1.0",
     "@behaver/nutation": "^1.0.0",
     "@behaver/precession": "^1.1.0",
-    "@behaver/sidereal-time": "^1.0.1"
+    "@behaver/sidereal-time": "^1.0.1",
+    "@behaver/solar-planets-hecc": "^1.0.1"
   }
 }

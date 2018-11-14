@@ -32,6 +32,8 @@ class HorizontalCoordinate {
    * @param  {Number}                options.z               天顶角，单位：度，值域：[0, 180]
    * @param  {Number}                options.a               方位角，单位：度，值域：[0, 360)
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
+   * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
+   * @param  {Boolean}               options.withAR          是否已经过大气折射
    * @param  {String}                options.precessionModel 岁差计算模型
    *                                                         包含：iau2006、iau2000、iau1976
    * @param  {String}                options.nutationModel   章动计算模型
@@ -53,6 +55,8 @@ class HorizontalCoordinate {
    * @param  {Number}                options.z               天顶角，单位：度，值域：[0, 180]
    * @param  {Number}                options.a               方位角，单位：度，值域：[0, 360)
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
+   * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
+   * @param  {Boolean}               options.withAR          是否已经过大气折射
    * @param  {String}                options.precessionModel 岁差计算模型
    *                                                         包含：iau2006、iau2000、iau1976
    * @param  {String}                options.nutationModel   章动计算模型
@@ -144,6 +148,8 @@ class HorizontalCoordinate {
    * @param  {Number}                options.obGeoLong   观测点地理经度
    * @param  {Number}                options.obGeoLat    观测点地理纬度
    * @param  {Number}                options.obElevation 观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
+   * @param  {String}                options.centerMode  中心模式：geocentric（地心坐标）、topocentric（站心坐标）
+   * @param  {Boolean}               options.withAR      是否已经过大气折射
    * 
    * @return {EquinoctialCoordinate}                     返回 this 引用
    */

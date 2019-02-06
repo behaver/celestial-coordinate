@@ -40,8 +40,6 @@ let cc = CelestialCoordinate.equatorial({
   dec: 54.321,
   radius: 1.234,
   withNutation: true,
-  precessionModel: 'iau2006',
-  nutationModel: 'iau2000b',
 }, {
   time: new JDateRepository(2462088.69, 'jde'),
   geoLong: 120.3456,

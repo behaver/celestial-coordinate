@@ -155,8 +155,6 @@ hc.onGeocentric();
 
 * options.centerMode 中心模式，接受：geocentric(地心坐标)、topocentric(站心坐标)
 * options.withAR 是否包含大气折射影响
-* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -205,8 +203,6 @@ hc.onGeocentric();
 * obElevation 观测点海拔高度，单位：米
 * centerMode 中心模式
 * withAR 是否包含大气折射影响
-* precessionModel 岁差计算模型
-* nutationModel 章动计算模型
 
 `onTopocentric()`
 
@@ -273,9 +269,17 @@ hc.onGeocentric();
 
 获取 是否考虑大气折射影响 设定
 
+`set withAR(value)`
+
+设置 是否考虑大气折射影响 设定
+
 `get centerMode()`
 
 获取 中心模式 设定
+
+`set centerMode(value)`
+
+设置 中心模式 设定
 
 `get sc()`
 
@@ -296,14 +300,6 @@ hc.onGeocentric();
 `get radius()`
 
 获取 距离
-
-`get precessionModel()`
-
-获取 岁差模型名称
-
-`get nutationModel()`
-
-获取 章动模型名称
 
 ## 许可证书
 

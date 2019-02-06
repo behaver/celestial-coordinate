@@ -27,10 +27,6 @@ class HourAngleCoordinate {
    * @param  {Number}                options.t               时角，单位：度，值域：[0, 360)
    * @param  {Number}                options.dec             赤纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
-   * @param  {String}                options.precessionModel 岁差计算模型
-   *                                                         包含：iau2006、iau2000、iau1976
-   * @param  {String}                options.nutationModel   章动计算模型
-   *                                                         包含：iau2000b、lp
    */
   constructor(options) {
     this.from(options);
@@ -45,10 +41,7 @@ class HourAngleCoordinate {
    * @param  {Number}                options.t               时角，单位：度，值域：[0, 360)
    * @param  {Number}                options.dec             赤纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
-   * @param  {String}                options.precessionModel 岁差计算模型
-   *                                                         包含：iau2006、iau2000、iau1976
-   * @param  {String}                options.nutationModel   章动计算模型
-   *                                                         包含：iau2000b、lp
+   * 
    * @return {EquinoctialCoordinate}                         返回 this 引用
    */
   from({
@@ -58,8 +51,6 @@ class HourAngleCoordinate {
     t,
     dec,
     radius,
-    precessionModel, 
-    nutationModel, 
   }) {
 
     if (!(obTime instanceof JDateRepository)) throw Error('The param obTime should be a JDateRepository.');
@@ -67,33 +58,11 @@ class HourAngleCoordinate {
     if (typeof(obGeoLong) !== 'number') throw Error('The param obGeoLong should be a Number.');
     else if (obGeoLong < -180 || obGeoLong > 180) throw Error('The param obGeoLong should be in [-180, 180]');
 
-    if (precessionModel === undefined) precessionModel = 'IAU2006';
-    else if (typeof(precessionModel) !== 'string') throw Error('The param precessionModel should be a String.');
-    else {
-      precessionModel = precessionModel.toUpperCase();
-      if (precessionModel !== 'IAU2006'
-        && precessionModel !== 'IAU2000'
-        && precessionModel !== 'IAU1976') throw Error('The param precessionModel should be in ["IAU2006", "IAU2000", "IAU1976"].');
-    }
-
-    if (nutationModel === undefined) nutationModel = 'IAU2000B';
-    else if (typeof(nutationModel) !== 'string') throw Error('The param nutationModel should be a String.');
-    else {
-      nutationModel = nutationModel.toUpperCase() 
-      if (nutationModel !== 'IAU2000B' 
-        && nutationModel !== 'LP') throw Error('The param nutationModel should be in ["IAU2000B", "LP"].');
-    }
-
-    this.siderealTime = new SiderealTime(obTime, obGeoLong, { 
-      precessionModel: precessionModel, 
-      nutationModel: nutationModel,
-    });
+    this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
     this.private = {
       obTime,
       obGeoLong,
-      precessionModel,
-      nutationModel,
     };
 
     this.position({
@@ -143,18 +112,15 @@ class HourAngleCoordinate {
       // 将时角球坐标转换至瞬时赤道球坐标
       this.private.sc
         .inverse('y')
-        .rotateZ(angle.setSeconds(this.siderealTime.trueVal).getRadian());
+        .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
 
       // 更新恒星时对象、观测经度、观测纬度
-      this.siderealTime = new SiderealTime(obTime, obGeoLong, { 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
-      });
+      this.SiderealTime = new SiderealTime(obTime, obGeoLong);
       this.private.obGeoLong = obGeoLong;
 
       // 将瞬时赤道坐标转换至时角球坐标
       this.private.sc
-        .rotateZ(- angle.setSeconds(this.siderealTime.trueVal).getRadian())
+        .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
         .inverse('y');
     }
 
@@ -214,8 +180,6 @@ class HourAngleCoordinate {
         sc: this.sc, 
         obTime: this.obTime, 
         obGeoLong: this.obGeoLong, 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       };
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
@@ -235,17 +199,12 @@ class HourAngleCoordinate {
       this.private.obTime = obTime_0;
       this.private.obGeoLong = obGeoLong_0.getDegrees();
 
-      this.siderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees(), { 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
-      });
+      this.SiderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees());
 
       return {
         sc, 
         obTime, 
         obGeoLong, 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       }
     }
   }
@@ -256,6 +215,7 @@ class HourAngleCoordinate {
    * @param  {String} system  目标天球坐标系统
    *                          可选值：horizontal、equinoctial、ecliptic、galactic
    * @param  {Object} options 目标天球坐标条件设定对象
+   * 
    * @return {Object}         目标天球坐标
    */
   to(system, options) {
@@ -264,10 +224,13 @@ class HourAngleCoordinate {
     switch(system.toLowerCase()) {
       case 'horizontal':
         return this.toHorizontal(options);
+
       case 'equinoctial':
         return this.toEquinoctial(options);
+
       case 'ecliptic':
         return this.toEcliptic(options);
+
       case 'galactic':
         return this.toGalactic(options);
 
@@ -278,12 +241,19 @@ class HourAngleCoordinate {
 
   /**
    * 转换至 地平坐标
+   *
+   * @param  {Number} options.obGeoLat    观测点地理纬度
+   *                                      单位：度，值域：[-90, 90]
+   * @param  {Number} options.obElevation 观测点海拔高度
    * 
-   * @return {Object} 地平坐标对象
+   * @return {Object}                     地平坐标对象
    */
-  toHorizontal({ obGeoLat }) {
+  toHorizontal({ obGeoLat, obElevation }) {
     if (typeof(obGeoLat) !== 'number') throw Error('The param obGeoLat should be a Number');
     else if (obGeoLat < -90 || obGeoLat > 90) throw Error('The param obGeoLat should be in [-90, 90]');
+
+    if (obElevation === undefined) obElevation = 0;
+    else if (typeof(obElevation) !== 'number') throw Error('The param obElevation should be a Number.');
 
     let sc = this.sc;
 
@@ -294,8 +264,9 @@ class HourAngleCoordinate {
       obGeoLat,
       obTime: this.obTime, 
       obGeoLong: this.obGeoLong.getDegrees(),
-      precessionModel: this.precessionModel, 
-      nutationModel: this.nutationModel,
+      obElevation,
+      withAR: false,
+      centerMode: 'geocentric',
     }
   }
 
@@ -308,14 +279,15 @@ class HourAngleCoordinate {
     let sc = this.sc;
 
     sc.inverse('y')
-      .rotateZ(angle.setSeconds(this.siderealTime.trueVal).getRadian());
+      .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
 
     return {
       sc,
       epoch: this.obTime,
       withNutation: true,
-      precessionModel: this.precessionModel, 
-      nutationModel: this.nutationModel,
+      withAnnualAberration: true,
+      withGravitationalDeflection: true,
+      onFK5: false,
     }
   }
 
@@ -392,24 +364,6 @@ class HourAngleCoordinate {
    */
   get radius() {
     return this.sc.r;
-  }
-
-  /**
-   * 获取 岁差模型名称
-   * 
-   * @return {String} 岁差模型名称
-   */
-  get precessionModel() {
-    return this.private.precessionModel;
-  }
-
-  /**
-   * 获取 章动模型名称
-   * 
-   * @return {String} 章动模型名称
-   */
-  get nutationModel() {
-    return this.private.nutationModel;
   }
 }
 

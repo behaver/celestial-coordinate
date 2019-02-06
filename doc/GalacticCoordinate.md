@@ -95,8 +95,6 @@ let ecc_obj = gc.toEcliptic();
 其他参数：
 
 * options.epoch 坐标历元
-* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -132,8 +130,6 @@ let ecc_obj = gc.toEcliptic();
 
 * sc 球坐标
 * epoch 坐标历元
-* precessionModel 岁差计算模型
-* nutationModel 章动计算模型
 
 `to(system, options)`
 
@@ -152,7 +148,8 @@ let ecc_obj = gc.toEcliptic();
 
 * options.obTime 观测时间
 * options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度
 
 `toHourAngle(options)`
 
@@ -195,13 +192,9 @@ let ecc_obj = gc.toEcliptic();
 
 获取 历元对象
 
-`get precessionModel()`
+`set epoch(value)`
 
-获取 岁差模型名称
-
-`get nutationModel()`
-
-获取 章动模型名称
+设置 历元对象
 
 ## 许可证书
 

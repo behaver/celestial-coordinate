@@ -104,11 +104,6 @@ let gc_obj = hac.toGalactic();
 * options.dec 赤纬，单位：度，值域：[-90, 90]
 * options.radius 坐标距离半径，值域：[10e-8, +∞)
 
-其他参数：
-
-* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-* options.nutationModel 章动计算模型，接受：iau2000b、lp
-
 `on(options)`
 
 转换当前坐标所基于的系统参数
@@ -146,8 +141,6 @@ let gc_obj = hac.toGalactic();
 * sc 球坐标
 * obTime 观测历元
 * obGeoLong 观测点地理经度
-* precessionModel 岁差计算模型
-* nutationModel 章动计算模型
 
 `to(system, options)`
 
@@ -164,7 +157,8 @@ let gc_obj = hac.toGalactic();
 
 系统参数：
 
-* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度
 
 `toEquinoctial()`
 
@@ -201,14 +195,6 @@ let gc_obj = hac.toGalactic();
 `get radius()`
 
 获取 距离
-
-`get precessionModel()`
-
-获取 岁差模型名称
-
-`get nutationModel()`
-
-获取 章动模型名称
 
 ## 许可证书
 

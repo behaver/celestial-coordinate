@@ -101,8 +101,6 @@ let gc_obj = ecc.toGalactic();
 * options.epoch 坐标历元
 * options.withNutation 是否修正了章动
 * options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
-* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-* options.nutationModel 章动计算模型，接受：iau2000b、lp
 
 `on(options)`
 
@@ -144,8 +142,6 @@ let gc_obj = ecc.toGalactic();
 * epoch 坐标历元
 * withNutation 是否修正了章动
 * centerMode 中心模式
-* precessionModel 岁差计算模型
-* nutationModel 章动计算模型
 
 `to(system, options)`
 
@@ -164,7 +160,8 @@ let gc_obj = ecc.toGalactic();
 
 * options.obTime 观测时间
 * options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度
 
 `toHourAngle(options)`
 
@@ -191,14 +188,6 @@ let gc_obj = ecc.toGalactic();
 
 转换坐标至 目标历元
 
-`nutationPatch()`
-
-修正章动
-
-`nutationUnpatch()`
-
-解除章动修正
-
 `onGeocentric()`
 
 转换为地心坐标
@@ -206,6 +195,38 @@ let gc_obj = ecc.toGalactic();
 `onHeliocentric()`
 
 转换为日心坐标
+
+`patchNutation()`
+
+修正章动
+
+`unpatchNutation()`
+
+解除章动修正
+
+`patchAnnualAberration()`
+
+修正周年光行差
+
+`unpatchAnnualAberration()`
+
+解除周年光行差修正
+
+`patchGravitationalDeflection()`
+
+修正引力偏转
+
+`unpatchGravitationalDeflection()`
+
+解除引力偏转修正
+
+`patchFK5()`
+
+修正至 FK5 系统
+
+`unpatchFK5()`
+
+解除 FK5 修正
 
 `get sc()`
 
@@ -227,21 +248,61 @@ let gc_obj = ecc.toGalactic();
 
 获取 历元对象
 
+`set epoch(value)`
+
+设置 历元对象
+
+`get centerMode()`
+
+获取 中心点模式字串
+
+`set centerMode(value)`
+
+设置 中心点模式字串
+
 `get withNutation()`
 
 获取 章动修正状态
 
-`get centerMode()`
+`set withNutation(value)`
 
-获取 中心点模式
+设置 章动修正状态
 
-`get precessionModel()`
+`get withAnnualAberration()`
 
-获取 岁差模型名称
+获取 周年光行差修正状态
 
-`get nutationModel()`
+`set withAnnualAberration(value)`
 
-获取 章动模型名称
+设置 周年光行差修正状态
+
+`get withGravitationalDeflection()`
+
+获取 引力偏转修正状态
+
+`set withGravitationalDeflection(value)`
+
+设置 引力偏转修正状态
+
+`get onFK5()`
+
+获取 FK5 修正状态
+
+`set onFK5(value)`
+
+设置 FK5 修正状态
+
+`get AACorrection()`
+
+获取 周年光行差修正值
+
+`get GDCorrection()`
+
+获取 太阳引力偏转修正值
+
+`get FK5Correction()`
+
+获取 FK5 偏转修正值
 
 ## 许可证书
 

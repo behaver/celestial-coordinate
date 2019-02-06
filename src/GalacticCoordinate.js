@@ -39,8 +39,6 @@ class GalacticCoordinate {
    * @param  {Number}                options.b               银纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch           坐标历元
-   * @param  {String}                options.precessionModel 坐标是否修正了章动
-   * @param  {String}                options.nutationModel   岁差计算模型
    */
   constructor(options) {
     this.from(options);
@@ -54,8 +52,7 @@ class GalacticCoordinate {
    * @param  {Number}                options.b               银纬，单位：度，值域：[-90, 90]
    * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch           坐标历元
-   * @param  {String}                options.precessionModel 坐标是否修正了章动
-   * @param  {String}                options.nutationModel   岁差计算模型
+   * 
    * @return {GalacticCoordinate}                            返回 this 引用
    */
   from({
@@ -64,28 +61,9 @@ class GalacticCoordinate {
     b,
     radius,
     epoch,
-    precessionModel, 
-    nutationModel, 
   }) {
     if (epoch === undefined) epoch = new JDateRepository(0, 'j2000');
     else if (!(epoch instanceof JDateRepository)) throw Error('The param epoch should be a instance of JDateRepository');
-
-    if (precessionModel === undefined) precessionModel = 'IAU2006';
-    else if (typeof(precessionModel) !== 'string') throw Error('The param precessionModel should be a String.');
-    else {
-      precessionModel = precessionModel.toUpperCase();
-      if (precessionModel !== 'IAU2006'
-        && precessionModel !== 'IAU2000'
-        && precessionModel !== 'IAU1976') throw Error('The param precessionModel should be in ["IAU2006", "IAU2000", "IAU1976"].');
-    }
-
-    if (nutationModel === undefined) nutationModel = 'IAU2000B';
-    else if (typeof(nutationModel) !== 'string') throw Error('The param nutationModel should be a String.');
-    else {
-      nutationModel = nutationModel.toUpperCase() 
-      if (nutationModel !== 'IAU2000B' 
-        && nutationModel !== 'LP') throw Error('The param nutationModel should be in ["IAU2000B", "LP"].');
-    }
 
     // 北银极点赤道坐标
     this.npseqc = new EquinoctialCoordinate({
@@ -105,8 +83,6 @@ class GalacticCoordinate {
     
     this.private = {
       epoch,
-      precessionModel,
-      nutationModel,
     };
 
     this.position({
@@ -233,8 +209,6 @@ class GalacticCoordinate {
       return {
         sc: this.sc,
         epoch: this.epoch,
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       }
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
@@ -257,8 +231,6 @@ class GalacticCoordinate {
       return { 
         sc, 
         epoch,
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       };
     }
   }
@@ -277,10 +249,13 @@ class GalacticCoordinate {
     switch(system.toLowerCase()) {
       case 'horizontal':
         return this.toHorizontal(options);
+
       case 'hourangle':
         return this.toHourAngle(options);
+
       case 'equinoctial':
         return this.toEquinoctial(options);
+
       case 'ecliptic':
         return this.toEcliptic(options);
 
@@ -294,16 +269,18 @@ class GalacticCoordinate {
    *
    * 地平坐标为观测坐标，即瞬时天球坐标。
    * 
-   * @param  {JDateRepository}      options.obTime    观测时间
-   * @param  {Number}               options.obGeoLong 观测点地理经度
-   *                                                  单位：度，值域：[-180, 180]
-   * @param  {Number}               options.obGeoLat  观测点地理纬度
-   *                                                  单位：度，值域：[-90, 90]
-   * @return {Object}                                 地平坐标对象
+   * @param  {JDateRepository}      options.obTime      观测时间
+   * @param  {Number}               options.obGeoLong   观测点地理经度
+   *                                                    单位：度，值域：[-180, 180]
+   * @param  {Number}               options.obGeoLat    观测点地理纬度
+   *                                                    单位：度，值域：[-90, 90]
+   * @param  {Number}               options.obElevation 观测点海拔高度
+   * 
+   * @return {Object}                                   地平坐标对象
    */
-  toHorizontal({ obTime, obGeoLong, obGeoLat }) {
+  toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation }) {
     let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toHorizontal({ obTime, obGeoLong, obGeoLat });
+    return eqc.toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation });
   }
 
   /**
@@ -354,8 +331,9 @@ class GalacticCoordinate {
       sc,
       epoch: this.epoch,
       withNutation: false,
-      precessionModel: this.precessionModel, 
-      nutationModel: this.nutationModel,
+      withAnnualAberration: false,
+      withGravitationalDeflection: false,
+      onFK5: true,
     }
   }
 
@@ -416,21 +394,12 @@ class GalacticCoordinate {
   }
 
   /**
-   * 获取 岁差模型名称
+   * 设置 历元对象
    * 
-   * @return {String} 岁差模型名称
+   * @param  {JDateRepository} value 目标历元对象
    */
-  get precessionModel() {
-    return this.private.precessionModel;
-  }
-
-  /**
-   * 获取 章动模型名称
-   * 
-   * @return {String} 章动模型名称
-   */
-  get nutationModel() {
-    return this.private.nutationModel;
+  set epoch(value) {
+    this.onEpoch(value);
   }
 }
 

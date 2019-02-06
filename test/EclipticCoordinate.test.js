@@ -129,59 +129,21 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     })
 
-    it('The param precessionModel should be iau2006, iau2000 or iau1976.', () => {
+    it('The param centerMode should be geocentric or heliocentric.', () => {
       expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          precessionModel: 'iau',
+        let ec = new EclipticCoordinate({
+          l: 123.2332,
+          centerMode: 'heliocentric',
+        });
+      }).not.to.throw();
+
+      expect(() => {
+        let ec = new EclipticCoordinate({
+          l: 123.2332,
+          centerMode: 'abc',
         });
       }).to.throw();
-
-      expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          precessionModel: 2006,
-        })
-      }).to.throw();
-
-      expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          precessionModel: 'iau2006',
-        })
-        new EclipticCoordinate({
-          l: 122.3223,
-          precessionModel: 'IAU2006',
-        })
-      }).not.to.throw();
-    })
-
-    it('The param nutationModel should be iau2000b, lp.', () => {
-      expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          nutationModel: 'iau',
-        })
-      }).to.throw();
-
-      expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          nutationModel: 2006,
-        })
-      }).to.throw();
-
-      expect(() => {
-        new EclipticCoordinate({
-          l: 122.3223,
-          nutationModel: 'iau2000b',
-        })
-        new EclipticCoordinate({
-          l: 122.3223,
-          nutationModel: 'lp',
-        })
-      }).not.to.throw();
-    })
+    });
   });
 
   describe('#on', () => {
@@ -206,6 +168,20 @@ describe('#EclipticCoordinate', () => {
         ec.on({
           epoch: new JDateRepository(1643074.5, 'jde'),
           centerMode: 'heliocentric',
+        });
+      }).not.to.throw();
+    })
+
+    it('When absent coordinate terms, run normally.', () => {
+      let ec  = new EclipticCoordinate({
+        l: 122.3223,
+      });
+
+      expect(() => {
+        ec.on({
+          onFK5: true,
+          withGravitationalDeflection: true,
+          withAnnualAberration: true,
         });
       }).not.to.throw();
     })
@@ -434,22 +410,6 @@ describe('#EclipticCoordinate', () => {
 
       expect(ec.l.getDegrees()).to.equal(112.2323);
     });
-
-    it('The param centerMode should be geocentric or heliocentric.', () => {
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332,
-          centerMode: 'heliocentric',
-        });
-      }).not.to.throw();
-
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332,
-          centerMode: 'abc',
-        });
-      }).to.throw();
-    });
   });
 
   describe('#get', () => {
@@ -483,14 +443,24 @@ describe('#EclipticCoordinate', () => {
         l: 122.3223,
         epoch: new JDateRepository(2000.0, 'jepoch'),
         withNutation: false,
+        onFK5: false,
+        withAnnualAberration: true,
+        withGravitationalDeflection: true,
       });
 
       ec.get({
         epoch: new JDateRepository(new Date, 'date'),
         withNutation: true,
+        onFK5: true,
+        withAnnualAberration: false,
+        withGravitationalDeflection: false,
       });
+
       expect(ec.epoch.JEpoch).to.equal(2000);
       expect(ec.withNutation).to.equal(false);
+      expect(ec.onFK5).to.equal(false);
+      expect(ec.withAnnualAberration).to.equal(true);
+      expect(ec.withGravitationalDeflection).to.equal(true);
     });
 
     it('The return should be a right structure.', () => {
@@ -501,9 +471,19 @@ describe('#EclipticCoordinate', () => {
       let res = ec.get({
         epoch: new JDateRepository(new Date, 'date'),
         withNutation: true,
+        onFK5: true,
+        withAnnualAberration: true,
+        withGravitationalDeflection: true,
+        centerMode: 'heliocentric',
       });
 
-      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'centerMode', 'precessionModel', 'nutationModel');
+      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'centerMode', 'onFK5', 'withAnnualAberration', 'withGravitationalDeflection');
+    
+      expect(res.withNutation).to.equal(true);
+      expect(res.onFK5).to.equal(true);
+      expect(res.withAnnualAberration).to.equal(true);
+      expect(res.withGravitationalDeflection).to.equal(true);
+      expect(res.centerMode).to.equal('heliocentric');
     })
   });
 
@@ -600,7 +580,7 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     })
 
-    it('The param  should be a Number.', () => {
+    it('The param obGeoLat should be a Number.', () => {
       let ec = new EclipticCoordinate({
         l: 122.3223,
       });
@@ -614,7 +594,7 @@ describe('#EclipticCoordinate', () => {
       }).to.throw();
     })
 
-    it('The param  should be in [-90, 90].', () => {
+    it('The param obGeoLat should be in [-90, 90].', () => {
       let ec = new EclipticCoordinate({
         l: 122.3223,
       });
@@ -634,7 +614,31 @@ describe('#EclipticCoordinate', () => {
           obGeoLat: -90.1,
         })
       }).to.throw();
-    })
+    });
+
+    it('The param obElevation should be a Number.', () => {
+      let ec = new EclipticCoordinate({
+        l: 122.3223,
+      });
+
+      expect(() => {
+        let hc_obj = ec.toHorizontal({
+          obTime: new JDateRepository(new Date, 'date'),
+          obGeoLong: 123,
+          obGeoLat: 30.32,
+          obElevation: 1234,
+        });
+      }).not.to.throw();
+
+      expect(() => {
+        let hc_obj = ec.toHorizontal({
+          obTime: new JDateRepository(new Date, 'date'),
+          obGeoLong: 123,
+          obGeoLat: 30.32,
+          obElevation: '1234',
+        });
+      }).to.throw()
+    });
 
     it('The return should a right structure.', () => {
       let ec = new EclipticCoordinate({
@@ -647,7 +651,7 @@ describe('#EclipticCoordinate', () => {
         obGeoLat: 30.32,
       });
 
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'precessionModel', 'nutationModel');
+      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'withAR', 'centerMode');
     })
   });
 
@@ -715,7 +719,7 @@ describe('#EclipticCoordinate', () => {
         obGeoLong: 123,
       });
 
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'precessionModel', 'nutationModel');
+      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong');
     })
   });
 
@@ -727,7 +731,7 @@ describe('#EclipticCoordinate', () => {
 
       let eqc_obj = ec.toEquinoctial();
 
-      expect(eqc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'precessionModel', 'nutationModel');
+      expect(eqc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5');
     })
 
     it('Verify 天文算法 例12.a', () => {
@@ -750,7 +754,7 @@ describe('#EclipticCoordinate', () => {
 
       let gc_obj = ec.toGalactic();
 
-      expect(gc_obj).to.have.all.keys('sc', 'epoch', 'precessionModel', 'nutationModel');
+      expect(gc_obj).to.have.all.keys('sc', 'epoch');
     })
   })
 
@@ -806,27 +810,27 @@ describe('#EclipticCoordinate', () => {
     })
   });
 
-  describe('#nutationPatch', () => {
-    it('The property withNutation after nutationPatch should be true.', () => {
+  describe('#patchNutation', () => {
+    it('The property withNutation after patchNutation should be true.', () => {
       let ecc = new EclipticCoordinate({
         l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
         b: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      ecc.nutationPatch();
+      ecc.patchNutation();
 
       expect(ecc.withNutation).to.equal(true);
     });
   });
 
-  describe('#nutationUnpatch', () => {
-    it('The property withNutation after nutationUnpatch should be false.', () => {
+  describe('#unpatchNutation', () => {
+    it('The property withNutation after unpatchNutation should be false.', () => {
       let ecc = new EclipticCoordinate({
         l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
         b: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      ecc.nutationUnpatch();
+      ecc.unpatchNutation();
 
       expect(ecc.withNutation).to.equal(false);
     });
@@ -919,6 +923,40 @@ describe('#EclipticCoordinate', () => {
     });
   });
 
+  describe('#set epoch', () => {
+    it('Run normally, throw no error.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 123.45,
+        b: 34.567,
+        radius: 2.34,
+      });
+
+      expect(() => {
+        ecc.epoch = new JDateRepository(12, 'J2000');
+      }).not.to.throw();
+    });
+
+    it('After set epoch, the properties should be changed.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 123.34,
+        b: 22.34,
+        radius: 1.23,
+      });
+
+      let epoch0 = ecc.epoch,
+          phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      ecc.epoch = new JDateRepository(12, 'J2000');
+
+      expect(epoch0.JD).not.to.equal(ecc.epoch.JD);
+      expect(phi0).not.to.equal(ecc.sc.phi);
+      expect(theta0).not.to.equal(ecc.sc.theta);
+      // expect(r0).not.to.equal(ecc.sc.r);
+    });
+  });
+
   describe('#get withNutation', () => {
     it('The return should be a Boolean.', () => {
       let ecc = new EclipticCoordinate({
@@ -930,11 +968,400 @@ describe('#EclipticCoordinate', () => {
     });
   });
 
-  describe('#get precessionModel', () => {
+  describe('#set withNutation', () => {
+    it('Run normally, throw no error.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.22,
+        b: 56.2,
+        radius: 2.012,
+      });
 
+      expect(() => {
+        ecc.withNutation = true;
+        ecc.withNutation = false;
+      }).not.to.throw();
+    });
+
+    it('After set withNutation, the property sc should be changed.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 123.32,
+        b: 33.233,
+        radius: 1.4332,
+      });
+
+      let phi0 = ecc.sc.phi;
+
+      ecc.withNutation = true;
+
+      expect(ecc.sc.phi).not.to.equal(phi0);
+    });
   });
 
-  describe('#get nutationModel', () => {
+  describe('#set onFK5(value)', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+      expect(() => {
+        ecc.onFK5 = true;
+        ecc.onFK5 = false;
+      }).not.to.throw();
+    });
 
+    it('After setting onFK5, the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      ecc.onFK5 = true;
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+    });
+  });
+
+  describe('#get onFK5()', () => {
+    it('Get and set run normally.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(ecc.onFK5).to.equal(false);
+
+      ecc.onFK5 = 1;
+
+      expect(ecc.onFK5).to.equal(true);
+    });
+  });
+
+  describe('#set withGravitationalDeflection(value)', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(() => {
+        ecc.withGravitationalDeflection = true;
+        ecc.withGravitationalDeflection = false;
+      }).not.to.throw();
+    });
+
+    it('After setting withGravitationalDeflection, the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 2.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      ecc.withGravitationalDeflection = true;
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+    });
+  });
+
+  describe('#get withGravitationalDeflection()', () => {
+    it('Get and set run normally.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(ecc.withGravitationalDeflection).to.equal(false);
+
+      ecc.withGravitationalDeflection = 1;
+
+      expect(ecc.withGravitationalDeflection).to.equal(true);
+    });
+  });
+
+  describe('#set withAnnualAberration(value)', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(() => {
+        ecc.withAnnualAberration = true;
+        ecc.withAnnualAberration = false;
+      }).not.to.throw();
+    });
+
+    it('After setting withAnnualAberration, the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 2.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      ecc.withAnnualAberration = true;
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+    });
+  });
+
+  describe('#get withAnnualAberration()', () => {
+    it('Get and set run normally.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(ecc.withAnnualAberration).to.equal(false);
+
+      ecc.withAnnualAberration = 1;
+
+      expect(ecc.withAnnualAberration).to.equal(true);
+    });
+  });
+
+  describe('#patchFK5(), unpatchFK5()', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(() => {
+        ecc.patchFK5();
+      }).not.to.throw();
+
+      expect(() => {
+        ecc.unpatchFK5();
+      }).not.to.throw();
+    });
+
+    it('After patchFK5(), the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      expect(ecc.onFK5).to.equal(false);
+
+      ecc.patchFK5();
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+
+      expect(ecc.onFK5).to.equal(true);
+
+      ecc.unpatchFK5();
+
+      expect(ecc.onFK5).to.equal(false);
+
+      let phi2 = ecc.sc.phi,
+          theta2 = ecc.sc.theta,
+          r2 = ecc.sc.r;
+
+      expect(phi2).not.to.equal(phi1);
+      expect(theta2).not.to.equal(theta1);
+      expect(r2).to.equal(r1);
+
+      expect(phi2).to.equal(phi0);
+      expect(theta2).to.equal(theta0);
+    });
+  });
+
+  describe('#patchGravitationalDeflection(), unpatchGravitationalDeflection()', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(() => {
+        ecc.patchGravitationalDeflection();
+      }).not.to.throw();
+
+      expect(() => {
+        ecc.unpatchGravitationalDeflection();
+      }).not.to.throw();
+    });
+
+    it('After patchGravitationalDeflection(), the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      expect(ecc.withGravitationalDeflection).to.equal(false);
+
+      ecc.patchGravitationalDeflection();
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+
+      expect(ecc.withGravitationalDeflection).to.equal(true);
+
+      ecc.unpatchGravitationalDeflection();
+
+      expect(ecc.withGravitationalDeflection).to.equal(false);
+
+      let phi2 = ecc.sc.phi,
+          theta2 = ecc.sc.theta,
+          r2 = ecc.sc.r;
+
+      expect(phi2).not.to.equal(phi1);
+      expect(theta2).not.to.equal(theta1);
+      expect(r2).to.equal(r1);
+
+      expect(phi2).to.equal(phi0);
+      expect(theta2).to.equal(theta0);
+    });
+  });
+
+  describe('#patchAnnualAberration(), unpatchAnnualAberration()', () => {
+    it('Run normally, no error throw.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      expect(() => {
+        ecc.patchAnnualAberration();
+      }).not.to.throw();
+      
+      expect(() => {
+        ecc.unpatchAnnualAberration();
+      }).not.to.throw();
+    });
+
+    it('After patchAnnualAberration(), the property sc should be change.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+
+      let phi0 = ecc.sc.phi,
+          theta0 = ecc.sc.theta,
+          r0 = ecc.sc.r;
+
+      expect(ecc.withAnnualAberration).to.equal(false);
+
+      ecc.patchAnnualAberration();
+
+      let phi1 = ecc.sc.phi,
+          theta1 = ecc.sc.theta,
+          r1 = ecc.sc.r;
+
+      expect(phi0).not.to.equal(phi1);
+      expect(theta0).not.to.equal(theta1);
+      expect(r0).to.equal(r1);
+
+      expect(ecc.withAnnualAberration).to.equal(true);
+
+      ecc.unpatchAnnualAberration();
+
+      expect(ecc.withAnnualAberration).to.equal(false);
+
+      let phi2 = ecc.sc.phi,
+          theta2 = ecc.sc.theta,
+          r2 = ecc.sc.r;
+
+      expect(phi2).not.to.equal(phi1);
+      expect(theta2).not.to.equal(theta1);
+      expect(r2).to.equal(r1);
+
+      expect(phi2).to.equal(phi0);
+      expect(theta2).to.equal(theta0);
+    });
+  });
+
+  describe('#get FK5Correction', () => {
+    it('The return should be a object.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+      expect(ecc.FK5Correction).to.have.all.keys('a', 'b');
+    });
+  });
+
+  describe('#get GDCorrection', () => {
+    it('The return should be a object.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+      expect(ecc.GDCorrection).to.have.all.keys('a', 'b');
+    });
+  });
+
+  describe('#get AACorrection', () => {
+    it('The return should be a object.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+      expect(ecc.AACorrection).to.have.all.keys('a', 'b');
+    });
   });
 });

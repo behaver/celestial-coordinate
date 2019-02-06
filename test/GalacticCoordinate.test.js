@@ -128,73 +128,25 @@ describe('#GalacticCoordinate', () => {
         });
       }).not.to.throw();
     })
-
-    it('The param precessionModel should be iau2006, iau2000 or iau1976.', () => {
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          precessionModel: 'iau',
-        });
-      }).to.throw();
-
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          precessionModel: 2006,
-        })
-      }).to.throw();
-
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          precessionModel: 'iau2006',
-        })
-        new GalacticCoordinate({
-          l: 122.3223,
-          precessionModel: 'IAU2006',
-        })
-      }).not.to.throw();
-    })
-
-    it('The param nutationModel should be iau2000b, lp.', () => {
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          nutationModel: 'iau',
-        })
-      }).to.throw();
-
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          nutationModel: 2006,
-        })
-      }).to.throw();
-
-      expect(() => {
-        new GalacticCoordinate({
-          l: 122.3223,
-          nutationModel: 'iau2000b',
-        })
-        new GalacticCoordinate({
-          l: 122.3223,
-          nutationModel: 'lp',
-        })
-      }).not.to.throw();
-    })
   });
 
   describe('#on', () => {
     it('The param epoch should be a JDateRepository', () => {
-      expect(() => {
-        let gc  = new GalacticCoordinate({
-          ra: 122.3223,
-        });
+      let gc  = new GalacticCoordinate({
+        l: 122.3223,
+      });
 
+      expect(() => {
         gc.on({
           epoch: 2323232,
         });
       }).to.throw();
+
+      expect(() => {
+        gc.on({
+          epoch: new JDateRepository(1950, 'BEpoch'),
+        })
+      }).not.to.throw();
     });
 
     it('Verify', () => {
@@ -374,15 +326,21 @@ describe('#GalacticCoordinate', () => {
 
   describe('#get', () => {
     it('The param epoch should be a JDateRepository', () => {
-      expect(() => {
-        let gc  = new GalacticCoordinate({
-          l: 122.3223,
-        });
+      let gc  = new GalacticCoordinate({
+        l: 122.3223,
+      });
 
+      expect(() => {
         gc.get({
           epoch: 2323232,
         });
       }).to.throw();
+
+      expect(() => {
+        gc.get({
+          epoch: new JDateRepository(1950.0, 'bepoch'),
+        });
+      }).not.to.throw();
     });
 
     it('This method wont change the origin condition property.', () => {
@@ -407,7 +365,7 @@ describe('#GalacticCoordinate', () => {
         epoch: new JDateRepository(1950.0, 'jepoch'),
       });
 
-      expect(res).to.have.all.key('sc', 'epoch', 'precessionModel', 'nutationModel');
+      expect(res).to.have.all.key('sc', 'epoch');
     })
   });
 
@@ -538,7 +496,31 @@ describe('#GalacticCoordinate', () => {
           obGeoLat: -90.1,
         })
       }).to.throw();
-    })
+    });
+
+    it('The param obElevation should be a Number, if it existed.', () => {
+      let gc = new GalacticCoordinate({
+        l: 122.3223,
+      });
+
+      expect(() => {
+        let hc_obj = gc.toHorizontal({
+          obTime: new JDateRepository(new Date, 'date'),
+          obGeoLong: 123,
+          obGeoLat: 30.32,
+          obElevation: 1234,
+        });
+      }).not.to.throw();
+
+      expect(() => {
+        let hc_obj = gc.toHorizontal({
+          obTime: new JDateRepository(new Date, 'date'),
+          obGeoLong: 123,
+          obGeoLat: 30.32,
+          obElevation: '1234',
+        });
+      }).to.throw();
+    });
 
     it('The return should a right structure.', () => {
       let gc = new GalacticCoordinate({
@@ -551,7 +533,7 @@ describe('#GalacticCoordinate', () => {
         obGeoLat: 30.32,
       });
 
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'precessionModel', 'nutationModel');
+      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'withAR', 'centerMode');
     })
   });
 
@@ -619,11 +601,21 @@ describe('#GalacticCoordinate', () => {
         obGeoLong: 123,
       });
 
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'precessionModel', 'nutationModel');
+      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong');
     })
   });
 
   describe('#toEquinoctial', () => {
+    it('The return should be a right structure.', () => {
+      let gc = new GalacticCoordinate({
+        l: 123.45,
+      });
+
+      let eqc_obj = gc.toEquinoctial();
+
+      expect(eqc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5');
+    });
+
     it('Verify 天文算法 例12.b', () => {
       let gc = new GalacticCoordinate({
         l: 12.9593,
@@ -635,7 +627,7 @@ describe('#GalacticCoordinate', () => {
 
       expect(angle.setRadian(eqc_obj.sc.phi).getDegrees()).to.closeTo(angle.parseHACString('17h 48m 59.74s').getDegrees(), 0.0003);
       expect(angle.setRadian(eqc_obj.sc.theta).getDegrees()).to.closeTo(90 - angle.parseDACString('-14°43′08.2″').getDegrees(), 0.0003);
-    })
+    });
   });
 
   describe('#toEcliptic', () => {
@@ -646,7 +638,7 @@ describe('#GalacticCoordinate', () => {
 
       let ecc_obj = gc.toEcliptic();
 
-      expect(ecc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'precessionModel', 'nutationModel');
+      expect(ecc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5', 'centerMode');
     })
   });
 
@@ -731,11 +723,33 @@ describe('#GalacticCoordinate', () => {
     });
   });
 
-  describe('#get precessionModel', () => {
+  describe('#set epoch', () => {
+    it('Run normally, throw no error.', () => {
+      let gc = new GalacticCoordinate({
+        l: 123.45,
+        b: 34.567,
+      });
 
-  });
+      expect(() => {
+        gc.epoch = new JDateRepository(12, 'J2000');
+      }).not.to.throw();
+    });
 
-  describe('#get nutationModel', () => {
+    it('After set epoch, the properties should be changed.', () => {
+      let gc = new GalacticCoordinate({
+        l: 123.34,
+        b: 22.34,
+      });
 
+      let epoch0 = gc.epoch,
+          phi0 = gc.sc.phi,
+          theta0 = gc.sc.theta;
+
+      gc.epoch = new JDateRepository(1950.0, 'bepoch');
+
+      expect(epoch0.JD).not.to.equal(gc.epoch.JD);
+      expect(theta0).not.to.equal(gc.sc.theta);
+      // expect(phi0).not.to.equal(gc.sc.phi);
+    });
   });
 });

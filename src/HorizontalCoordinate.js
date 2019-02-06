@@ -34,10 +34,6 @@ class HorizontalCoordinate {
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
    * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
    * @param  {Boolean}               options.withAR          是否已经过大气折射
-   * @param  {String}                options.precessionModel 岁差计算模型
-   *                                                         包含：iau2006、iau2000、iau1976
-   * @param  {String}                options.nutationModel   章动计算模型
-   *                                                         包含：iau2000b、lp
    */
   constructor(options) {
     this.from(options);
@@ -57,10 +53,7 @@ class HorizontalCoordinate {
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
    * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
    * @param  {Boolean}               options.withAR          是否已经过大气折射
-   * @param  {String}                options.precessionModel 岁差计算模型
-   *                                                         包含：iau2006、iau2000、iau1976
-   * @param  {String}                options.nutationModel   章动计算模型
-   *                                                         包含：iau2000b、lp
+   * 
    * @return {EquinoctialCoordinate}                         返回 this 引用
    */
   from({
@@ -75,8 +68,6 @@ class HorizontalCoordinate {
     radius,
     centerMode,
     withAR,
-    precessionModel, 
-    nutationModel, 
   }) {
 
     if (!(obTime instanceof JDateRepository)) throw Error('The param obTime should be a JDateRepository.');
@@ -92,32 +83,15 @@ class HorizontalCoordinate {
     else if (obElevation > 3e7 || obElevation < -12000) throw Error('The param obElevation should be in (-12000, 3e7).');
 
     if (centerMode === undefined) centerMode = 'geocentric';
-    else if (centerMode !== 'geocentric' && centerMode !== 'topocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
+    else if (centerMode !== 'geocentric' && centerMode !== 'topocentric') {
+      throw Error(centerMode);
+      throw Error('The param centerMode should just be geocentric or topocentric.');
+    }
 
     if (withAR === undefined) withAR = false;
     else withAR = !!withAR;
 
-    if (precessionModel === undefined) precessionModel = 'IAU2006';
-    else if (typeof(precessionModel) !== 'string') throw Error('The param precessionModel should be a String.');
-    else {
-      precessionModel = precessionModel.toUpperCase();
-      if (precessionModel !== 'IAU2006'
-        && precessionModel !== 'IAU2000'
-        && precessionModel !== 'IAU1976') throw Error('The param precessionModel should be in ["IAU2006", "IAU2000", "IAU1976"].');
-    }
-
-    if (nutationModel === undefined) nutationModel = 'IAU2000B';
-    else if (typeof(nutationModel) !== 'string') throw Error('The param nutationModel should be a String.');
-    else {
-      nutationModel = nutationModel.toUpperCase() 
-      if (nutationModel !== 'IAU2000B' 
-        && nutationModel !== 'LP') throw Error('The param nutationModel should be in ["IAU2000B", "LP"].');
-    }
-
-    this.siderealTime = new SiderealTime(obTime, obGeoLong, { 
-      precessionModel: precessionModel, 
-      nutationModel: nutationModel,
-    });
+    this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
     this.private = {
       obTime,
@@ -126,8 +100,6 @@ class HorizontalCoordinate {
       obElevation,
       centerMode,
       withAR,
-      precessionModel,
-      nutationModel,
     };
 
     this.position({
@@ -207,17 +179,13 @@ class HorizontalCoordinate {
       this.private.sc
         .inverse('y')
         .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
-        .rotateZ(angle.setSeconds(this.siderealTime.trueVal).getRadian());
-
+        .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
       // 更新恒星时对象、观测经度、观测纬度
-      this.siderealTime = new SiderealTime(obTime, obGeoLong, { 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
-      });
+      this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
       // 将瞬时赤道坐标转换至地平球坐标
       this.private.sc
-        .rotateZ(- angle.setSeconds(this.siderealTime.trueVal).getRadian())
+        .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
         .rotateY(- Math.PI / 2 + angle.setDegrees(obGeoLat).getRadian())
         .inverse('y');
     }
@@ -231,7 +199,7 @@ class HorizontalCoordinate {
       this.onTopocentric();
 
       // 添加大气折射
-      if (withAR) this.withAR();
+      if (withAR) this.patchAR();
     }
 
     return this;
@@ -247,7 +215,7 @@ class HorizontalCoordinate {
       // 在原有地心坐标的基础上进行转换
       let dp = new DiurnalParallax({
         gc: this.private.sc,
-        siderealTime: this.siderealTime,
+        siderealTime: this.SiderealTime,
         obGeoLat: this.private.obGeoLat,
         obElevation: this.private.obElevation,
         system: 'horizontal',
@@ -269,11 +237,11 @@ class HorizontalCoordinate {
    */
   onGeocentric() {
     if (this.private.centerMode === 'topocentric') {
-      this.withoutAR();
+      this.unpatchAR();
 
       let dp = new DiurnalParallax({
         tc: this.private.sc,
-        siderealTime: this.siderealTime,
+        siderealTime: this.SiderealTime,
         obGeoLat: this.private.obGeoLat,
         obElevation: this.private.obElevation,
         system: 'horizontal',
@@ -293,15 +261,18 @@ class HorizontalCoordinate {
    * 
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
-  withAR() {
+  patchAR() {
     if (!this.private.withAR) {
       let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
-      let ar = new AtmosphericRefraction({
-        trueH: h,
-      });
+      
+      if (h > 0) {
+        let ar = new AtmosphericRefraction({
+          trueH: h,
+        });
 
-      // 更新修正后的球坐标
-      this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+        // 更新修正后的球坐标
+        this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+      }
 
       this.private.withAR = true;
     }
@@ -314,15 +285,18 @@ class HorizontalCoordinate {
    * 
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
-  withoutAR() {
+  unpatchAR() {
     if (this.private.withAR) {
       let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
-      let ar = new AtmosphericRefraction({
-        apparentH: h,
-      });
+      
+      if (h > 0) {
+        let ar = new AtmosphericRefraction({
+          apparentH: h,
+        });
 
-      // 更新修正后的球坐标
-      this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+        // 更新修正后的球坐标
+        this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+      }
 
       this.private.withAR = false;
     }
@@ -336,7 +310,7 @@ class HorizontalCoordinate {
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
   onObservedView() {
-    return this.onTopocentric().withAR();
+    return this.onTopocentric().patchAR();
   }
 
   /**
@@ -404,8 +378,6 @@ class HorizontalCoordinate {
         obElevation: this.obElevation,
         centerMode: this.centerMode,
         withAR: this.withAR,
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       };
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
@@ -428,8 +400,6 @@ class HorizontalCoordinate {
         obElevation: this.obElevation,
         centerMode: this.centerMode,
         withAR: this.withAR,
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
       };
 
       // 还原为初始坐标和条件
@@ -440,10 +410,7 @@ class HorizontalCoordinate {
       this.private.obElevation = obElevation_0;
       this.private.centerMode = centerMode_0;
       this.private.withAR = withAR_0;
-      this.siderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees(), { 
-        precessionModel: this.precessionModel, 
-        nutationModel: this.nutationModel,
-      });
+      this.SiderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees());
 
       return res;
     }
@@ -463,10 +430,13 @@ class HorizontalCoordinate {
     switch(system.toLowerCase()) {
       case 'hourangle':
         return this.toHourAngle(options);
+        
       case 'equinoctial':
         return this.toEquinoctial(options);
+
       case 'ecliptic':
         return this.toEcliptic(options);
+
       case 'galactic':
         return this.toGalactic(options);
 
@@ -492,8 +462,6 @@ class HorizontalCoordinate {
       sc,
       obTime: this.obTime, 
       obGeoLong: this.obGeoLong.getDegrees(),
-      precessionModel: this.precessionModel, 
-      nutationModel: this.nutationModel,
     }
   }
 
@@ -510,14 +478,15 @@ class HorizontalCoordinate {
 
     sc.inverse('y')
       .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
-      .rotateZ(angle.setSeconds(this.siderealTime.trueVal).getRadian());
+      .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
 
     return {
       sc,
       epoch: this.obTime,
       withNutation: true,
-      precessionModel: this.precessionModel, 
-      nutationModel: this.nutationModel,
+      withAnnualAberration: true,
+      withGravitationalDeflection: true,
+      onFK5: true,
     }
   }
 
@@ -587,12 +556,33 @@ class HorizontalCoordinate {
   }
 
   /**
+   * 设置 是否考虑大气折射影响 设定
+   * 
+   * @param {Boolean} value 是否考虑大气折射影响 设定
+   */
+  set withAR(value) {
+    if (value) this.patchAR();
+    else this.unpatchAR();
+  }
+
+  /**
    * 获取 中心模式 设定
    * 
    * @return {String} 中心模式 设定
    */
   get centerMode() {
     return this.private.centerMode;
+  }
+
+  /**
+   * 设置 中心点模式 设定
+   * 
+   * @param  {String} value 中心点模式字串
+   */
+  set centerMode(value) {
+    if (value === 'topocentric') this.onTopocentric();
+    else if (value === 'geocentric') this.onGeocentric();
+    else throw Error('The param value should be a right string.');
   }
 
   /**
@@ -639,24 +629,6 @@ class HorizontalCoordinate {
    */
   get radius() {
     return this.sc.r;
-  }
-
-  /**
-   * 获取 岁差模型名称
-   * 
-   * @return {String} 岁差模型名称
-   */
-  get precessionModel() {
-    return this.private.precessionModel;
-  }
-
-  /**
-   * 获取 章动模型名称
-   * 
-   * @return {String} 章动模型名称
-   */
-  get nutationModel() {
-    return this.private.nutationModel;
   }
 }
 

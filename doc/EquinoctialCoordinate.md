@@ -6,6 +6,17 @@ EquinoctialCoordinate 是用于处理天球赤道坐标的组件。
 
 它可以通过便捷地方法，使天球赤道坐标于不同的坐标系统参数之间进行切换。也可以将当前任意天球赤道坐标转换至其他天球坐标系统。
 
+赤道坐标修正项包括有：
+
+* 章动
+* 岁差
+
+二次修正项：
+
+* FK5
+* 周年光行差
+* 太阳引力偏转
+
 ## 用例
 
 使用 EquinoctialCoordinate 组件处理天球赤道坐标：
@@ -23,10 +34,11 @@ let ec = new EquinoctialCoordinate({
 
 let jdr = new JDateRepository(2446896);
 
-// 设定新坐标条件，分点历元以及进行章动修正
+// 设定新坐标条件，分点历元以及进行章动、光行差修正
 ec.on({
   epoch: jdr,
   withNutation: true,
+  withAnnualAberration: true,
 });
 
 let ra = ec.ra.getDegrees();
@@ -40,6 +52,8 @@ let sc = ec.sc;
 let epoch = ec.epoch;
 
 let withNutation = ec.withNutation;
+
+let withAnnualAberration = ec.withAnnualAberration;
 ```
 
 使用 EquinoctialCoordinate 将天球赤道坐标 转换至 其他天球坐标系统：
@@ -100,8 +114,9 @@ let gc_obj = eqc.toGalactic();
 
 * options.epoch 坐标历元
 * options.withNutation 是否修正了章动
-* options.precessionModel 岁差计算模型，接受：iau2006、iau2000、iau1976
-* options.nutationModel 章动计算模型，接受：iau2000b、lp
+* options.withAnnualAberration 是否修正周年光行差
+* options.withGravitationalDeflection 是否修正太阳引力偏转
+* options.onFK5 是否修正 FK5
 
 `on(options)`
 
@@ -134,14 +149,18 @@ let gc_obj = eqc.toGalactic();
 
 * options.epoch 坐标历元
 * options.withNutation 坐标是否修复章动
+* options.withAnnualAberration 是否修正周年光行差
+* options.withGravitationalDeflection 是否修正太阳引力偏转
+* options.onFK5 是否修正 FK5
 
 返回结果对象的属性：
 
 * sc 球坐标
 * epoch 坐标历元
 * withNutation 是否修正了章动
-* precessionModel 岁差计算模型
-* nutationModel 章动计算模型
+* withAnnualAberration 是否修正周年光行差
+* withGravitationalDeflection 是否修正太阳引力偏转
+* onFK5 是否修正 FK5
 
 `to(system, options)`
 
@@ -160,7 +179,8 @@ let gc_obj = eqc.toGalactic();
 
 * options.obTime 观测时间
 * options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat  观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
+* options.obElevation 观测点海拔高度
 
 `toHourAngle(options)`
 
@@ -187,13 +207,37 @@ let gc_obj = eqc.toGalactic();
 
 转换坐标至 目标历元
 
-`nutationPatch()`
+`patchNutation()`
 
 修正章动
 
-`nutationUnpatch()`
+`unpatchNutation()`
 
 解除章动修正
+
+`patchAnnualAberration()`
+
+修正周年光行差
+
+`unpatchAnnualAberration()`
+
+解除周年光行差修正
+
+`patchGravitationalDeflection()`
+
+修正引力偏转
+
+`unpatchGravitationalDeflection()`
+
+解除引力偏转修正
+
+`patchFK5()`
+
+修正至 FK5 系统
+
+`unpatchFK5()`
+
+解除 FK5 修正
 
 `get sc()`
 
@@ -215,17 +259,61 @@ let gc_obj = eqc.toGalactic();
 
 获取 历元对象
 
+`set epoch(value)`
+
+设置 历元对象
+
 `get withNutation()`
 
 获取 章动修正状态
 
-`get precessionModel()`
+`set withNutation(value)`
 
-获取 岁差模型名称
+设置 章动修正状态
 
-`get nutationModel()`
+`get withAnnualAberration()`
 
-获取 章动模型名称
+获取 周年光行差修正状态
+
+`set withAnnualAberration(value)`
+
+设置 周年光行差修正状态
+
+`get withGravitationalDeflection()`
+
+获取 引力偏转修正状态
+
+`set withGravitationalDeflection(value)`
+
+设置 引力偏转修正状态
+
+`get onFK5()`
+
+获取 FK5 修正状态
+
+`set onFK5(value)`
+
+设置 FK5 修正状态
+
+`get PrecessionCorrection()`
+
+获取 岁差 偏转修正值
+
+`get NutationCorrection()`
+
+获取 章动 偏转修正值
+
+`get AACorrection()`
+
+获取 周年光行差修正值
+
+`get GDCorrection()`
+
+获取 太阳引力偏转修正值
+
+`get FK5Correction()`
+
+获取 FK5 偏转修正值
 
 ## 许可证书
 

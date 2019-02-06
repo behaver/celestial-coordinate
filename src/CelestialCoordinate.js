@@ -248,7 +248,7 @@ class CelestialCoordinate {
   get horizontal() {
     if (this.instances.horizontal === undefined) {
       let hc_obj = this.instances[this.private.system].toHorizontal({
-        obTime: this.obOptions.Time,
+        obTime: this.obOptions.time,
         obGeoLong: this.obOptions.geoLong,
         obGeoLat: this.obOptions.geoLat,
       });
@@ -288,7 +288,7 @@ class CelestialCoordinate {
   get hourAngle() {
     if (this.instances.hourangle === undefined) {
       let hac_obj = this.instances[this.private.system].toHourAngle({
-        obTime: this.obOptions.Time,
+        obTime: this.obOptions.time,
         obGeoLong: this.obOptions.geoLong,
       });
       this.instances.hourangle = new HourAngleCoordinate(hac_obj);

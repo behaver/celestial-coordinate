@@ -4,7 +4,7 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const { JDateRepository } = require('@behaver/jdate');
 const Angle = require('@behaver/angle');
 const EquinoctialCoordinate = require('./EquinoctialCoordinate');
-
+const CommonCoordinate = require('./CommonCoordinate');
 const angle = new Angle;
 
 /**
@@ -29,20 +29,7 @@ const angle = new Angle;
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
  */
-class GalacticCoordinate {
-
-  /**
-   * 构造函数
-   * 
-   * @param  {SphericalCoordinate3D} options.sc              球坐标
-   * @param  {Number}                options.l               银经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b               银纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
-   * @param  {JDateRepository}       options.epoch           坐标历元
-   */
-  constructor(options) {
-    this.from(options);
-  }
+class GalacticCoordinate extends CommonCoordinate {
 
   /**
    * 设定起始天球银道坐标
@@ -121,7 +108,19 @@ class GalacticCoordinate {
     if (!(epoch instanceof JDateRepository)) throw Error('The param epoch should be a instance of JDateRepository');
 
     if (epoch.J2000 !== this.epoch.J2000) { // 进行历元转换
-      let sc0 = this.toEquinoctial().sc;
+      // 初始 北银极赤经、赤纬
+      let nps_ra0 = this.npseqc.ra.getRadian(),
+          nps_dec0 = this.npseqc.dec.getRadian(),
+          gc_ra0 = this.gceqc.ra.getRadian(),
+          gc_dec0 = this.gceqc.dec.getRadian(),
+          a0 = Math.PI / 2 - (gc_ra0 - nps_ra0),
+          theta0 = Math.acos(Math.cos(a0) * Math.cos(gc_dec0)),
+          sc0 = this.sc;
+
+      // 将银道坐标转换为 初始历元下的天球赤道坐标
+      sc0.rotateZ(-theta0)
+        .rotateX(Math.PI / 2 - nps_dec0)
+        .rotateZ(nps_ra0 + Math.PI / 2);
 
       let eqc = new EquinoctialCoordinate({
         sc: sc0,
@@ -135,15 +134,12 @@ class GalacticCoordinate {
       this.gceqc.on({ epoch });
 
       // 目标 北银极赤经、赤纬
-      let nps_ra = this.npseqc.ra.getRadian();
-      let nps_dec = this.npseqc.dec.getRadian();
-
-      // 目标 银心赤经、赤纬
-      let gc_ra = this.gceqc.ra.getRadian();
-      let gc_dec = this.gceqc.dec.getRadian();
-
-      let a = Math.PI / 2 - (gc_ra - nps_ra);
-      let theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
+      let nps_ra = this.npseqc.ra.getRadian(),
+          nps_dec = this.npseqc.dec.getRadian(),
+          gc_ra = this.gceqc.ra.getRadian(),
+          gc_dec = this.gceqc.dec.getRadian(),
+          a = Math.PI / 2 - (gc_ra - nps_ra),
+          theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
 
       sc.rotateZ(- nps_ra - Math.PI / 2)
         .rotateX(- Math.PI / 2 + nps_dec)
@@ -236,128 +232,6 @@ class GalacticCoordinate {
   }
 
   /**
-   * 转换当前坐标至目标天球系统
-   * 
-   * @param  {String} system  目标天球坐标系统
-   *                          可选值：horizontal、hourangle、ecliptic、galactic
-   * @param  {Object} options 目标天球坐标条件设定对象
-   * @return {Object}         目标天球坐标
-   */
-  to(system, options) {
-    if (typeof(system) !== 'string') throw Error('The param system should be a String.');
-
-    switch(system.toLowerCase()) {
-      case 'horizontal':
-        return this.toHorizontal(options);
-
-      case 'hourangle':
-        return this.toHourAngle(options);
-
-      case 'equinoctial':
-        return this.toEquinoctial(options);
-
-      case 'ecliptic':
-        return this.toEcliptic(options);
-
-      default:
-        throw Error('The param system should be valid.');
-    }
-  }
-
-  /**
-   * 转换至 地平系统
-   *
-   * 地平坐标为观测坐标，即瞬时天球坐标。
-   * 
-   * @param  {JDateRepository}      options.obTime      观测时间
-   * @param  {Number}               options.obGeoLong   观测点地理经度
-   *                                                    单位：度，值域：[-180, 180]
-   * @param  {Number}               options.obGeoLat    观测点地理纬度
-   *                                                    单位：度，值域：[-90, 90]
-   * @param  {Number}               options.obElevation 观测点海拔高度
-   * 
-   * @return {Object}                                   地平坐标对象
-   */
-  toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation }) {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation });
-  }
-
-  /**
-   * 转换至 天球时角系统
-   *
-   * 时角坐标为观测坐标，即瞬时天球坐标。
-   * 
-   * @param  {JDateRepository} options.obTime    观测时间
-   * @param  {Number}          options.obGeoLong 观测点地理经度
-   *                                             单位：度
-   * @return {Object}                            时角坐标对象
-   */
-  toHourAngle({ obTime, obGeoLong }) {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toHourAngle({ obTime, obGeoLong });
-  }
-
-  /**
-   * 转换至 赤道坐标
-   * 
-   * @return {Object} 赤道坐标对象
-   */
-  toEquinoctial() {
-    // 初始 北银极赤经、赤纬
-    let nps_ra = this.npseqc.ra.getRadian();
-    let nps_dec = this.npseqc.dec.getRadian();
-
-    // 初始 银心赤经、赤纬
-    let gc_ra = this.gceqc.ra.getRadian();
-    let gc_dec = this.gceqc.dec.getRadian();
-
-    // 求银心与升交点夹角 theta
-    // 根据 球面三角余弦公式:
-    // cos(theta) = cos(a)cos(gc_dec) + sin(a)sin(gc_dec)cos(90°)
-    //            = cos(a)cos(gc_dec)
-    // 其中 a = 90° - (gc_ra - nps_ra)
-    let a = Math.PI / 2 - (gc_ra - nps_ra);
-    let theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
-
-    let sc = this.sc;
-
-    // 将银道坐标转换为 初始历元下的天球赤道坐标
-    sc.rotateZ(-theta)
-      .rotateX(Math.PI / 2 - nps_dec)
-      .rotateZ(nps_ra + Math.PI / 2);
-
-    return {
-      sc,
-      epoch: this.epoch,
-      withNutation: false,
-      withAnnualAberration: false,
-      withGravitationalDeflection: false,
-      onFK5: true,
-    }
-  }
-
-  /**
-   * 转换至 黄道坐标
-   * 
-   * @return {Object} 黄道坐标对象
-   */
-  toEcliptic() {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toEcliptic();
-  }
-
-  /**
-   * 获取 天球球坐标
-   * 
-   * @return {SphericalCoordinate3D} 天球球坐标
-   */
-  get sc() {
-    let sc = this.private.sc;
-    return new SphericalCoordinate3D(sc.r, sc.theta, sc.phi);
-  }
-
-  /**
    * 获取 银经 角度对象
    * 
    * @return {Angle} 银经 角度对象
@@ -373,15 +247,6 @@ class GalacticCoordinate {
    */
   get b() {
     return (new Angle(Math.PI / 2 - this.sc.theta, 'r')).inRound(-180, 'd');
-  }
-
-  /**
-   * 获取 距离
-   * 
-   * @return {Number} 距离数值
-   */
-  get radius() {
-    return this.sc.r;
   }
 
   /**

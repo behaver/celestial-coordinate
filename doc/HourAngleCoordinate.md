@@ -47,38 +47,6 @@ let obTime = hac.obTime;
 let obGeoLong = hac.obGeoLong.getDegrees();
 ```
 
-使用 HourAngleCoordinate 将天球时角坐标 转换至 其他天球坐标系统：
-
-```js
-const { HourAngleCoordinate } = require('@behaver/celestial-coordinate');
-const { JDateRepository } = require('@behaver/jdate');
-
-let time = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-
-// 实例化 天球时角坐标
-let hac = new HourAngleCoordinate({
-  obTime: time,
-  obGeoLong: 118.8167,
-  t: 123.2343,
-  dec: -3.3248,
-  radius: 1.0324,
-});
-
-// 转换输出天球地平坐标对象
-let hc_obj = hac.toHorizontal({
-  obGeoLat: 38.9231,
-});
-
-// 转换输出天球赤道坐标对象
-let eqc_obj = hac.toEquinoctial();
-
-// 转换输出天球黄道坐标对象
-let ecc_obj = hac.toEcliptic();
-
-// 转换输出天球银道坐标对象
-let gc_obj = hac.toGalactic();
-```
-
 ## API
 
 `constructor(options)`
@@ -141,36 +109,6 @@ let gc_obj = hac.toGalactic();
 * sc 球坐标
 * obTime 观测历元
 * obGeoLong 观测点地理经度
-
-`to(system, options)`
-
-转换当前坐标至目标天球系统
-
-接受参数：
-
-* system 目标系统
-* options 系统参数
-
-`toHorizontal(options)`
-
-转换当前坐标至天球地平系统
-
-系统参数：
-
-* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-* options.obElevation 观测点海拔高度
-
-`toEquinoctial()`
-
-转换当前坐标至天球赤道系统
-
-`toEcliptic()`
-
-转换当前坐标至天球黄道系统
-
-`toGalactic()`
-
-转换当前坐标至天球银道系统
 
 `get obTime()`
 

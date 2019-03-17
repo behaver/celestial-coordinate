@@ -7,6 +7,7 @@ const Angle = require('@behaver/angle');
 const DiurnalParallax = require('@behaver/diurnal-parallax');
 const AtmosphericRefraction = require('@behaver/atmospheric-refraction');
 const EquinoctialCoordinate = require('./EquinoctialCoordinate');
+const CommonCoordinate = require('./CommonCoordinate');
 
 const angle = new Angle;
 
@@ -18,26 +19,7 @@ const angle = new Angle;
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
  */
-class HorizontalCoordinate {
-
-  /**
-   * 构造函数
-   * 
-   * @param  {JDateRepository}       options.obTime          观测历元
-   * @param  {Number}                options.obGeoLong       观测点地理经度，单位：度，值域：[180, 180]
-   * @param  {Number}                options.obGeoLat        观测点地理纬度，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.obElevation     观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
-   * @param  {SphericalCoordinate3D} options.sc              球坐标
-   * @param  {Number}                options.h               地平高度，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.z               天顶角，单位：度，值域：[0, 180]
-   * @param  {Number}                options.a               方位角，单位：度，值域：[0, 360)
-   * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
-   * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
-   * @param  {Boolean}               options.withAR          是否已经过大气折射
-   */
-  constructor(options) {
-    this.from(options);
-  }
+class HorizontalCoordinate extends CommonCoordinate {
 
   /**
    * 设定起始天球地平坐标
@@ -162,33 +144,38 @@ class HorizontalCoordinate {
     // 将原始坐标转换成地心坐标
     this.onGeocentric();
 
-    // 处理转换为新观测条件下的地心坐标
+    // 将地平球坐标转换至瞬时赤道球坐标
+    this.private.sc
+      .inverse('y')
+      .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
+      .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
+
     if (changeObTime) { // 针对观测时间改变的情况，引入赤道坐标对象处理
-      let ec = new EquinoctialCoordinate(this.toEquinoctial());
-      let hc_obj = ec.toHorizontal({
-        obTime, 
-        obGeoLong, 
-        obGeoLat
+      let ec = new EquinoctialCoordinate({
+        sc: this.sc,
+        epoch: this.obTime,
+        withNutation: true,
+        withAnnualAberration: true,
+        withGravitationalDeflection: true,
+        onFK5: true,
       });
 
-      // 更新坐标及系统条件
-      this.private.sc = hc_obj.sc;
+      this.private.sc = ec.get({ 
+        epoch: obTime,
+      }).sc;
+ 
       this.private.obTime = obTime;
-    } else {
-      // 将地平球坐标转换至瞬时赤道球坐标
-      this.private.sc
-        .inverse('y')
-        .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
-        .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
-      // 更新恒星时对象、观测经度、观测纬度
-      this.SiderealTime = new SiderealTime(obTime, obGeoLong);
-
-      // 将瞬时赤道坐标转换至地平球坐标
-      this.private.sc
-        .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
-        .rotateY(- Math.PI / 2 + angle.setDegrees(obGeoLat).getRadian())
-        .inverse('y');
     }
+      
+    // 更新恒星时对象、观测经度、观测纬度
+    this.SiderealTime = new SiderealTime(obTime, obGeoLong);
+
+    // 将瞬时赤道坐标转换至地平球坐标
+    this.private.sc
+      .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
+      .rotateY(- Math.PI / 2 + angle.setDegrees(obGeoLat).getRadian())
+      .inverse('y');
+
     this.private.obGeoLong = obGeoLong;
     this.private.obGeoLat = obGeoLat;
     this.private.obElevation = obElevation;
@@ -417,100 +404,6 @@ class HorizontalCoordinate {
   }
 
   /**
-   * 转换当前坐标至目标天球系统
-   * 
-   * @param  {String} system  目标天球坐标系统
-   *                          可选值：hourangle、equinoctial、ecliptic、galactic
-   * @param  {Object} options 目标天球坐标条件设定对象
-   * @return {Object}         目标天球坐标
-   */
-  to(system, options) {
-    if (typeof(system) !== 'string') throw Error('The param system should be a String.');
-
-    switch(system.toLowerCase()) {
-      case 'hourangle':
-        return this.toHourAngle(options);
-        
-      case 'equinoctial':
-        return this.toEquinoctial(options);
-
-      case 'ecliptic':
-        return this.toEcliptic(options);
-
-      case 'galactic':
-        return this.toGalactic(options);
-
-      default:
-        throw Error('The param system should be in ["equinoctial", "hourangle", "ecliptic", "galactic"]');
-    }
-  }
-
-  /**
-   * 转换至 时角坐标
-   * 
-   * @return {Object} 时角坐标对象
-   */
-  toHourAngle() {
-    let sc = this.get({
-      centerMode: 'geocentric',
-      withAR: false,
-    }).sc;
-
-    sc.rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian());
-
-    return {
-      sc,
-      obTime: this.obTime, 
-      obGeoLong: this.obGeoLong.getDegrees(),
-    }
-  }
-
-  /**
-   * 转换至 赤道坐标
-   * 
-   * @return {Object} 赤道坐标对象
-   */
-  toEquinoctial() {
-    let sc = this.get({
-      centerMode: 'geocentric',
-      withAR: false,
-    }).sc;
-
-    sc.inverse('y')
-      .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
-      .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
-
-    return {
-      sc,
-      epoch: this.obTime,
-      withNutation: true,
-      withAnnualAberration: true,
-      withGravitationalDeflection: true,
-      onFK5: true,
-    }
-  }
-
-  /**
-   * 转换至 黄道坐标
-   * 
-   * @return {Object} 黄道坐标对象
-   */
-  toEcliptic() {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toEcliptic();
-  }
-
-  /**
-   * 转换至 银道坐标
-   * 
-   * @return {Object} 银道坐标对象
-   */
-  toGalactic() {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toGalactic();
-  }
-
-  /**
    * 获取 观测历元 儒略时间对象
    * 
    * @return {JDateRepository} 观测历元 儒略时间对象
@@ -586,16 +479,6 @@ class HorizontalCoordinate {
   }
 
   /**
-   * 获取 天球球坐标
-   * 
-   * @return {SphericalCoordinate3D} 天球球坐标
-   */
-  get sc() {
-    let sc = this.private.sc;
-    return new SphericalCoordinate3D(sc.r, sc.theta, sc.phi);
-  }
-
-  /**
    * 获取 地平高度 角度对象
    * 
    * @return {Angle} 地平高度 角度对象
@@ -620,15 +503,6 @@ class HorizontalCoordinate {
    */
   get a() {
     return new Angle(this.sc.phi, 'r');
-  }
-
-  /**
-   * 获取 距离
-   * 
-   * @return {Number} 距离数值
-   */
-  get radius() {
-    return this.sc.r;
   }
 }
 

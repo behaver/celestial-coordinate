@@ -30,7 +30,6 @@
   "dependencies": {
     "@behaver/angle": "^2.0.2",
     "@behaver/annual-aberration": "^1.0.1",
-    "@behaver/annual-parallax": "^1.0.0",
     "@behaver/atmospheric-refraction": "^1.0.1",
     "@behaver/coordinate": "^3.3.0",
     "@behaver/diurnal-parallax": "^1.1.2",

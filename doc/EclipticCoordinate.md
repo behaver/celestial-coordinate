@@ -6,6 +6,17 @@ EclipticCoordinate 是用于处理天球黄道坐标的组件。
 
 它可以通过便捷地方法，使天球黄道坐标于不同的坐标系统参数之间进行切换。也可以将当前任意天球黄道坐标转换至其他天球坐标系统。
 
+黄道坐标修正项包括有：
+
+* 章动
+* 岁差
+
+二次修正项：
+
+* FK5
+* 周年光行差
+* 太阳引力偏转
+
 ## 用例
 
 使用 EclipticCoordinate 组件处理天球黄道坐标：
@@ -42,45 +53,11 @@ let epoch = ec.epoch;
 let withNutation = ec.withNutation;
 ```
 
-使用 EclipticCoordinate 将天球黄道坐标 转换至 其他天球坐标系统：
-
-```js
-const { EclipticCoordinate } = require('@behaver/celestial-coordinate');
-const { JDateRepository } = require('@behaver/jdate');
-
-let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-let ecc = new EclipticCoordinate({
-  l: 350.1532,
-  b: -6.8721,
-  epoch: epoch,
-  withNutation: true,
-});
-
-// 转换输出天球地平坐标对象
-let hc_obj = ecc.toHorizontal({
-  // obTime: epoch,
-  obGeoLong: 77.0897,
-  obGeoLat: 38.9231,
-});
-
-// 转换输出天球时角坐标对象
-let hac_obj = ecc.toHourAngle({
-  // obTime: epoch,
-  obGeoLong: 77.0897,
-});
-
-// 转换输出天球赤道坐标对象
-let eqc_obj = ecc.toEquinoctial();
-
-// 转换输出天球银道坐标对象
-let gc_obj = ecc.toGalactic();
-```
-
 ## API
 
 `constructor(options)`
 
-构造函数，接受参数如 `from` 方法相同。
+构造函数，接受参数和 `from` 方法相同。
 
 `from(options)`
 
@@ -142,59 +119,6 @@ let gc_obj = ecc.toGalactic();
 * epoch 坐标历元
 * withNutation 是否修正了章动
 * centerMode 中心模式
-
-`to(system, options)`
-
-转换当前坐标至目标天球系统
-
-接受参数：
-
-* system 目标系统
-* options 系统参数
-
-`toHorizontal(options)`
-
-转换当前坐标至天球地平系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-* options.obElevation 观测点海拔高度
-
-`toHourAngle(options)`
-
-转换当前坐标至天球时角系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-
-`toEquinoctial()`
-
-转换当前坐标至天球赤道系统
-
-`toGalactic()`
-
-转换当前坐标至天球银道系统
-
-`onJ2000()`
-
-转换坐标历元至 J2000
-
-`onEpoch(epoch)`
-
-转换坐标至 目标历元
-
-`onGeocentric()`
-
-转换为地心坐标
-
-`onHeliocentric()`
-
-转换为日心坐标
 
 `patchNutation()`
 

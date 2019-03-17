@@ -7,9 +7,9 @@ const { JDateRepository, CacheSpaceOnJDate } = require('@behaver/jdate');
 const { EarthHECC } = require('@behaver/solar-planets-hecc');
 const SiderealTime = require('@behaver/sidereal-time');
 const AnnualAberration = require('@behaver/annual-aberration');
-const EquinoctialCoordinate = require('./EquinoctialCoordinate');
 const GravitationalDeflection = require('@behaver/gravitational-deflection');
 const FK5Deflection = require('@behaver/fk5-deflection');
+const CommonCoordinate = require('./CommonCoordinate');
 const Angle = require('@behaver/angle');
 
 const angle = new Angle;
@@ -22,25 +22,7 @@ const angle = new Angle;
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
  */
-class EclipticCoordinate {
-
-  /**
-   * 构造函数
-   * 
-   * @param  {SphericalCoordinate3D} options.sc                          球坐标
-   * @param  {Number}                options.l                           黄经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b                           黄纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius                      距离半径，值域：[10e-8, +∞)
-   * @param  {JDateRepository}       options.epoch                       坐标历元
-   * @param  {String}                options.centerMode                  中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
-   * @param  {Boolean}               options.withNutation                坐标是否修正了章动
-   * @param  {Boolean}               options.withAnnualAberration        坐标是否修正了周年光行差
-   * @param  {Boolean}               options.withGravitationalDeflection 坐标是否修正了引力偏转
-   * @param  {Boolean}               options.onFK5                       坐标是否进行了 FK5 修正
-   */
-  constructor(options) {
-    this.from(options);
-  }
+class EclipticCoordinate extends CommonCoordinate {
 
   /**
    * 设定起始天球黄道坐标
@@ -270,109 +252,6 @@ class EclipticCoordinate {
   }
 
   /**
-   * 转换当前坐标至目标天球系统
-   * 
-   * @param  {String} system  目标天球坐标系统
-   *                          可选值：horizontal、hourangle、equinoctial、galactic
-   * @param  {Object} options 目标天球坐标条件设定对象
-   * @return {Object}         目标天球坐标
-   */
-  to(system, options) {
-    if (typeof(system) !== 'string') throw Error('The param system should be a String.');
-    
-    switch(system.toLowerCase()) {
-      case 'horizontal':
-        return this.toHorizontal(options);
-
-      case 'hourangle':
-        return this.toHourAngle(options);
-
-      case 'equinoctial':
-        return this.toEquinoctial(options);
-
-      case 'galactic':
-        return this.toGalactic(options);
-
-      default:
-        throw Error('The param system should be valid.');
-    }
-  }
-
-  /**
-   * 转换至地平系统
-   *
-   * 地平坐标为观测坐标，即瞬时天球坐标。
-   * 
-   * @param  {JDateRepository} options.obTime      观测时间
-   * @param  {Number}          options.obGeoLong   观测点地理经度
-   *                                               单位：度，值域：[-180, 180]
-   * @param  {Number}          options.obGeoLat    观测点地理纬度
-   *                                               单位：度，值域：[-90, 90]
-   * @param  {Number}          options.obElevation 观测点海拔高度
-   * 
-   * @return {Object}                              地平坐标对象
-   */
-  toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation }) {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toHorizontal({ obTime, obGeoLong, obGeoLat, obElevation });
-  }
-
-  /**
-   * 转换当前坐标至天球时角系统
-   *
-   * 时角坐标为观测坐标，即瞬时天球坐标。
-   * 
-   * @param  {JDateRepository} options.obTime    观测时间
-   * @param  {Number}          options.obGeoLong 观测点地理经度
-   *                                             单位：度
-   *                                             
-   * @return {Object}                            时角坐标对象
-   */
-  toHourAngle({ obTime, obGeoLong }) {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toHourAngle({ obTime, obGeoLong });
-  }
-
-  /**
-   * 转换至 赤道坐标
-   * 
-   * @return {Object} 赤道坐标对象
-   */
-  toEquinoctial() {
-    let sc = this.get({
-      centerMode: 'geocentric',
-    }).sc;
-
-    let e0 = angle.setSeconds(this.Precession.epsilon).getRadian();
-
-    if (this.withNutation) { // 真坐标
-      let delta_e = angle.setMilliseconds(this.Nutation.obliquity).getRadian();
-      sc.rotateX(e0 + delta_e);
-    } else { // 平坐标
-      sc.rotateX(e0);
-    }
-    
-    return {
-      sc,
-      epoch: this.epoch,
-      withNutation: this.private.withNutation,
-      withAnnualAberration: this.private.withAnnualAberration,
-      withGravitationalDeflection: this.private.withGravitationalDeflection,
-      onFK5: this.private.onFK5,
-    };
-  }
-
-  /**
-   * 转换至 银道坐标
-   * 
-   * @return {Object} 银道坐标对象
-   */
-  toGalactic() {
-    let eqc = new EquinoctialCoordinate(this.toEquinoctial());
-    return eqc.toGalactic();
-  }
-
-  /**
    * 转换坐标历元至 J2000
    *
    * 会将当前坐标转化成 J2000 平坐标
@@ -496,7 +375,7 @@ class EclipticCoordinate {
    *  岁差: not done
    *  章动: not done
    * 
-   * @return {EquinoctialCoordinate} 返回 this 引用
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   patchAnnualAberration() {
     if (!this.private.withAnnualAberration) { // 需要修正周年光行差
@@ -514,7 +393,7 @@ class EclipticCoordinate {
   /**
    * 解除周年光行差修正
    * 
-   * @return {EquinoctialCoordinate} 返回 this 引用
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchAnnualAberration() {
     if (this.private.withAnnualAberration) {
@@ -532,7 +411,7 @@ class EclipticCoordinate {
   /**
    * 修正引力偏转
    * 
-   * @return {EquinoctialCoordinate} 返回 this 引用
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   patchGravitationalDeflection() {
     if (!this.private.withGravitationalDeflection) {
@@ -550,7 +429,7 @@ class EclipticCoordinate {
   /**
    * 解除引力偏转修正
    * 
-   * @return {EquinoctialCoordinate} 返回 this 引用
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchGravitationalDeflection() {
     if (this.private.withGravitationalDeflection) {
@@ -650,16 +529,6 @@ class EclipticCoordinate {
   }
 
   /**
-   * 获取 天球球坐标
-   * 
-   * @return {SphericalCoordinate3D} 天球球坐标
-   */
-  get sc() {
-    let sc = this.private.sc;
-    return new SphericalCoordinate3D(sc.r, sc.theta, sc.phi);
-  }
-
-  /**
    * 获取 黄经 角度对象
    * 
    * @return {Angle} 黄经 角度对象
@@ -675,15 +544,6 @@ class EclipticCoordinate {
    */
   get b() {
     return (new Angle(Math.PI / 2 - this.sc.theta, 'r')).inRound(-180, 'd');
-  }
-
-  /**
-   * 获取 距离
-   * 
-   * @return {Number} 距离数值
-   */
-  get radius() {
-    return this.sc.r;
   }
 
   /**

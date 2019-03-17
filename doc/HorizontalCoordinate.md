@@ -55,37 +55,6 @@ let obGeoLong = hc.obGeoLong.getDegrees();
 let obGeoLat = hc.obGeoLat.getDegrees();
 ```
 
-使用 HorizontalCoordinate 将天球地平坐标 转换至 其他天球坐标系统：
-
-```js
-const { HorizontalCoordinate } = require('@behaver/celestial-coordinate');
-const { JDateRepository } = require('@behaver/jdate');
-
-let time = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-
-// 实例化 天球地平坐标
-let hc = new HorizontalCoordinate({
-  obTime: time,
-  obGeoLong: 118.8167,
-  obGeoLat: 32.067,
-  a: 123.2343,
-  h: -3.3248,
-  radius: 1.0324,
-});
-
-// 转换输出天球时角坐标对象
-let hac_obj = hc.toHourAngle();
-
-// 转换输出天球赤道坐标对象
-let eqc_obj = hc.toEquinoctial();
-
-// 转换输出天球黄道坐标对象
-let ecc_obj = hc.toEcliptic();
-
-// 转换输出天球银道坐标对象
-let gc_obj = hc.toGalactic();
-```
-
 使用 HorizontalCoordinate 转换获取站心坐标 和 地心坐标，以及考虑大气折射的影响。
 
 ```js
@@ -223,31 +192,6 @@ hc.onGeocentric();
 `withoutAR()`
 
 去除大气折射的影响
-
-`to(system, options)`
-
-转换当前坐标至目标天球系统
-
-接受参数：
-
-* system 目标系统
-* options 系统参数
-
-`toHourAngle()`
-
-转换当前坐标至天球时角系统
-
-`toEquinoctial()`
-
-转换当前坐标至天球赤道系统
-
-`toEcliptic()`
-
-转换当前坐标至天球黄道系统
-
-`toGalactic()`
-
-转换当前坐标至天球银道系统
 
 `get obTime()`
 

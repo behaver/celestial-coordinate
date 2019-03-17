@@ -56,45 +56,11 @@ let withNutation = ec.withNutation;
 let withAnnualAberration = ec.withAnnualAberration;
 ```
 
-使用 EquinoctialCoordinate 将天球赤道坐标 转换至 其他天球坐标系统：
-
-```js
-const { EquinoctialCoordinate } = require('@behaver/celestial-coordinate');
-const { JDateRepository } = require('@behaver/jdate');
-
-let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-let eqc = new EquinoctialCoordinate({
-  ra: 350.1532,
-  dec: -6.8721,
-  epoch: epoch,
-  withNutation: true,
-});
-
-// 转换输出天球地平坐标对象
-let hc_obj = eqc.toHorizontal({
-  // obTime: epoch,
-  obGeoLong: 77.0897,
-  obGeoLat: 38.9231,
-});
-
-// 转换输出天球时角坐标对象
-let hac_obj = eqc.toHourAngle({
-  // obTime: epoch,
-  obGeoLong: 77.0897,
-});
-
-// 转换输出天球黄道坐标对象
-let ecc_obj = eqc.toEcliptic();
-
-// 转换输出天球银道坐标对象
-let gc_obj = eqc.toGalactic();
-```
-
 ## API
 
 `constructor(options)`
 
-构造函数，接受参数如 `from` 方法相同。
+构造函数，接受参数和 `from` 方法相同。
 
 `from(options)`
 
@@ -161,43 +127,6 @@ let gc_obj = eqc.toGalactic();
 * withAnnualAberration 是否修正周年光行差
 * withGravitationalDeflection 是否修正太阳引力偏转
 * onFK5 是否修正 FK5
-
-`to(system, options)`
-
-转换当前坐标至目标天球系统
-
-接受参数：
-
-* system 目标系统
-* options 系统参数
-
-`toHorizontal(options)`
-
-转换当前坐标至天球地平系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-* options.obElevation 观测点海拔高度
-
-`toHourAngle(options)`
-
-转换当前坐标至天球时角系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-
-`toEcliptic()`
-
-转换当前坐标至天球黄道系统
-
-`toGalactic()`
-
-转换当前坐标至天球银道系统
 
 `onJ2000()`
 

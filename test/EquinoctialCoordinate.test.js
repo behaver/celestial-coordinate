@@ -415,310 +415,6 @@ describe('#EquinoctialCoordinate', () => {
     });
   });
 
-  describe('#to', () => {
-    it('The param system should be a String.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.to(1232);
-      }).to.throw();
-    })
-
-    it('The param system should be horizontal、hourangle、ecliptic or galactic.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.to('aacc');
-      }).to.throw();
-
-      expect(() => {
-        ec.to('ecliptic');
-      }).not.to.throw();
-    })
-  });
-
-  describe('#toHorizontal', () => {
-    it('The param obTime should be a JDateRepository.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: 2232123,
-          obGeoLong: 123,
-          obGeoLat: 23,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: 23,
-        })
-      }).not.to.throw();
-    });
-
-    it('The param obGeoLong should be a Number.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: '123',
-          obGeoLat: 23,
-        })
-      }).to.throw();
-    });
-
-    it('The param obGeoLong should be in [-180, 180]', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 180.1,
-          obGeoLat: 23,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: -180.1,
-          obGeoLat: 23,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 0,
-          obGeoLat: 23,
-        })
-      }).not.to.throw();
-    })
-
-    it('The param obGeoLat should be a Number.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: '23',
-        })
-      }).to.throw();
-    })
-
-    it('The param obGeoLat should be in [-90, 90].', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: 90.1,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: -90.1,
-        })
-      }).to.throw();
-    });
-
-    it('The param obElevation should be a number, if it existed.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        let hc_obj = ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: 30.32,
-          obElevation: 1221,
-        });
-      }).not.to.throw();
-
-      expect(() => {
-        let hc_obj = ec.toHorizontal({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-          obGeoLat: 30.32,
-          obElevation: '1221',
-        });
-      }).to.throw();
-    });
-
-    it('The return should a right structure.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      let hc_obj = ec.toHorizontal({
-        obTime: new JDateRepository(new Date, 'date'),
-        obGeoLong: 123,
-        obGeoLat: 30.32,
-      });
-
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'withAR', 'centerMode');
-    })
-
-    it('Verify 天文算法 例12.b', () => {
-      let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-      let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('23h 09m 16.641s').getDegrees(),
-        dec: angle.parseDACString('-6°43′11.61″').getDegrees(),
-        epoch: epoch,
-        withNutation: true,
-      });
-
-      let hc = eqc.toHorizontal({
-        // obTime: epoch,
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-        obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
-      });
-
-      
-      expect(angle.setRadian(hc.sc.phi).getDegrees()).to.closeTo(68.0337, 0.0001);
-      expect(angle.setRadian(hc.sc.theta).getDegrees()).to.closeTo(90 - 15.1249, 0.0001);
-    });
-  });
-
-  describe('#toHourAngle', () => {
-    it('The param obTime should be a JDateRepository.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHourAngle({
-          obTime: 2232123,
-          obGeoLong: 123,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHourAngle({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 123,
-        })
-      }).not.to.throw();
-    });
-
-    it('The param obGeoLong should be a Number.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHourAngle({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: '123',
-        })
-      }).to.throw();
-    });
-
-    it('The param obGeoLong should be in [-180, 180]', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      expect(() => {
-        ec.toHourAngle({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: 180.1,
-        })
-      }).to.throw();
-
-      expect(() => {
-        ec.toHourAngle({
-          obTime: new JDateRepository(new Date, 'date'),
-          obGeoLong: -180.1,
-        })
-      }).to.throw();
-    });
-
-    it('The return should a right structure.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      let hc_obj = ec.toHourAngle({
-        obTime: new JDateRepository(new Date, 'date'),
-        obGeoLong: 123,
-      });
-
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong');
-    })
-  });
-
-  describe('#toEcliptic', () => {
-    it('The return should a right structure.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      let ecc_obj = ec.toEcliptic();
-
-      expect(ecc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'onFK5', 'withAnnualAberration', 'withGravitationalDeflection', 'centerMode');
-    });
-
-    it('Verify 天文算法 例12.a', () => {
-      let eqc = new EquinoctialCoordinate({
-        ra: 116.328942,
-        dec: 28.026183,
-      });
-
-      let ecc = eqc.toEcliptic();
-      expect(angle.setRadian(ecc.sc.phi).getDegrees()).to.closeTo(113.215630, 0.000001);
-      expect(angle.setRadian(ecc.sc.theta).getDegrees()).to.closeTo(90 - 6.684170, 0.0001);
-    });
-  });
-
-  describe('#toGalactic', () => {
-    it('The return should a right structure.', () => {
-      let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
-      });
-
-      let gc_obj = ec.toGalactic();
-
-      expect(gc_obj).to.have.all.keys('sc', 'epoch');
-    })
-
-    it('Verify 天文算法 第12章 P79 练习', () => {
-      let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
-        epoch: new JDateRepository(1950.0, 'bepoch'),
-      });
-
-      let gc = eqc.toGalactic();
-
-      expect(angle.setRadian(gc.sc.phi).getDegrees()).to.closeTo(12.9593, 0.001);
-      expect(angle.setRadian(Math.PI / 2 - gc.sc.theta).getDegrees()).to.closeTo(6.0463, 0.0002);
-    });
-  })
-
   describe('#onJ2000', () => {
     it('The property epoch after onJ2000 should equal J2000.', () => {
       let eqc = new EquinoctialCoordinate({
@@ -769,6 +465,19 @@ describe('#EquinoctialCoordinate', () => {
       eqc.patchNutation();
 
       expect(eqc.withNutation).to.equal(true);
+    });
+
+    it('#Verify 《天文算法》P124 例22.b', () => {
+      let eqc = new EquinoctialCoordinate({
+        ra: 41.5555635,
+        dec: 49.3503415,
+        epoch: new JDateRepository(2462088.69, 'jde')
+      });
+
+      eqc.withNutation = true;
+
+      expect(eqc.ra.getDegrees()).to.closeTo(41.5599646, 0.000001);
+      expect(eqc.dec.getDegrees()).to.closeTo(49.3520685, 0.000001);
     });
   });
 
@@ -961,7 +670,7 @@ describe('#EquinoctialCoordinate', () => {
 
       expect(eqc.sc.phi).not.to.equal(phi0);
       expect(eqc.sc.theta).not.to.equal(theta0);
-      expect(eqc.sc.r).not.to.equal(r0);
+      // expect(eqc.sc.r).not.to.equal(r0);
     });
   });
 

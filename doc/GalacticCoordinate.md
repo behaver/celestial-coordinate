@@ -39,39 +39,6 @@ let sc = gc.sc;
 let epoch = gc.epoch;
 ```
 
-使用 GalacticCoordinate 将天球银道坐标 转换至 其他天球坐标系统：
-
-```js
-const { GalacticCoordinate } = require('@behaver/celestial-coordinate');
-const { JDateRepository } = require('@behaver/jdate');
-
-let gc = new GalacticCoordinate({
-  l: 350.1532,
-  b: -6.8721,
-});
-
-let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-
-// 转换输出天球地平坐标对象
-let hc_obj = gc.toHorizontal({
-  obTime: epoch,
-  obGeoLong: 77.0897,
-  obGeoLat: 38.9231,
-});
-
-// 转换输出天球时角坐标对象
-let hac_obj = gc.toHourAngle({
-  obTime: epoch,
-  obGeoLong: 77.0897,
-});
-
-// 转换输出天球赤道坐标对象
-let eqc_obj = gc.toEquinoctial();
-
-// 转换输出天球黄道坐标对象
-let ecc_obj = gc.toEcliptic();
-```
-
 ## API
 
 `constructor(options)`
@@ -130,43 +97,6 @@ let ecc_obj = gc.toEcliptic();
 
 * sc 球坐标
 * epoch 坐标历元
-
-`to(system, options)`
-
-转换当前坐标至目标天球系统
-
-接受参数：
-
-* system 目标系统
-* options 系统参数
-
-`toHorizontal(options)`
-
-转换当前坐标至天球地平系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-* options.obGeoLat 观测点地理纬度，单位：度，值域：[-90, 90]
-* options.obElevation 观测点海拔高度
-
-`toHourAngle(options)`
-
-转换当前坐标至天球时角系统
-
-系统参数：
-
-* options.obTime 观测时间
-* options.obGeoLong 观测点地理经度，单位：度，值域：[-180, 180]
-
-`toEquinoctial()`
-
-转换当前坐标至天球赤道系统
-
-`toEcliptic()`
-
-转换当前坐标至天球黄道系统
 
 `onEpoch(epoch)`
 

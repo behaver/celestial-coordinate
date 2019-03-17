@@ -4,6 +4,7 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Angle = require('@behaver/angle');
 const HorizontalCoordinate = require('../src/HorizontalCoordinate');
 const EquinoctialCoordinate = require('../src/EquinoctialCoordinate');
+const SystemSwitcher = require('../src/SystemSwitcher');
 const SiderealTime = require('@behaver/sidereal-time');
 const DiurnalParallax = require('@behaver/diurnal-parallax');
 
@@ -899,13 +900,20 @@ describe('#HorizontalCoordinate', () => {
         sc: egc,
         epoch: jdate,
         withNutation: true,
+        withAnnualAberration: true,
+        withGravitationalDeflection: true,
+        onFK5: true,
       });
 
+      let SS = new SystemSwitcher(ec);
+
       // 地平地心坐标
-      let hgc = ec.toHorizontal({
+      let hgc = SS.to('hc', {
+        obTime: jdate,
         obGeoLong,
         obGeoLat,
-      }).sc;
+        obElevation: 1713,
+      }).sc
 
       let hdp = new DiurnalParallax({
         gc: hgc,
@@ -932,7 +940,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(htc.r).to.closeTo(hc.radius, 1e-12);
       expect(htc.theta).to.equal(hc.z.getRadian());
-      expect(htc.phi).to.equal(hc.a.getRadian());
+      expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
 
       hc.on({
         centerMode: 'geocentric',
@@ -948,7 +956,7 @@ describe('#HorizontalCoordinate', () => {
       expect(htc.theta).to.equal(hc.z.getRadian());
       expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
 
-      let egc2 = hc.toEquinoctial().sc;
+      let egc2 = SS.from(hc).to('eqc').sc;
 
       expect(egc.r).to.closeTo(egc2.r, 0.000001);
       expect(egc.theta).to.closeTo(egc2.theta, 1e-10);
@@ -1141,193 +1149,6 @@ describe('#HorizontalCoordinate', () => {
       expect(theta0).not.to.equal(hc.sc.theta);
 
       expect(hc.withAR).to.equal(false);
-    });
-  });
-
-  describe('#to', () => {
-    it('The param system should be a String.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      expect(() => {
-        hc.to(1232);
-      }).to.throw();
-    })
-
-    it('The param system should be horizontal、equinoctial、ecliptic or galactic.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      expect(() => {
-        hc.to('aacc');
-      }).to.throw();
-
-      expect(() => {
-        hc.to('ecliptic');
-      }).not.to.throw();
-    })
-  });
-
-  describe('#toHourAngle', () => {
-    it('Verify with verified module Equinoctial and 天文算法 例12.b', () => {
-      let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-      let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('23h 09m 16.641s').getDegrees(),
-        dec: angle.parseDACString('-6°43′11.61″').getDegrees(),
-        epoch: epoch,
-        withNutation: true,
-      });
-
-      let eqc2hac = eqc.toHourAngle({
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-      });
-
-      let hc = new HorizontalCoordinate({
-        obTime: epoch,
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-        obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
-        a: 68.0337,
-        h: 15.1249,
-      });
-
-      let hc2hac = hc.toHourAngle();
-
-      expect(angle.setRadian(eqc2hac.sc.phi).getDegrees()).to.closeTo(angle.setRadian(hc2hac.sc.phi).getDegrees(), 0.0002);
-      expect(angle.setRadian(eqc2hac.sc.theta).getDegrees()).to.closeTo(angle.setRadian(hc2hac.sc.theta).getDegrees(), 0.0001);
-    });
-
-    it('The return should be a right structure.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let hac_obj = hc.toHourAngle({
-        obTime: new JDateRepository(new Date, 'date'),
-        obGeoLong: 123,
-      });
-
-      expect(hac_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong');
-    });
-  });
-
-  describe('#toEquinoctial', () => {
-    it('The return should be a right structure.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let eqc_obj = hc.toEquinoctial();
-
-      expect(eqc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5');
-    });
-
-    it('Verify 天文算法 例12.b', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(new Date('1987/04/11 03:21:00'), 'date'),
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-        obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
-        a: 68.0337,
-        h: 15.1249,
-      });
-
-      let eqc_obj = hc.toEquinoctial();
-
-      expect(angle.setRadian(eqc_obj.sc.phi).getDegrees()).to.closeTo(angle.parseHACString('23h 09m 16.641s').getDegrees(), 0.0002);
-      expect(angle.setRadian(eqc_obj.sc.theta).getDegrees()).to.closeTo(90 - angle.parseDACString('-6°43′11.61″').getDegrees(), 0.0001);
-    });
-  });
-
-  describe('#toEcliptic', () => {
-    it('The return should be a right structure.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let ecc_obj = hc.toEcliptic();
-
-      expect(ecc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5', 'centerMode');
-    });
-
-    it('Verify with verified module Equinoctial and 天文算法 例12.b', () => {
-      let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-      let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('23h 09m 16.641s').getDegrees(),
-        dec: angle.parseDACString('-6°43′11.61″').getDegrees(),
-        epoch: epoch,
-        withNutation: true,
-      });
-
-      let eqc2ecc = eqc.toEcliptic();
-
-      let hc = new HorizontalCoordinate({
-        obTime: epoch,
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-        obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
-        a: 68.0337,
-        h: 15.1249,
-      });
-
-      let hc2ecc = hc.toEcliptic();
-
-      expect(angle.setRadian(eqc2ecc.sc.phi).getDegrees()).to.closeTo(angle.setRadian(hc2ecc.sc.phi).getDegrees(), 0.0001);
-      expect(angle.setRadian(eqc2ecc.sc.theta).getDegrees()).to.closeTo(angle.setRadian(hc2ecc.sc.theta).getDegrees(), 0.0001);
-    });
-  });
-
-  describe('#toGalactic', () => {
-    it('The return should be a right structure.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let gc_obj = hc.toGalactic();
-
-      expect(gc_obj).to.have.all.keys('sc', 'epoch');
-    });
-
-    it('Verify with verified module Equinoctial and 天文算法 例12.b', () => {
-      let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
-      let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('23h 09m 16.641s').getDegrees(),
-        dec: angle.parseDACString('-6°43′11.61″').getDegrees(),
-        epoch: epoch,
-        withNutation: true,
-      });
-
-      let eqc2gc = eqc.toGalactic();
-
-      let hc = new HorizontalCoordinate({
-        obTime: epoch,
-        obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
-        obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
-        a: 68.0337,
-        h: 15.1249,
-      });
-
-      let hc2gc = hc.toGalactic();
-
-      expect(angle.setRadian(eqc2gc.sc.phi).getDegrees()).to.closeTo(angle.setRadian(hc2gc.sc.phi).getDegrees(), 0.0002);
-      expect(angle.setRadian(eqc2gc.sc.theta).getDegrees()).to.closeTo(angle.setRadian(hc2gc.sc.theta).getDegrees(), 0.0001);
     });
   });
 

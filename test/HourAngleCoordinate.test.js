@@ -3,7 +3,6 @@ const { JDateRepository } = require('@behaver/jdate');
 const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Angle = require('@behaver/angle');
 const HourAngleCoordinate = require('../src/HourAngleCoordinate');
-const EquinoctialCoordinate = require('../src/EquinoctialCoordinate');
 
 const angle = new Angle;
 
@@ -580,94 +579,6 @@ describe('#HourAngleCoordinate', () => {
 
       expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong');
     })
-  });
-
-  describe('#to', () => {
-    it('The param system should be a String.', () => {
-      let hc = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      expect(() => {
-        hc.to(1232);
-      }).to.throw();
-    })
-
-    it('The param system should be hourangle、equinoctia、ecliptic or galactic.', () => {
-      let hc = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      expect(() => {
-        hc.to('aacc');
-      }).to.throw();
-
-      expect(() => {
-        hc.to('ecliptic');
-      }).not.to.throw();
-    })
-  });
-
-  describe('#toHorizontal', () => {
-    it('The return should be a right structure.', () => {
-      let hac = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let hc_obj = hac.toHorizontal({
-        obGeoLat: 23,
-      });
-
-      expect(hc_obj).to.have.all.keys('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'withAR');
-    });
-  });
-
-  describe('#toEquinoctial', () => {
-    it('The return should be a right structure.', () => {
-      let hac = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let eqc_obj = hac.toEquinoctial();
-
-      expect(eqc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5');
-    });
-  });
-
-  describe('#toEcliptic', () => {
-    it('The return should be a right structure.', () => {
-      let hac = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let ecc_obj = hac.toEcliptic();
-
-      expect(ecc_obj).to.have.all.keys('sc', 'epoch', 'withNutation', 'withAnnualAberration', 'withGravitationalDeflection', 'onFK5', 'centerMode');
-    });
-  });
-
-  describe('#toGalactic', () => {
-    it('The return should be a right structure.', () => {
-      let hac = new HourAngleCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      let gc_obj = hac.toGalactic();
-
-      expect(gc_obj).to.have.all.keys('sc', 'epoch');
-    });
   });
 
   describe('#get obTime', () => {

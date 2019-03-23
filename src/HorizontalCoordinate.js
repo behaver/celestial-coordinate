@@ -76,6 +76,7 @@ class HorizontalCoordinate extends CommonCoordinate {
     this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
     this.private = {
+      ...this.private,
       obTime,
       obGeoLong,
       obGeoLat,
@@ -484,7 +485,7 @@ class HorizontalCoordinate extends CommonCoordinate {
    * @return {Angle} 地平高度 角度对象
    */
   get h() {
-    return new Angle(Math.PI / 2 - this.sc.theta, 'r').inRound(-180, 'd');
+    return new Angle(Math.PI / 2 - this.sc.theta, 'r');
   }
 
   /**

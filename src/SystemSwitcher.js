@@ -45,6 +45,7 @@ const Switchers = {
       withAnnualAberration: true,
       withGravitationalDeflection: true,
       onFK5: true,
+      isContinuous: coord.isContinuous,
     });
 
     return eqc;
@@ -73,6 +74,7 @@ const Switchers = {
       withAnnualAberration: true,
       withGravitationalDeflection: true,
       onFK5: true,
+      isContinuous: coord.isContinuous,
     });
 
     return eqc;
@@ -110,6 +112,7 @@ const Switchers = {
       withAnnualAberration: coord.private.withAnnualAberration,
       withGravitationalDeflection: coord.private.withGravitationalDeflection,
       onFK5: coord.private.onFK5,
+      isContinuous: coord.isContinuous,
     });
 
     return eqc;
@@ -154,6 +157,7 @@ const Switchers = {
       withAnnualAberration: false,
       withGravitationalDeflection: false,
       onFK5: true,
+      isContinuous: coord.isContinuous,
     });
 
     return eqc;
@@ -211,6 +215,7 @@ const Switchers = {
       obElevation,
       withAR: false,
       centerMode: 'geocentric',
+      isContinuous: coord.isContinuous,
     });
 
     if (centerMode === 'topocentric') hc.onTopocentric();
@@ -259,6 +264,7 @@ const Switchers = {
       sc, 
       obTime, 
       obGeoLong,
+      isContinuous: coord.isContinuous,
     });
 
     return hac;
@@ -273,7 +279,7 @@ const Switchers = {
   EQC2ECC: function(coord, options) {
 
     // 获取可转换状态下的 赤道球坐标
-    let { sc } = coord.get();
+    let sc = coord.sc;
 
     // 获取黄赤交角
     let e0 = angle.setSeconds(coord.Precession.epsilon).getRadian();
@@ -295,6 +301,7 @@ const Switchers = {
       withGravitationalDeflection: coord.private.withGravitationalDeflection,
       onFK5: coord.private.onFK5,
       centerMode: 'geocentric',
+      isContinuous: coord.isContinuous,
     });
 
     if (options !== undefined) ecc.on(options);
@@ -341,6 +348,7 @@ const Switchers = {
     // 实例化生成对应状态的银道坐标对象
     let gc = new GalacticCoordinate({
       sc,
+      isContinuous: coord.isContinuous,
     });
 
     if (options !== undefined) gc.on(options);
@@ -428,6 +436,7 @@ class SystemSwitcher {
           withAnnualAberration: eqc.withAnnualAberration,
           withGravitationalDeflection: eqc.withGravitationalDeflection,
           onFK5: eqc.onFK5,
+          isContinuous: eqc.isContinuous,
         });
         
         if(options !== undefined) res.on(options);

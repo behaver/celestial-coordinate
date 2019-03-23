@@ -67,6 +67,7 @@ class EclipticCoordinate extends CommonCoordinate {
     this.Nutation = new Nutation({ epoch });
 
     this.private = { 
+      ...this.private,
       epoch, 
       centerMode,
       withNutation, 
@@ -118,6 +119,9 @@ class EclipticCoordinate extends CommonCoordinate {
 
     this.onGeocentric();
 
+    // 历元岁差 修正处理
+    this.onEpoch(epoch);
+
     // FK5 修正处理
     if (onFK5) this.patchFK5();
     else this.unpatchFK5();
@@ -129,9 +133,6 @@ class EclipticCoordinate extends CommonCoordinate {
     // 引力偏转 修正处理
     if (withGravitationalDeflection) this.patchGravitationalDeflection();
     else this.unpatchGravitationalDeflection();
-
-    // 历元岁差 修正处理
-    this.onEpoch(epoch);
 
     // 章动 修正处理
     if (withNutation) this.patchNutation();
@@ -543,7 +544,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {Angle} 黄纬 角度对象
    */
   get b() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r')).inRound(-180, 'd');
+    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
   }
 
   /**

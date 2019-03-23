@@ -932,6 +932,7 @@ describe('#HorizontalCoordinate', () => {
         obGeoLat,
         obElevation: 1713,
         centerMode: 'geocentric',
+        isContinuous: true,
       });
 
       hc.on({
@@ -956,6 +957,8 @@ describe('#HorizontalCoordinate', () => {
       expect(htc.theta).to.equal(hc.z.getRadian());
       expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
 
+      hc.isContinuous = false;
+      
       let egc2 = SS.from(hc).to('eqc').sc;
 
       expect(egc.r).to.closeTo(egc2.r, 0.000001);

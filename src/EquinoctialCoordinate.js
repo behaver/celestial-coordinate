@@ -62,6 +62,7 @@ class EquinoctialCoordinate extends CommonCoordinate {
     this.Nutation = new Nutation({ epoch });
 
     this.private = { 
+      ...this.private,
       epoch, 
       withNutation, 
       withAnnualAberration,
@@ -106,6 +107,9 @@ class EquinoctialCoordinate extends CommonCoordinate {
     if (withGravitationalDeflection === undefined) withGravitationalDeflection = this.withGravitationalDeflection;
     if (onFK5 === undefined) onFK5 = this.onFK5;
 
+    // 历元岁差 修正处理
+    this.onEpoch(epoch);
+
     // FK5 修正处理
     if (onFK5) this.patchFK5();
     else this.unpatchFK5();
@@ -117,9 +121,6 @@ class EquinoctialCoordinate extends CommonCoordinate {
     // 引力偏转 修正处理
     if (withGravitationalDeflection) this.patchGravitationalDeflection();
     else this.unpatchGravitationalDeflection();
-
-    // 历元岁差 修正处理
-    this.onEpoch(epoch);
 
     // 章动 修正处理
     if (withNutation) this.patchNutation();
@@ -488,7 +489,7 @@ class EquinoctialCoordinate extends CommonCoordinate {
    * @return {Angle} 赤纬 角度对象
    */
   get dec() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r')).inRound(-180, 'd');
+    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
   }
 
   /**

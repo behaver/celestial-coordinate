@@ -19,6 +19,12 @@ class CommonCoordinate {
    * @param  {Object} options 坐标参数
    */
   constructor(options) {
+
+    // 初始化私有空间
+    this.private = {
+      isContinuous: !! options.isContinuous
+    };
+
     this.from(options);
   }
 
@@ -29,7 +35,17 @@ class CommonCoordinate {
    */
   get sc() {
     let sc = this.private.sc;
-    return new SphericalCoordinate3D(sc.r, sc.theta, sc.phi);
+
+    if (this.private.isContinuous) {
+      return new SphericalCoordinate3D(sc.r, sc.theta, sc.phi);
+    } else {
+      // 角度表达数值范围调整
+      let pi2 = 2 * Math.PI,
+          phi = (sc.phi >= 0) ? (sc.phi % pi2) : sc.phi % pi2 + pi2,
+          theta = sc.theta + Math.ceil((- Math.PI - sc.theta) / pi2) * pi2;
+
+      return new SphericalCoordinate3D(sc.r, theta, phi);
+    }
   }
 
   /**
@@ -50,6 +66,24 @@ class CommonCoordinate {
    */
   get radius() {
     return this.sc.r;
+  }
+
+  /**
+   * 设置 结果值的连续性
+   * 
+   * @param {Boolean} value 结果值的连续性
+   */
+  set isContinuous(value) {
+    this.private.isContinuous = !!value;
+  }
+
+  /**
+   * 获取 结果值连续性设定
+   * 
+   * @return {Boolean} 结果值连续性设定
+   */
+  get isContinuous() {
+    return this.private.isContinuous;
   }
 }
 

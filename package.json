@@ -29,16 +29,16 @@
   },
   "dependencies": {
     "@behaver/angle": "^2.0.2",
-    "@behaver/annual-aberration": "^1.0.1",
+    "@behaver/annual-aberration": "^1.0.2",
     "@behaver/atmospheric-refraction": "^1.0.1",
-    "@behaver/coordinate": "^3.3.0",
-    "@behaver/diurnal-parallax": "^1.1.2",
-    "@behaver/fk5-deflection": "^1.0.0",
-    "@behaver/gravitational-deflection": "^1.1.1",
+    "@behaver/coordinate": "^3.3.1",
+    "@behaver/diurnal-parallax": "^1.1.3",
+    "@behaver/fk5-deflection": "^1.0.1",
+    "@behaver/gravitational-deflection": "^1.1.2",
     "@behaver/jdate": "^2.3.0",
-    "@behaver/nutation": "^2.0.0",
-    "@behaver/precession": "^2.0.1",
-    "@behaver/sidereal-time": "^1.1.1",
-    "@behaver/solar-planets-hecc": "^1.0.1"
+    "@behaver/nutation": "^2.0.1",
+    "@behaver/precession": "^2.0.2",
+    "@behaver/sidereal-time": "^1.1.2",
+    "@behaver/solar-planets-hecc": "^1.0.5"
   }
 }

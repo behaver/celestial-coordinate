@@ -48,6 +48,7 @@ class HourAngleCoordinate extends CommonCoordinate {
     this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
     this.private = {
+      ...this.private,
       obTime,
       obGeoLong,
     };
@@ -224,7 +225,7 @@ class HourAngleCoordinate extends CommonCoordinate {
    * @return {Angle} 赤纬 角度对象
    */
   get dec() {
-    return new Angle(Math.PI / 2 - this.sc.theta, 'r').inRound(-180, 'd');
+    return new Angle(Math.PI / 2 - this.sc.theta, 'r');
   }
 
   /**

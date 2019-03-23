@@ -69,6 +69,7 @@ class GalacticCoordinate extends CommonCoordinate {
     this.gceqc.on({ epoch });
     
     this.private = {
+      ...this.private,
       epoch,
     };
 
@@ -246,7 +247,7 @@ class GalacticCoordinate extends CommonCoordinate {
    * @return {Angle} 银纬 角度对象
    */
   get b() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r')).inRound(-180, 'd');
+    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
   }
 
   /**

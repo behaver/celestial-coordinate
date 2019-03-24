@@ -41,5 +41,7 @@
     "@behaver/sidereal-time": "^1.1.3",
     "@behaver/solar-planets-hecc": "^1.0.6"
   },
-  "files": []
+  "files": [
+    "src"
+  ]
 }

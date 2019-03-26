@@ -57,7 +57,11 @@ let withNutation = ec.withNutation;
 
 `constructor(options)`
 
-构造函数，接受参数和 `from` 方法相同。
+构造函数
+
+* options.isContinuous 结果坐标值是否连续，默认：false
+
+其他参数和 `from` 方法相同。
 
 `from(options)`
 
@@ -77,6 +81,9 @@ let withNutation = ec.withNutation;
 
 * options.epoch 坐标历元
 * options.withNutation 是否修正了章动
+* options.withAnnualAberration 是否修正周年光行差
+* options.withGravitationalDeflection 是否修正太阳引力偏转
+* options.onFK5 是否修正 FK5
 * options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 
 `on(options)`
@@ -87,6 +94,9 @@ let withNutation = ec.withNutation;
 
 * options.epoch 坐标历元
 * options.withNutation 坐标是否修复章动
+* options.withAnnualAberration 是否修正周年光行差
+* options.withGravitationalDeflection 是否修正太阳引力偏转
+* options.onFK5 是否修正 FK5
 * options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 
 `position(options)`
@@ -111,6 +121,9 @@ let withNutation = ec.withNutation;
 
 * options.epoch 坐标历元
 * options.withNutation 坐标是否修复章动
+* options.withAnnualAberration 是否修正周年光行差
+* options.withGravitationalDeflection 是否修正太阳引力偏转
+* options.onFK5 是否修正 FK5
 * options.centerMode 中心模式，接受：geocentric(地心坐标)、heliocentric(日心坐标)
 
 返回结果对象的属性：
@@ -167,6 +180,14 @@ let withNutation = ec.withNutation;
 `get radius()`
 
 获取 距离
+
+`get isContinuous()`
+
+获取 结果值连续性设定
+
+`set isContinuous(value)`
+
+设置 结果值的连续性
 
 `get epoch()`
 

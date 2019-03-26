@@ -108,25 +108,25 @@ describe('#HourAngleCoordinate', () => {
       }).to.throw();
     });
 
-    it('The param t should be in [0, 360).', () => {
-      expect(() => {
-        new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: -1,
-          dec: 60,
-        });
-      }).to.throw();
+    // it('The param t should be in [0, 360).', () => {
+    //   expect(() => {
+    //     new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: -1,
+    //       dec: 60,
+    //     });
+    //   }).to.throw();
 
-      expect(() => {
-        new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 361,
-          dec: 60,
-        });
-      }).to.throw();
-    });
+    //   expect(() => {
+    //     new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 361,
+    //       dec: 60,
+    //     });
+    //   }).to.throw();
+    // });
 
     it('The param dec if existed should be a Number.', () => {
       expect(() => {
@@ -147,25 +147,25 @@ describe('#HourAngleCoordinate', () => {
       }).to.throw();
     });
 
-    it('The param dec should be in [-90, 90].', () => {
-      expect(() => {
-        new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-          dec: -91,
-        });
-      }).to.throw();
+    // it('The param dec should be in [-90, 90].', () => {
+    //   expect(() => {
+    //     new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //       dec: -91,
+    //     });
+    //   }).to.throw();
 
-      expect(() => {
-        new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-          dec: 91,
-        });
-      }).to.throw();
-    });
+    //   expect(() => {
+    //     new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //       dec: 91,
+    //     });
+    //   }).to.throw();
+    // });
 
     it('The param radius if existed should be a Number.', () => {
       expect(() => {
@@ -336,31 +336,31 @@ describe('#HourAngleCoordinate', () => {
       }).to.throw();
     });
 
-    it('The param t should be in [0, 360).', () => {
-      expect(() => {
-        let hc = new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-        });
+    // it('The param t should be in [0, 360).', () => {
+    //   expect(() => {
+    //     let hc = new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //     });
 
-        hc.position({
-          t: -1
-        })
-      }).to.throw();
+    //     hc.position({
+    //       t: -1
+    //     })
+    //   }).to.throw();
 
-      expect(() => {
-        let hc = new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-        });
+    //   expect(() => {
+    //     let hc = new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //     });
 
-        hc.position({
-          t: 361
-        })
-      }).to.throw();
-    });
+    //     hc.position({
+    //       t: 361
+    //     })
+    //   }).to.throw();
+    // });
 
     it('The param dec if existed should be a Number.', () => {
       expect(() => {
@@ -390,33 +390,33 @@ describe('#HourAngleCoordinate', () => {
       }).to.throw();
     });
 
-    it('The param dec should be in [-90, 90].', () => {
-      expect(() => {
-        let hc = new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-        });
+    // it('The param dec should be in [-90, 90].', () => {
+    //   expect(() => {
+    //     let hc = new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //     });
 
-        hc.position({
-          t: 210,
-          dec: -91,
-        })
-      }).to.throw();
+    //     hc.position({
+    //       t: 210,
+    //       dec: -91,
+    //     })
+    //   }).to.throw();
 
-      expect(() => {
-        let hc = new HourAngleCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          t: 120,
-        });
+    //   expect(() => {
+    //     let hc = new HourAngleCoordinate({
+    //       obTime: new JDateRepository(2000.0, 'jepoch'),
+    //       obGeoLong: 120,
+    //       t: 120,
+    //     });
 
-        hc.position({
-          t: 210,
-          dec: 91,
-        })
-      }).to.throw();
-    });
+    //     hc.position({
+    //       t: 210,
+    //       dec: 91,
+    //     })
+    //   }).to.throw();
+    // });
 
     it('The param radius if existed should be a Number.', () => {
       expect(() => {

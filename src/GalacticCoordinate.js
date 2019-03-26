@@ -171,11 +171,11 @@ class GalacticCoordinate extends CommonCoordinate {
     if (sc === undefined) { // 通过参数 l, b, radius 设定坐标值
       if (l === undefined) throw Error('One of the param sc or l should be given.');
       else if (typeof(l) !== 'number') throw Error('The param l should be a Number.');
-      else if (l >= 360 || l < 0) throw Error('The param l should be in [0, 360)');
+      // else if (l >= 360 || l < 0) throw Error('The param l should be in [0, 360)');
       
       if (b === undefined) b = 0;
       else if (typeof(b) !== 'number') throw Error('The param b should be a Number.');
-      else if (b < -90 || b > 90) throw Error('The param b should be in [-90, 90]');
+      // else if (b < -90 || b > 90) throw Error('The param b should be in [-90, 90]');
       
       if (radius === undefined) radius = 1;
       else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');

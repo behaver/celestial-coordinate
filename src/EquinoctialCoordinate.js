@@ -147,11 +147,11 @@ class EquinoctialCoordinate extends CommonCoordinate {
     if (sc === undefined) { // 通过参数 ra, dec, radius 设定坐标值
       if (ra === undefined) throw Error('One of the param sc or ra should be given.');
       else if (typeof(ra) !== 'number') throw Error('The param ra should be a Number.');
-      else if (ra >= 360 || ra < 0) throw Error('The param ra should be in [0, 360)');
+      // else if (ra >= 360 || ra < 0) throw Error('The param ra should be in [0, 360)');
       
       if (dec === undefined) dec = 0;
       else if (typeof(dec) !== 'number') throw Error('The param dec should be a Number.');
-      else if (dec < -90 || dec > 90) throw Error('The param dec should be in [-90, 90]');
+      // else if (dec < -90 || dec > 90) throw Error('The param dec should be in [-90, 90]');
       
       if (radius === undefined) radius = 1;
       else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');

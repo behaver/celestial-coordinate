@@ -40,19 +40,19 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be in [0, 360).', () => {
-      expect(() => {
-        new EclipticCoordinate({
-          l: -1
-        })
-      }).to.throw();
+    // it('The param l should be in [0, 360).', () => {
+    //   expect(() => {
+    //     new EclipticCoordinate({
+    //       l: -1
+    //     })
+    //   }).to.throw();
 
-      expect(() => {
-        new EclipticCoordinate({
-          l: 360
-        })
-      }).to.throw();
-    })
+    //   expect(() => {
+    //     new EclipticCoordinate({
+    //       l: 360
+    //     })
+    //   }).to.throw();
+    // })
 
     it('The param b should be a Number.', () => {
       expect(() => {
@@ -69,21 +69,21 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw()
     });
 
-    it('The param b should be in [-90, 90].', () => {
-      expect(() => {
-        new EclipticCoordinate({
-          l: 23,
-          b: - 90.232
-        });
-      }).to.throw();
+    // it('The param b should be in [-90, 90].', () => {
+    //   expect(() => {
+    //     new EclipticCoordinate({
+    //       l: 23,
+    //       b: - 90.232
+    //     });
+    //   }).to.throw();
 
-      expect(() => {
-        new EclipticCoordinate({
-          l: 12.32,
-          b: 90.23
-        });
-      }).to.throw();
-    })
+    //   expect(() => {
+    //     new EclipticCoordinate({
+    //       l: 12.32,
+    //       b: 90.23
+    //     });
+    //   }).to.throw();
+    // })
 
     it('The param radius should be a Number.', () => {
       expect(() => {
@@ -290,27 +290,27 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be in [0, 360).', () => {
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332
-        });
+    // it('The param l should be in [0, 360).', () => {
+    //   expect(() => {
+    //     let ec = new EclipticCoordinate({
+    //       l: 123.2332
+    //     });
 
-        ec.position({
-          l: -1
-        })
-      }).to.throw();
+    //     ec.position({
+    //       l: -1
+    //     })
+    //   }).to.throw();
 
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332
-        });
+    //   expect(() => {
+    //     let ec = new EclipticCoordinate({
+    //       l: 123.2332
+    //     });
 
-        ec.position({
-          l: 360
-        })
-      }).to.throw();
-    })
+    //     ec.position({
+    //       l: 360
+    //     })
+    //   }).to.throw();
+    // })
 
     it('The param b should be a Number.', () => {
       expect(() => {
@@ -336,29 +336,29 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw()
     });
 
-    it('The param b should be in [-90, 90].', () => {
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332
-        });
+    // it('The param b should be in [-90, 90].', () => {
+    //   expect(() => {
+    //     let ec = new EclipticCoordinate({
+    //       l: 123.2332
+    //     });
 
-        ec.position({
-          l: 112.2323,
-          b: -90.232
-        })
-      }).to.throw();
+    //     ec.position({
+    //       l: 112.2323,
+    //       b: -90.232
+    //     })
+    //   }).to.throw();
 
-      expect(() => {
-        let ec = new EclipticCoordinate({
-          l: 123.2332
-        });
+    //   expect(() => {
+    //     let ec = new EclipticCoordinate({
+    //       l: 123.2332
+    //     });
 
-        ec.position({
-          l: 112.2323,
-          b: 90.232
-        })
-      }).to.throw();
-    })
+    //     ec.position({
+    //       l: 112.2323,
+    //       b: 90.232
+    //     })
+    //   }).to.throw();
+    // })
 
     it('The param radius should be a Number.', () => {
       expect(() => {

@@ -321,17 +321,17 @@ class HorizontalCoordinate extends CommonCoordinate {
     if (sc === undefined) { // 通过参数 h, z, a, radius 设定坐标值
       if (a === undefined) throw Error('One of the param a or sc should be given.');
       else if (typeof(a) !== 'number') throw Error('The param a should be a Number.');
-      else if (a < 0 || a >= 360) throw Error('The param a should be in [0, 360).');
+      // else if (a < 0 || a >= 360) throw Error('The param a should be in [0, 360).');
 
       if (h !== undefined) {
         if (typeof(h) !== 'number') throw Error('The param h should be a Number.');
-        else if (h < -90 || h > 90) throw Error('The param h should be in [-90, 90].');
+        // else if (h < -90 || h > 90) throw Error('The param h should be in [-90, 90].');
         z = 90 - h;
       }
 
       if (z === undefined) z = 90; // 缺省默认 天顶角 为 90°
       else if (typeof(z) !== 'number') throw Error('The param z should be a Number.');
-      else if (z < 0 || z > 180) throw Error('The param z should be in [0, 180].');
+      // else if (z < 0 || z > 180) throw Error('The param z should be in [0, 180].');
 
       if (radius === undefined) radius = 1;
       else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');

@@ -146,10 +146,13 @@ class HorizontalCoordinate extends CommonCoordinate {
     this.onGeocentric();
 
     // 将地平球坐标转换至瞬时赤道球坐标
-    this.private.sc
+    let sc1 = this.sc
       .inverse('y')
       .rotateY(Math.PI / 2 - angle.setDegrees(this.private.obGeoLat).getRadian())
       .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
+
+    // 保持球坐标值连续性的值更改
+    this.private.SCContinuouslyChange(sc1);
 
     if (changeObTime) { // 针对观测时间改变的情况，引入赤道坐标对象处理
       let ec = new EquinoctialCoordinate({
@@ -159,6 +162,7 @@ class HorizontalCoordinate extends CommonCoordinate {
         withAnnualAberration: true,
         withGravitationalDeflection: true,
         onFK5: true,
+        isContinuous: true,
       });
 
       this.private.sc = ec.get({ 
@@ -172,10 +176,13 @@ class HorizontalCoordinate extends CommonCoordinate {
     this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
     // 将瞬时赤道坐标转换至地平球坐标
-    this.private.sc
+    let sc2 = this.sc
       .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
       .rotateY(- Math.PI / 2 + angle.setDegrees(obGeoLat).getRadian())
       .inverse('y');
+
+    // 保持球坐标值连续性的值更改
+    this.private.SCContinuouslyChange(sc2);
 
     this.private.obGeoLong = obGeoLong;
     this.private.obGeoLat = obGeoLat;
@@ -202,15 +209,15 @@ class HorizontalCoordinate extends CommonCoordinate {
     if (this.private.centerMode === 'geocentric') {
       // 在原有地心坐标的基础上进行转换
       let dp = new DiurnalParallax({
-        gc: this.private.sc,
+        gc: this.sc,
         siderealTime: this.SiderealTime,
         obGeoLat: this.private.obGeoLat,
         obElevation: this.private.obElevation,
         system: 'horizontal',
       });
 
-      // 获取站心球坐标（由地心坐标转化的）
-      this.private.sc = dp.TC;
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(dp.TC);
 
       this.private.centerMode = 'topocentric';
     }
@@ -228,15 +235,15 @@ class HorizontalCoordinate extends CommonCoordinate {
       this.unpatchAR();
 
       let dp = new DiurnalParallax({
-        tc: this.private.sc,
+        tc: this.sc,
         siderealTime: this.SiderealTime,
         obGeoLat: this.private.obGeoLat,
         obElevation: this.private.obElevation,
         system: 'horizontal',
       });
 
-      // 获取地心球坐标（由站心坐标转化的）
-      this.private.sc = dp.GC;
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(dp.GC);
 
       this.private.centerMode = 'geocentric';
     }
@@ -258,8 +265,13 @@ class HorizontalCoordinate extends CommonCoordinate {
           trueH: h,
         });
 
-        // 更新修正后的球坐标
-        this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+        let sc = this.sc;
+
+        // 修正后的球坐标
+        sc.theta = Math.PI / 2 - angle.setDegrees(ar.apparentH).getRadian();
+
+        // 保持球坐标值连续性的值更改
+        this.private.SCContinuouslyChange(sc);
       }
 
       this.private.withAR = true;
@@ -282,8 +294,13 @@ class HorizontalCoordinate extends CommonCoordinate {
           apparentH: h,
         });
 
-        // 更新修正后的球坐标
-        this.private.sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+        let sc = this.sc;
+
+        // 修正后的球坐标
+        sc.theta = Math.PI / 2 - angle.setDegrees(ar.trueH).getRadian();
+      
+        // 保持球坐标值连续性的值更改
+        this.private.SCContinuouslyChange(sc);
       }
 
       this.private.withAR = false;

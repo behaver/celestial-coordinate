@@ -116,20 +116,29 @@ class GalacticCoordinate extends CommonCoordinate {
           gc_dec0 = this.gceqc.dec.getRadian(),
           a0 = Math.PI / 2 - (gc_ra0 - nps_ra0),
           theta0 = Math.acos(Math.cos(a0) * Math.cos(gc_dec0)),
-          sc0 = this.sc;
+          sc0 = new SphericalCoordinate3D(this.private.sc.r, this.private.sc.theta, this.private.sc.phi);
 
       // 将银道坐标转换为 初始历元下的天球赤道坐标
-      sc0.rotateZ(-theta0)
+      let sc1 = this.sc
+        .rotateZ(-theta0)
         .rotateX(Math.PI / 2 - nps_dec0)
         .rotateZ(nps_ra0 + Math.PI / 2);
 
+      // 保持数值连续性处理
+      let delta_phi = angle.setRadian(sc1.phi - sc0.phi).inRound(-180).getRadian(),
+          delta_theta = angle.setRadian(sc1.theta - sc0.theta).inRound(-180).getRadian();
+
       let eqc = new EquinoctialCoordinate({
-        sc: sc0,
+        sc: new SphericalCoordinate3D(sc0.r, sc0.theta + delta_theta, sc0.phi + delta_phi),
         epoch: this.epoch,
+        isContinuous: true,
       });
 
+      eqc.on({ epoch });
+
       // 获取目标历元天球赤道球坐标
-      let sc = eqc.on({ epoch }).sc;
+      let sc = eqc.sc,
+          sc_t = eqc.sc;
 
       this.npseqc.on({ epoch });
       this.gceqc.on({ epoch });
@@ -142,11 +151,14 @@ class GalacticCoordinate extends CommonCoordinate {
           a = Math.PI / 2 - (gc_ra - nps_ra),
           theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
 
-      sc.rotateZ(- nps_ra - Math.PI / 2)
+      sc_t.rotateZ(- nps_ra - Math.PI / 2)
         .rotateX(- Math.PI / 2 + nps_dec)
         .rotateZ(theta);
 
-      this.private.sc = sc;
+      let dt_phi = angle.setRadian(sc_t.phi - sc.phi).inRound(-180).getRadian(),
+          dt_theta = angle.setRadian(sc_t.theta - sc.theta).inRound(-180).getRadian();
+
+      this.private.sc = new SphericalCoordinate3D(sc.r, sc.theta + dt_theta, sc.phi + dt_phi);
       this.private.epoch = epoch;
 
       return this;

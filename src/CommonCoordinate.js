@@ -1,6 +1,9 @@
 'use strict';
 
 const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
+const Angle = require('@behaver/angle');
+
+const angle = new Angle;
 
 /**
  * 坐标公共继承类
@@ -20,9 +23,18 @@ class CommonCoordinate {
    */
   constructor(options) {
 
+    let self = this;
+
     // 初始化私有空间
     this.private = {
-      isContinuous: !! options.isContinuous
+      isContinuous: !! options.isContinuous,
+      SCContinuouslyChange: function(sc) { // 保持数值连续性地更改sc值
+        let sc0 = self.private.sc,
+            delta_phi = angle.setRadian(sc.phi - sc0.phi).inRound(-180).getRadian(),
+            delta_theta = angle.setRadian(sc.theta - sc0.theta).inRound(-180).getRadian();
+
+        self.private.sc = new SphericalCoordinate3D(sc.r, sc0.theta + delta_theta, sc0.phi + delta_phi);
+      }
     };
 
     this.from(options);

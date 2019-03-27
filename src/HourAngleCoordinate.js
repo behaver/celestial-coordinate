@@ -86,9 +86,12 @@ class HourAngleCoordinate extends CommonCoordinate {
     else if (obGeoLong < -180 || obGeoLong > 180) throw Error('The param obGeoLong should be in [-180, 180]');
 
     // 将时角球坐标转换至瞬时赤道球坐标
-    this.private.sc
+    let sc1 = this.sc
       .inverse('y')
       .rotateZ(angle.setSeconds(this.SiderealTime.trueVal).getRadian());
+
+    // 保持球坐标值连续性的值更改
+    this.private.SCContinuouslyChange(sc1);
 
     if (changeObTime) { // 针对观测时间改变的情况，引入赤道坐标对象处理
       let ec = new EquinoctialCoordinate({
@@ -98,6 +101,7 @@ class HourAngleCoordinate extends CommonCoordinate {
         withAnnualAberration: true,
         withGravitationalDeflection: true,
         onFK5: true,
+        isContinuous: true,
       });
 
       this.private.sc = ec.get({ 
@@ -112,9 +116,12 @@ class HourAngleCoordinate extends CommonCoordinate {
     this.private.obGeoLong = obGeoLong;
 
     // 将瞬时赤道坐标转换至时角球坐标
-    this.private.sc
+    let sc2 = this.sc
       .rotateZ(- angle.setSeconds(this.SiderealTime.trueVal).getRadian())
       .inverse('y');
+
+    // 保持球坐标值连续性的值更改
+    this.private.SCContinuouslyChange(sc2);
 
     return this;
   }

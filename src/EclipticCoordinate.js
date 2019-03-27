@@ -270,12 +270,15 @@ class EclipticCoordinate extends CommonCoordinate {
       this.unpatchNutation();
     }
 
-    this.private.sc
+    let sc = this.sc
       .rotateX(e)
       .rotateZ(-z)
       .rotateY(theta)
       .rotateZ(-zeta)
       .rotateX(-e0);
+
+    // 保持球坐标值连续性的值更改
+    this.private.SCContinuouslyChange(sc);
 
     let epoch = new JDateRepository(2000, 'jepoch');
 
@@ -313,18 +316,21 @@ class EclipticCoordinate extends CommonCoordinate {
       this.cache = new CacheSpaceOnJDate(epoch);
 
       if (epoch.J2000 !== 0) { // 从 J2000 历元 转换至 epoch
-        let zeta = angle.setSeconds(this.Precession.zeta).getRadian();
-        let theta = angle.setSeconds(this.Precession.theta).getRadian();
-        let z = angle.setSeconds(this.Precession.z).getRadian();
-        let e = angle.setSeconds(this.Precession.epsilon).getRadian();
-        let e0 = angle.setSeconds(this.Precession.epsilon0).getRadian();
+        let zeta = angle.setSeconds(this.Precession.zeta).getRadian(),
+            theta = angle.setSeconds(this.Precession.theta).getRadian(),
+            z = angle.setSeconds(this.Precession.z).getRadian(),
+            e = angle.setSeconds(this.Precession.epsilon).getRadian(),
+            e0 = angle.setSeconds(this.Precession.epsilon0).getRadian();
 
-        this.private.sc
+        let sc = this.sc
           .rotateX(e0)
           .rotateZ(zeta)
           .rotateY(-theta)
           .rotateZ(z)
           .rotateX(-e);
+
+        // 保持球坐标值连续性的值更改
+        this.private.SCContinuouslyChange(sc);
       }
     }
 
@@ -340,7 +346,10 @@ class EclipticCoordinate extends CommonCoordinate {
     if (!this.withNutation) {
       let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
-      this.private.sc.rotateZ(delta_psi);
+      let sc = this.sc.rotateZ(delta_psi);
+
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
 
       this.private.withNutation = true;
     }
@@ -357,7 +366,10 @@ class EclipticCoordinate extends CommonCoordinate {
     if (this.withNutation) {
       let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
-      this.private.sc.rotateZ(-delta_psi);
+      let sc = this.sc.rotateZ(-delta_psi);
+
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
 
       this.private.withNutation = false;
     }
@@ -498,7 +510,11 @@ class EclipticCoordinate extends CommonCoordinate {
 
       let earth_hecc_rc = earth_hecc_sc.toRC();
 
-      this.private.sc.translate(-earth_hecc_rc.x, -earth_hecc_rc.y, -earth_hecc_rc.z);
+      let sc = this.sc.translate(-earth_hecc_rc.x, -earth_hecc_rc.y, -earth_hecc_rc.z);
+      
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
+
       this.private.centerMode = 'geocentric';
     }
 
@@ -522,7 +538,11 @@ class EclipticCoordinate extends CommonCoordinate {
 
       let earth_hecc_rc = earth_hecc_sc.toRC();
 
-      this.private.sc.translate(earth_hecc_rc.x, earth_hecc_rc.y, earth_hecc_rc.z);
+      let sc = this.sc.translate(earth_hecc_rc.x, earth_hecc_rc.y, earth_hecc_rc.z);
+      
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
+      
       this.private.centerMode = 'heliocentric';
     }
 

@@ -252,10 +252,13 @@ class EquinoctialCoordinate extends CommonCoordinate {
       // 解除修正，转换至平坐标
       if (withNutation_0) this.unpatchNutation();
       
-      this.private.sc
+      let sc = this.sc
         .rotateZ(- z)
         .rotateY(theta)
         .rotateZ(- zeta);
+
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
 
       let epoch = new JDateRepository(2000, 'jepoch');
       
@@ -302,10 +305,13 @@ class EquinoctialCoordinate extends CommonCoordinate {
       if (epoch.J2000 !== 0) { // 从 J2000 历元 转换至 epoch
         let { zeta, theta, z } = this.PrecessionCorrection;
 
-        this.private.sc
+        let sc = this.sc
           .rotateZ(zeta)
           .rotateY(- theta)
           .rotateZ(z);
+
+        // 保持球坐标值连续性的值更改
+        this.private.SCContinuouslyChange(sc);
       }
 
       // 恢复修正处理
@@ -326,10 +332,13 @@ class EquinoctialCoordinate extends CommonCoordinate {
     if (!this.private.withNutation) {
       let { e0, delta_e, delta_psi } = this.NutationCorrection;
 
-      this.private.sc
+      let sc = this.sc
         .rotateX(-e0)
         .rotateZ(delta_psi)
         .rotateX(e0 + delta_e);
+
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
 
       this.private.withNutation = true;
     }
@@ -346,10 +355,13 @@ class EquinoctialCoordinate extends CommonCoordinate {
     if (this.private.withNutation) {
       let { e0, delta_e, delta_psi } = this.NutationCorrection;
 
-      this.private.sc
+      let sc = this.sc
         .rotateX(- e0 - delta_e)
         .rotateZ(- delta_psi)
         .rotateX(e0);
+
+      // 保持球坐标值连续性的值更改
+      this.private.SCContinuouslyChange(sc);
 
       this.private.withNutation = false;
     }

@@ -941,21 +941,21 @@ describe('#HorizontalCoordinate', () => {
 
       expect(htc.r).to.closeTo(hc.radius, 1e-12);
       expect(htc.theta).to.equal(hc.z.getRadian());
-      expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
+      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.a.getRadian(), 10e-10);
 
       hc.on({
         centerMode: 'geocentric',
       });
 
       expect(hgc.r).to.closeTo(hc.radius, 0.000001);
-      expect(hgc.theta).to.equal(hc.z.getRadian());
+      expect(hgc.theta).to.closeTo(hc.z.getRadian(), 10e-10);
       expect(hgc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
 
       hc.onTopocentric();
 
       expect(htc.r).to.closeTo(hc.radius, 0.000001);
-      expect(htc.theta).to.equal(hc.z.getRadian());
-      expect(htc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
+      expect(htc.theta).to.closeTo(hc.z.getRadian(), 10e-10);
+      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.a.getRadian(), 10e-10);
 
       hc.isContinuous = false;
       

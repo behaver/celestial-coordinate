@@ -186,7 +186,7 @@ const Switchers = {
     if (obElevation === undefined) obElevation = 0;
     else if (typeof(obElevation) !== 'number') throw Error('The param options.obElevation should be a Number.');
 
-    // 获取可转换状态下的 地平球坐标
+    // 获取可转换状态下的 赤道坐标
     let { sc } = coord.get({ 
       epoch: obTime, 
       withNutation: true,

@@ -43,7 +43,11 @@ let epoch = gc.epoch;
 
 `constructor(options)`
 
-构造函数，接受参数如 `from` 方法相同。
+构造函数
+
+* options.isContinuous 结果坐标值是否连续，默认：false
+
+接受参数如 `from` 方法相同。
 
 `from(options)`
 
@@ -125,6 +129,14 @@ let epoch = gc.epoch;
 `set epoch(value)`
 
 设置 历元对象
+
+`get isContinuous()`
+
+获取 结果值连续性设定
+
+`set isContinuous(value)`
+
+设置 结果值的连续性
 
 ## 许可证书
 

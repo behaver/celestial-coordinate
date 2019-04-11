@@ -96,7 +96,11 @@ hc.onGeocentric();
 
 `constructor(options)`
 
-构造函数，接受参数如 `from` 方法相同。
+构造函数
+
+* options.isContinuous 结果坐标值是否连续，默认：false
+
+接受参数如 `from` 方法相同。
 
 `from(options)`
 
@@ -233,6 +237,8 @@ hc.onGeocentric();
 
 获取 方位角 角度对象
 
+从南点顺时针计量
+
 `get h()`
 
 获取 地平高度 角度对象
@@ -244,6 +250,14 @@ hc.onGeocentric();
 `get radius()`
 
 获取 距离
+
+`get isContinuous()`
+
+获取 结果值连续性设定
+
+`set isContinuous(value)`
+
+设置 结果值的连续性
 
 ## 许可证书
 

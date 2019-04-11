@@ -92,6 +92,14 @@ describe('#SystemSwitcher', () => {
         obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
       });
 
+      console.warn(
+        epoch.JD,
+        angle.parseHACString('23h 09m 16.641s').getDegrees(),
+        angle.parseDACString('-6°43′11.61″').getDegrees(),
+        angle.parseDACString('77°03′56″').getDegrees(),
+        angle.parseDACString('38°55′17″').getDegrees()
+      );
+
       expect(HC.a.getDegrees()).to.closeTo(68.0337, 0.00012);
       expect(HC.h.getDegrees()).to.closeTo(15.1249, 0.0001);
     });
@@ -115,6 +123,41 @@ describe('#SystemSwitcher', () => {
       expect(GC.b.getDegrees()).to.closeTo(6.0463, 0.00016);
     });
 
-    
+    it('JPL数据，Mars，2019-Apr-09 00:00', () => {
+      let epoch = new JDateRepository(2458582.5);
+      let EQC = new EquinoctialCoordinate({
+        ra: 63.70635,
+        dec: 22.22585,
+        radius: 3394.0 / 149597870.700,
+        epoch,
+        withNutation: 1,
+        withAnnualAberration: 1,
+        withGravitationalDeflection: 1,
+      });
+
+      let Switcher = new SystemSwitcher(EQC);
+      let HC = Switcher.to('hc', {
+        obTime: epoch,
+        obGeoLong: angle.parseDACString('89°30′00.0″').getDegrees(),
+        obGeoLat: angle.parseDACString('34°22′01.2″').getDegrees(),
+        withAR: 1,
+      });
+
+      expect(angle.setSeconds(HC.SiderealTime.trueVal).getTHours()).to.closeTo(7.1632716855, 0.0001);
+
+      expect(HC.a.getDegrees()).to.closeTo(264.1757 - 180, 0.0005);
+      expect(HC.h.getDegrees()).to.closeTo(49.9564, 0.02);
+
+      Switcher.from(HC);
+
+      let ECC = Switcher.to('ecc', {
+        withNutation: 1,
+        withAnnualAberration: 0,
+        withGravitationalDeflection: 0,
+      });
+
+      expect(ECC.l.getDegrees()).to.closeTo(65.7877413, 0.02);
+      expect(ECC.b.getDegrees()).to.closeTo(0.9726054, 0.005);
+    });
   });
 })

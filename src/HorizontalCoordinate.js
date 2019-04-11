@@ -431,12 +431,34 @@ class HorizontalCoordinate extends CommonCoordinate {
   }
 
   /**
+   * 设置 观测历元 儒略时间对象
+   * 
+   * @param {JDateRepository} value 观测历元 儒略时间对象
+   */
+  set obTime(value) {
+    this.on({
+      obTime: value
+    });
+  }
+
+  /**
    * 获取 观测经度 角度对象
    * 
    * @return {Angle} 观测经度 角度对象
    */
   get obGeoLong() {
     return new Angle(this.private.obGeoLong, 'd');
+  }
+
+  /**
+   * 设置 观测经度 角度对象
+   * 
+   * @param {Angle} value 观测经度 角度对象
+   */
+  set obGeoLong(value) {
+    this.on({
+      obGeoLong: value
+    });
   }
 
   /**
@@ -449,12 +471,34 @@ class HorizontalCoordinate extends CommonCoordinate {
   }
 
   /**
+   * 设置 观测纬度 角度对象
+   * 
+   * @param {Angle} value 观测纬度 角度对象
+   */
+  set obGeoLat(value) {
+    this.on({
+      obGeoLat: value
+    });
+  }
+
+  /**
    * 获取 观测海拔高度，单位：米
    * 
    * @return {Number} 观测海拔高度
    */
   get obElevation() {
     return this.private.obElevation;
+  }
+
+  /**
+   * 设置 观测海拔高度，单位：米
+   * 
+   * @param {Number} value 观测海拔高度，单位：米
+   */
+  set obElevation(value) {
+    this.on({
+      obElevation: value
+    });
   }
 
   /**
@@ -516,6 +560,8 @@ class HorizontalCoordinate extends CommonCoordinate {
 
   /**
    * 获取 方位角 角度对象
+   *
+   * 从南点顺时针计量
    * 
    * @return {Angle} 方位角 角度对象
    */

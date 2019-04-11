@@ -60,7 +60,11 @@ let withAnnualAberration = ec.withAnnualAberration;
 
 `constructor(options)`
 
-构造函数，接受参数和 `from` 方法相同。
+构造函数
+
+* options.isContinuous 结果坐标值是否连续，默认：false
+
+接受参数和 `from` 方法相同。
 
 `from(options)`
 
@@ -183,6 +187,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 `get radius()`
 
 获取 距离
+
+`get isContinuous()`
+
+获取 结果值连续性设定
+
+`set isContinuous(value)`
+
+设置 结果值的连续性
 
 `get epoch()`
 

@@ -4,7 +4,6 @@ const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Precession = require('@behaver/precession');
 const Nutation = require('@behaver/nutation');
 const { JDateRepository, CacheSpaceOnJDate } = require('@behaver/jdate');
-const SiderealTime = require('@behaver/sidereal-time');
 const AnnualAberration = require('@behaver/annual-aberration');
 const GravitationalDeflection = require('@behaver/gravitational-deflection');
 const FK5Deflection = require('@behaver/fk5-deflection');

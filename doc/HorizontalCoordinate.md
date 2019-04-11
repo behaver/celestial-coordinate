@@ -201,17 +201,33 @@ hc.onGeocentric();
 
 获取 观测历元 儒略时间对象
 
+`set obTime(value)`
+
+设置 观测历元 儒略时间对象
+
 `get obGeoLong()`
 
 获取 观测经度 角度对象
+
+`set obGeoLong(value)`
+
+设置 观测经度 角度对象
 
 `get obGeoLat()`
 
 获取 观测纬度 角度对象
 
+`set obGeoLat(value)`
+
+设置 观测纬度 角度对象
+
 `get obElevation()`
 
 获取 观测海拔高度，单位：米
+
+`set obElevation(value)`
+
+设置 观测海拔高度，单位：米
 
 `get withAR()`
 

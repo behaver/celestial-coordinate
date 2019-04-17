@@ -21,10 +21,12 @@ const Switchers = {
   /**
    * 地平坐标 转换至 赤道坐标
    * 
-   * @param  {HorizontalCoordinate}  coord 地平坐标实例
-   * @return {EquinoctialCoordinate}       赤道坐标实例
+   * @param  {HorizontalCoordinate}  coord   地平坐标实例
+   * @param  {Object}                options 对应赤道系统参数设定
+   * 
+   * @return {EquinoctialCoordinate}         赤道坐标实例
    */
-  HC2EQC: function(coord) {
+  HC2EQC: function(coord, options = {}) {
 
     // 获取可转换状态下的 地平球坐标
     let sc = coord.get({
@@ -41,10 +43,10 @@ const Switchers = {
     let eqc = new EquinoctialCoordinate({
       sc,
       epoch: coord.obTime,
-      withNutation: true,
-      withAnnualAberration: true,
-      withGravitationalDeflection: true,
-      onFK5: true,
+      withNutation: options.withNutation === undefined ? true : options.withNutation,
+      withAnnualAberration: options.withAnnualAberration === undefined ? true : options.withAnnualAberration,
+      withGravitationalDeflection: options.withGravitationalDeflection === undefined ? true : options.withGravitationalDeflection,
+      onFK5: options.onFK5 === undefined ? true : options.onFK5,
       isContinuous: coord.isContinuous,
     });
 
@@ -54,10 +56,12 @@ const Switchers = {
   /**
    * 时角坐标 转换至 赤道坐标
    * 
-   * @param  {HourAngleCoordinate}   coord 时角坐标实例
-   * @return {EquinoctialCoordinate}       赤道坐标实例
+   * @param  {HourAngleCoordinate}   coord   时角坐标实例
+   * @param  {Object}                options 对应赤道系统参数设定
+   * 
+   * @return {EquinoctialCoordinate}         赤道坐标实例
    */
-  HAC2EQC: function(coord) {
+  HAC2EQC: function(coord, options = {}) {
 
     // 获取时角球坐标
     let sc = coord.sc;
@@ -70,10 +74,10 @@ const Switchers = {
     let eqc = new EquinoctialCoordinate({
       sc,
       epoch: coord.obTime,
-      withNutation: true,
-      withAnnualAberration: true,
-      withGravitationalDeflection: true,
-      onFK5: true,
+      withNutation: options.withNutation === undefined ? true : options.withNutation,
+      withAnnualAberration: options.withAnnualAberration === undefined ? true : options.withAnnualAberration,
+      withGravitationalDeflection: options.withGravitationalDeflection === undefined ? true : options.withGravitationalDeflection,
+      onFK5: options.onFK5 === undefined ? true : options.onFK5,
       isContinuous: coord.isContinuous,
     });
 
@@ -84,6 +88,7 @@ const Switchers = {
    * 黄道坐标 转换至 赤道坐标
    * 
    * @param  {EclipticCoordinate}    coord 黄道坐标实例
+   * 
    * @return {EquinoctialCoordinate}       赤道坐标实例
    */
   ECC2EQC: function(coord) {
@@ -121,10 +126,12 @@ const Switchers = {
   /**
    * 银道坐标 转换至 赤道坐标
    * 
-   * @param  {GalacticCoordinate}    coord 银道坐标实例
-   * @return {EquinoctialCoordinate}       赤道坐标实例
+   * @param  {GalacticCoordinate}    coord   银道坐标实例
+   * @param  {Object}                options 对应赤道系统参数设定
+   * 
+   * @return {EquinoctialCoordinate}         赤道坐标实例
    */
-  GC2EQC: function(coord) {
+  GC2EQC: function(coord, options = {}) {
 
     // 获取银道球坐标
     let sc = coord.sc;
@@ -153,10 +160,10 @@ const Switchers = {
     let eqc = new EquinoctialCoordinate({
       sc,
       epoch: coord.epoch,
-      withNutation: false,
-      withAnnualAberration: false,
-      withGravitationalDeflection: false,
-      onFK5: true,
+      withNutation: options.withNutation === undefined ? true : options.withNutation,
+      withAnnualAberration: options.withAnnualAberration === undefined ? true : options.withAnnualAberration,
+      withGravitationalDeflection: options.withGravitationalDeflection === undefined ? true : options.withGravitationalDeflection,
+      onFK5: options.onFK5 === undefined ? true : options.onFK5,
       isContinuous: coord.isContinuous,
     });
 
@@ -171,7 +178,7 @@ const Switchers = {
    */
   EQC2HC: function(coord, options) {
 
-    let { obTime, obGeoLong, obGeoLat, obElevation, withAR, centerMode } = options;
+    let { obTime, obGeoLong, obGeoLat, obElevation, withAR, centerMode, enableAR } = options;
 
     // 参数预处理
     if (obTime === undefined) obTime = coord.epoch;
@@ -213,6 +220,7 @@ const Switchers = {
       obGeoLong, 
       obGeoLat, 
       obElevation,
+      enableAR,
       withAR: false,
       centerMode: 'geocentric',
       isContinuous: coord.isContinuous,
@@ -372,20 +380,152 @@ class SystemSwitcher {
    * 
    * @param {CommonCoordinate} coord 天球坐标实例
    */
-  constructor(coord) {
+  constructor({
+    coord, 
+    enableNutation,
+    enableAnnualAberration,
+    enableGravitationalDeflection,
+    enableFK5,
+    enableAR,
+  } = {}) {
     // 初始化私有变量空间
     this.private = {};
+
+    this.enableNutation = enableNutation === undefined ? true : enableNutation;
+    this.enableAnnualAberration = enableAnnualAberration;
+    this.enableGravitationalDeflection = enableGravitationalDeflection;
+    this.enableFK5 = enableFK5;
+    this.enableAR = enableAR;
 
     if (coord !== undefined) this.from(coord);
   }
 
   /**
+   * 设定当前系统参数
+   * 
+   * @param  {Boolean}        options.enableNutation                章动修正功能启用状态
+   * @param  {Boolean}        options.enableAnnualAberration        周年光行差功能启用状态
+   * @param  {Boolean}        options.enableGravitationalDeflection 引力偏转功能启用状态
+   * @param  {Boolean}        options.enableFK5                     FK5 修正功能启用状态
+   * @param  {Boolean}        options.enableAR                      大气折射功能启用状态
+   * 
+   * @return {SystemSwitcher}                                       返回 this 引用
+   */
+  options({
+    enableNutation,
+    enableAnnualAberration,
+    enableGravitationalDeflection,
+    enableFK5,
+    enableAR,
+  }) {
+    if (enableNutation !== undefined) this.enableNutation = enableNutation;
+    if (enableAnnualAberration !== undefined) this.enableAnnualAberration = enableAnnualAberration;
+    if (enableGravitationalDeflection !== undefined) this.enableGravitationalDeflection = enableGravitationalDeflection;
+    if (enableFK5 !== undefined) this.enableFK5 = enableFK5;
+    if (enableAR !== undefined) this.enableAR = enableAR;
+
+    return this;
+  }
+
+  /**
+   * 获取 章动修正功能启用状态
+   * 
+   * @return {Boolean} 章动修正功能启用状态
+   */
+  get enableNutation() {
+    return this.private.enableNutation;
+  }
+
+  /**
+   * 设置 章动修正功能启用状态
+   * 
+   * @param {Boolean} value 章动修正功能启用状态
+   */
+  set enableNutation(value) {
+    this.private.enableNutation = !! value;
+  }
+
+  /**
+   * 获取 周年光行差功能启用状态
+   * 
+   * @return {Boolean} 周年光行差功能启用状态
+   */
+  get enableAnnualAberration() {
+    return this.private.enableAnnualAberration;
+  }
+
+  /**
+   * 设置 周年光行差功能启用状态
+   * 
+   * @param {Boolean} value 周年光行差功能启用状态
+   */
+  set enableAnnualAberration(value) {
+    this.private.enableAnnualAberration = !! value;
+  }
+
+  /**
+   * 获取 引力偏转功能启用状态
+   * 
+   * @return {Boolean} 引力偏转功能启用状态
+   */
+  get enableGravitationalDeflection() {
+    return this.private.enableGravitationalDeflection;
+  }
+
+  /**
+   * 设置 引力偏转功能启用状态
+   * 
+   * @param {Boolean} value 引力偏转功能启用状态
+   */
+  set enableGravitationalDeflection(value) {
+    this.private.enableGravitationalDeflection = !! value;
+  }
+
+  /**
+   * 获取 FK5 修正功能启用状态
+   * 
+   * @return {Boolean} FK5 修正功能启用状态
+   */
+  get enableFK5() {
+    return this.private.enableFK5;
+  }
+
+  /**
+   * 设置 FK5 修正功能启用状态
+   * 
+   * @param {Boolean} value FK5 修正功能启用状态
+   */
+  set enableFK5(value) {
+    this.private.enableFK5 = !! value;
+  }
+
+  /**
+   * 获取 大气折射功能启用状态
+   * 
+   * @return {Boolean} 大气折射功能启用状态
+   */
+  get enableAR() {
+    return this.private.enableAR;
+  }
+
+  /**
+   * 设置 大气折射功能启用状态
+   * 
+   * @param {Boolean} value 大气折射功能启用状态
+   */
+  set enableAR(value) {
+    this.private.enableAR = !! value;
+  }
+
+  /**
    * 设定转换过程的源坐标
    * 
-   * @param  {CommonCoordinate} coord 源天球坐标实例
-   * @return {SystemSwitcher}         返回 this 引用
+   * @param  {CommonCoordinate} coord   源天球坐标实例
+   * @param  {Object}           options 对应赤道系统参数设定
+   * 
+   * @return {SystemSwitcher}           返回 this 引用
    */
-  from(coord) {
+  from(coord, options) {
     // 参数检验
     if (!(coord instanceof CommonCoordinate)) throw Error('The param coord should be an instance of CommonCoordinate.');
 
@@ -395,16 +535,23 @@ class SystemSwitcher {
     if (coord instanceof EquinoctialCoordinate) {
       EQC = coord;
     } else if (coord instanceof HorizontalCoordinate) {
-      EQC = Switchers.HC2EQC(coord);
+      EQC = Switchers.HC2EQC(coord, options);
     } else if (coord instanceof HourAngleCoordinate) {
-      EQC = Switchers.HAC2EQC(coord);
+      EQC = Switchers.HAC2EQC(coord, options);
     } else if (coord instanceof EclipticCoordinate) {
       EQC = Switchers.ECC2EQC(coord);
     } else if (coord instanceof GalacticCoordinate) {
-      EQC = Switchers.GC2EQC(coord);
+      EQC = Switchers.GC2EQC(coord, options);
     } else {
       throw Error('Unknow CommonCoordinate instance be given.');
     }
+
+    EQC.on({
+      enableNutation: this.enableNutation,
+      enableAnnualAberration: this.enableAnnualAberration,
+      enableGravitationalDeflection: this.enableGravitationalDeflection,
+      enableFK5: this.enableFK5,
+    })
 
     this.private.EQC = EQC;
 
@@ -416,6 +563,7 @@ class SystemSwitcher {
    * 
    * @param  {String}           sysCode 目标坐标系统字串标识
    * @param  {Object}           options 目标系统设定参数
+   * 
    * @return {CommonCoordinate}         转换后的目标天球坐标实例
    */
   to(sysCode, options) {
@@ -432,9 +580,13 @@ class SystemSwitcher {
         let res = new EquinoctialCoordinate({
           sc: eqc.sc,
           epoch: eqc.epoch, 
+          enableNutation: eqc.enableNutation,
           withNutation: eqc.withNutation, 
+          enableAnnualAberration: eqc.enableAnnualAberration,
           withAnnualAberration: eqc.withAnnualAberration,
+          enableGravitationalDeflection: eqc.enableGravitationalDeflection,
           withGravitationalDeflection: eqc.withGravitationalDeflection,
+          enableFK5: eqc.enableFK5,
           onFK5: eqc.onFK5,
           isContinuous: eqc.isContinuous,
         });
@@ -443,6 +595,7 @@ class SystemSwitcher {
 
         return res;
       case 'hc': // 转换至地平坐标
+        if (options.enableAR === undefined) options.enableAR = this.enableAR;
         return Switchers.EQC2HC(this.private.EQC, options);
 
       case 'hac': // 转换至时角坐标

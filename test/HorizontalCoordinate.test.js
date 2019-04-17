@@ -877,7 +877,7 @@ describe('#HorizontalCoordinate', () => {
         obGeoLat: -30,
       });
 
-      expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'withAR');
+      expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'enableAR', 'withAR');
     })
   });
 
@@ -905,10 +905,10 @@ describe('#HorizontalCoordinate', () => {
         onFK5: true,
       });
 
-      let SS = new SystemSwitcher(ec);
+      let SS = new SystemSwitcher;
 
       // 地平地心坐标
-      let hgc = SS.to('hc', {
+      let hgc = SS.from(ec).to('hc', {
         obTime: jdate,
         obGeoLong,
         obGeoLat,

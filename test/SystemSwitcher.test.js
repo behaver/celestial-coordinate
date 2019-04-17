@@ -15,7 +15,9 @@ describe('#SystemSwitcher', () => {
     it('Called with no error.', () => {
       expect(() => {
         new SystemSwitcher;
-        new SystemSwitcher(new EclipticCoordinate({ l: 123.2332 }));
+        new SystemSwitcher({
+          coord: new EclipticCoordinate({ l: 123.2332 })
+        });
       }).not.to.throw();
     });
   });
@@ -64,9 +66,9 @@ describe('#SystemSwitcher', () => {
         dec: 28.026183,
       });
 
-      let Switcher = new SystemSwitcher(EQC);
+      let Switcher = new SystemSwitcher;
 
-      let ECC = Switcher.to('ecc');
+      let ECC = Switcher.from(EQC).to('ecc');
 
       expect(ECC.l.getDegrees()).to.closeTo(113.215630, 0.000001);
       expect(ECC.b.getDegrees()).to.closeTo(6.684170, 0.000011);
@@ -84,9 +86,9 @@ describe('#SystemSwitcher', () => {
         onFK5: true,
       });
 
-      let Switcher = new SystemSwitcher(EQC);
+      let Switcher = new SystemSwitcher;
 
-      let HC = Switcher.to('hc', {
+      let HC = Switcher.from(EQC).to('hc', {
         obTime: epoch,
         obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
         obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
@@ -113,9 +115,9 @@ describe('#SystemSwitcher', () => {
         // withNutation: true,
       });
 
-      let Switcher = new SystemSwitcher(EQC);
+      let Switcher = new SystemSwitcher;
 
-      let GC = Switcher.to('gc', {
+      let GC = Switcher.from(EQC).to('gc', {
         epoch: new JDateRepository(1978, 'bepoch')
       });
 
@@ -135,8 +137,14 @@ describe('#SystemSwitcher', () => {
         withGravitationalDeflection: 1,
       });
 
-      let Switcher = new SystemSwitcher(EQC);
-      let HC = Switcher.to('hc', {
+      let Switcher = new SystemSwitcher;
+
+      Switcher.options({
+        enableAnnualAberration: false,
+        enableGravitationalDeflection: false,
+      });
+
+      let HC = Switcher.from(EQC).to('hc', {
         obTime: epoch,
         obGeoLong: angle.parseDACString('89°30′00.0″').getDegrees(),
         obGeoLat: angle.parseDACString('34°22′01.2″').getDegrees(),
@@ -148,7 +156,11 @@ describe('#SystemSwitcher', () => {
       expect(HC.a.getDegrees()).to.closeTo(264.1757 - 180, 0.0005);
       expect(HC.h.getDegrees()).to.closeTo(49.9564, 0.02);
 
-      Switcher.from(HC);
+      Switcher.from(HC, {
+        withNutation: 1,
+        withAnnualAberration: 0,
+        withGravitationalDeflection: 0,
+      });
 
       let ECC = Switcher.to('ecc', {
         withNutation: 1,
@@ -156,7 +168,7 @@ describe('#SystemSwitcher', () => {
         withGravitationalDeflection: 0,
       });
 
-      expect(ECC.l.getDegrees()).to.closeTo(65.7877413, 0.02);
+      expect(ECC.l.getDegrees()).to.closeTo(65.7877413, 0.002);
       expect(ECC.b.getDegrees()).to.closeTo(0.9726054, 0.005);
     });
   });

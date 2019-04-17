@@ -26,17 +26,22 @@ class EclipticCoordinate extends CommonCoordinate {
   /**
    * 设定起始天球黄道坐标
    * 
-   * @param  {SphericalCoordinate3D} options.sc                          球坐标
-   * @param  {Number}                options.l                           黄经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b                           黄纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius                      距离半径，值域：[10e-8, +∞)
-   * @param  {JDateRepository}       options.epoch                       坐标历元
-   * @param  {String}                options.centerMode                  中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
-   * @param  {Boolean}               options.withNutation                坐标是否修正了章动
-   * @param  {Boolean}               options.withAnnualAberration        坐标是否修正了周年光行差
-   * @param  {Boolean}               options.withGravitationalDeflection 坐标是否修正了引力偏转
-   * @param  {Boolean}               options.onFK5                       坐标是否进行了 FK5 修正
-   * @return {EclipticCoordinate}                                        返回 this 引用
+   * @param  {SphericalCoordinate3D} options.sc                            球坐标
+   * @param  {Number}                options.l                             黄经，单位：度，值域：[0, 360)
+   * @param  {Number}                options.b                             黄纬，单位：度，值域：[-90, 90]
+   * @param  {Number}                options.radius                        距离半径，值域：[10e-8, +∞)
+   * @param  {JDateRepository}       options.epoch                         坐标历元
+   * @param  {String}                options.centerMode                    中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
+   * @param  {Boolean}               options.enableNutation                章动修正启用状态
+   * @param  {Boolean}               options.withNutation                  坐标是否含有章动修正
+   * @param  {Boolean}               options.enableAnnualAberration        周年光行差修正启用状态
+   * @param  {Boolean}               options.withAnnualAberration          坐标是否含有周年光行差
+   * @param  {Boolean}               options.enableGravitationalDeflection 引力偏转修正启用状态
+   * @param  {Boolean}               options.withGravitationalDeflection   坐标是否含有引力偏转
+   * @param  {Boolean}               options.enableFK5                     FK5 修正启用状态
+   * @param  {Boolean}               options.onFK5                         坐标是否含有 FK5 修正
+   * 
+   * @return {EclipticCoordinate}                                          返回 this 引用
    */
   from({
     sc, 
@@ -45,9 +50,13 @@ class EclipticCoordinate extends CommonCoordinate {
     radius,
     epoch, 
     centerMode,
+    enableNutation,
     withNutation, 
+    enableAnnualAberration,
     withAnnualAberration,
+    enableGravitationalDeflection,
     withGravitationalDeflection,
+    enableFK5,
     onFK5,
   }) {
 
@@ -57,22 +66,41 @@ class EclipticCoordinate extends CommonCoordinate {
     if (centerMode === undefined) centerMode = 'geocentric';
     else if (centerMode !== 'geocentric' && centerMode !== 'heliocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
 
-    withNutation = !! withNutation;
-    withAnnualAberration = !! withAnnualAberration;
-    withGravitationalDeflection = !!withGravitationalDeflection;
-    onFK5 = !! onFK5;
+    if (enableNutation === undefined) {
+      if (withNutation === undefined) enableNutation = false;
+      else enableNutation = true;
+    }
+
+    if (enableAnnualAberration === undefined) {
+      if (withAnnualAberration === undefined) enableAnnualAberration = false;
+      else enableAnnualAberration = true;
+    }
+
+    if (enableGravitationalDeflection === undefined) {
+      if (withGravitationalDeflection === undefined) enableGravitationalDeflection = false;
+      else enableGravitationalDeflection = true;
+    }
+
+    if (enableFK5 === undefined) {
+      if (onFK5 === undefined) enableFK5 = false;
+      else enableFK5 = true;
+    }
 
     this.Precession = new Precession({ epoch });
     this.Nutation = new Nutation({ epoch });
-
+    
     this.private = { 
       ...this.private,
       epoch, 
       centerMode,
-      withNutation, 
-      withAnnualAberration,
-      withGravitationalDeflection,
-      onFK5,
+      enableNutation: !! enableNutation,
+      withNutation: !! withNutation, 
+      enableAnnualAberration: !! enableAnnualAberration,
+      withAnnualAberration: !! withAnnualAberration,
+      enableGravitationalDeflection: !! enableGravitationalDeflection,
+      withGravitationalDeflection: !! withGravitationalDeflection,
+      enableFK5: !! enableFK5,
+      onFK5: !! onFK5,
     };
 
     this.cache = new CacheSpaceOnJDate(epoch);
@@ -92,50 +120,54 @@ class EclipticCoordinate extends CommonCoordinate {
   /**
    * 转换当前坐标的系统参数
    * 
-   * @param  {JDateRepository}       options.epoch                       坐标历元
-   * @param  {String}                options.centerMode                  中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
-   * @param  {Boolean}               options.withNutation                坐标是否修复章动
-   * @param  {Boolean}               options.withAnnualAberration        坐标是否修正周年光行差
-   * @param  {Boolean}               options.withGravitationalDeflection 坐标是否修正引力偏转
-   * @param  {Boolean}               options.onFK5                       坐标是否基于 FK5 系统
-   * @return {EclipticCoordinate}                                        返回 this 引用
+   * @param  {JDateRepository}       options.epoch                         坐标历元
+   * @param  {String}                options.centerMode                    中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
+   * @param  {Boolean}               options.enableNutation                章动修正启用状态
+   * @param  {Boolean}               options.withNutation                  坐标是否含有章动修正
+   * @param  {Boolean}               options.enableAnnualAberration        周年光行差修正启用状态
+   * @param  {Boolean}               options.withAnnualAberration          坐标是否含有周年光行差
+   * @param  {Boolean}               options.enableGravitationalDeflection 引力偏转修正启用状态
+   * @param  {Boolean}               options.withGravitationalDeflection   坐标是否含有引力偏转
+   * @param  {Boolean}               options.enableFK5                     FK5 修正启用状态
+   * @param  {Boolean}               options.onFK5                         坐标是否基于 FK5 系统
+   * 
+   * @return {EclipticCoordinate}                                          返回 this 引用
    */
   on({
     epoch, 
     centerMode,
+    enableNutation,
     withNutation, 
+    enableAnnualAberration,
     withAnnualAberration,
+    enableGravitationalDeflection,
     withGravitationalDeflection,
+    enableFK5,
     onFK5,
   }) {
     // 参数预处理
-    if (epoch === undefined) epoch = this.private.epoch;
-    if (withNutation === undefined) withNutation = this.withNutation;
     if (centerMode === undefined) centerMode = this.private.centerMode;
-    if (withAnnualAberration === undefined) withAnnualAberration = this.withAnnualAberration;
-    if (withGravitationalDeflection === undefined) withGravitationalDeflection = this.withGravitationalDeflection;
-    if (onFK5 === undefined) onFK5 = this.onFK5;
 
     this.onGeocentric();
 
     // 历元岁差 修正处理
-    this.onEpoch(epoch);
+    if (epoch !== undefined) this.onEpoch(epoch);
 
     // FK5 修正处理
-    if (onFK5) this.patchFK5();
-    else this.unpatchFK5();
+    if (enableFK5 !== undefined) this.enableFK5 = enableFK5;
+    if (onFK5 !== undefined) this.onFK5 = onFK5;
 
     // 周年光行差 修正处理
-    if (withAnnualAberration) this.patchAnnualAberration();
-    else this.unpatchAnnualAberration();
+    if (enableAnnualAberration !== undefined) this.enableAnnualAberration = enableAnnualAberration;
+    if (withAnnualAberration !== undefined) this.withAnnualAberration = withAnnualAberration;
 
     // 引力偏转 修正处理
-    if (withGravitationalDeflection) this.patchGravitationalDeflection();
-    else this.unpatchGravitationalDeflection();
+    if (enableGravitationalDeflection !== undefined) this.enableGravitationalDeflection = enableGravitationalDeflection;
+    if (withGravitationalDeflection !== undefined) this.withGravitationalDeflection = withGravitationalDeflection;
 
     // 章动 修正处理
-    if (withNutation) this.patchNutation();
-    else this.unpatchNutation();
+    if (enableNutation !== undefined) this.enableNutation = enableNutation;
+    if (withNutation !== undefined) this.withNutation = withNutation;
 
     if (centerMode === 'heliocentric') this.onHeliocentric();
 
@@ -199,19 +231,27 @@ class EclipticCoordinate extends CommonCoordinate {
         sc: this.sc,
         epoch: this.epoch,
         centerMode: this.centerMode,
+        enableNutation: this.enableNutation,
         withNutation: this.withNutation,
-        withAnnualAberration: this.private.withAnnualAberration,
-        withGravitationalDeflection: this.private.withGravitationalDeflection,
-        onFK5: this.private.onFK5,
+        enableAnnualAberration: this.enableAnnualAberration,
+        withAnnualAberration: this.withAnnualAberration,
+        enableGravitationalDeflection: this.enableGravitationalDeflection,
+        withGravitationalDeflection: this.withGravitationalDeflection,
+        enableFK5: this.enableFK5,
+        onFK5: this.onFK5,
       }
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
       let sc_0 = this.sc,
           epoch_0 = this.epoch,
-          withNutation_0 = this.private.withNutation,
           centerMode_0 = this.private.centerMode,
+          enableNutation_0 = this.private.enableNutation,
+          withNutation_0 = this.private.withNutation,
+          enableAnnualAberration_0 = this.private.enableAnnualAberration,
           withAnnualAberration_0 = this.private.withAnnualAberration,
+          enableGravitationalDeflection_0 = this.private.enableGravitationalDeflection,
           withGravitationalDeflection_0 = this.private.withGravitationalDeflection,
+          enableFK5_0 = this.private.enableFK5,
           onFK5_0 = this.private.onFK5;
 
       this.on(options);
@@ -219,19 +259,27 @@ class EclipticCoordinate extends CommonCoordinate {
       // 记录新坐标和条件
       let sc = this.sc,
           epoch = this.epoch,
-          withNutation = this.private.withNutation,
           centerMode = this.private.centerMode,
+          enableNutation = this.private.enableNutation,
+          withNutation = this.private.withNutation,
+          enableAnnualAberration = this.private.enableAnnualAberration,
           withAnnualAberration = this.private.withAnnualAberration,
+          enableGravitationalDeflection = this.private.enableGravitationalDeflection,
           withGravitationalDeflection = this.private.withGravitationalDeflection,
+          enableFK5 = this.private.enableFK5,
           onFK5 = this.private.onFK5;
 
       // 还原为初始坐标和条件
       this.private.sc = sc_0;
       this.private.epoch = epoch_0;
-      this.private.withNutation = withNutation_0;
       this.private.centerMode = centerMode_0;
+      this.private.enableNutation = enableNutation_0;
+      this.private.withNutation = withNutation_0;
+      this.private.enableAnnualAberration = enableAnnualAberration_0;
       this.private.withAnnualAberration = withAnnualAberration_0;
+      this.private.enableGravitationalDeflection = enableGravitationalDeflection_0;
       this.private.withGravitationalDeflection = withGravitationalDeflection_0;
+      this.private.enableFK5 = enableFK5_0;
       this.private.onFK5 = onFK5_0;
 
       this.Nutation.epoch = epoch_0;
@@ -242,10 +290,14 @@ class EclipticCoordinate extends CommonCoordinate {
       return { 
         sc, 
         epoch,
-        withNutation,
         centerMode,
+        enableNutation,
+        withNutation,
+        enableAnnualAberration,
         withAnnualAberration,
+        enableGravitationalDeflection,
         withGravitationalDeflection,
+        enableFK5,
         onFK5,
       };
     }
@@ -265,9 +317,11 @@ class EclipticCoordinate extends CommonCoordinate {
         e = angle.setSeconds(this.Precession.epsilon).getRadian(),
         e0 = angle.setSeconds(this.Precession.epsilon0).getRadian();
 
-    if (this.withNutation) { // 逆向章动处理，转换至平坐标
-      this.unpatchNutation();
-    }
+    // 记录原始修正状态
+    let withNutation_0 = this.private.withNutation;
+
+    // 解除修正，转换至平坐标
+    if (this.enableNutation && withNutation_0) this.unpatchNutation();
 
     let sc = this.sc
       .rotateX(e)
@@ -287,6 +341,9 @@ class EclipticCoordinate extends CommonCoordinate {
 
     this.cache = new CacheSpaceOnJDate(epoch);
 
+    // 恢复修正处理
+    if (this.enableNutation && withNutation_0) this.patchNutation();
+
     return this;
   }
 
@@ -304,9 +361,11 @@ class EclipticCoordinate extends CommonCoordinate {
     if (epoch.J2000 !== this.epoch.J2000) { // 进行历元转换
       if (this.epoch.J2000 !== 0) this.onJ2000();
 
-      if (this.withNutation) { // 逆向章动处理，转换至平坐标
-        this.unpatchNutation();
-      }
+      // 记录原始修正状态
+      let withNutation_0 = this.private.withNutation;
+
+      // 解除修正，转换至平坐标
+      if (this.enableNutation && withNutation_0) this.unpatchNutation();
 
       this.private.epoch = epoch;
       this.Precession.epoch = epoch;
@@ -331,6 +390,9 @@ class EclipticCoordinate extends CommonCoordinate {
         // 保持球坐标值连续性的值更改
         this.private.SCContinuouslyChange(sc);
       }
+
+      // 恢复修正处理
+      if (this.enableNutation && withNutation_0) this.patchNutation();
     }
 
     return this;
@@ -342,7 +404,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   patchNutation() {
-    if (!this.withNutation) {
+    if (this.enableNutation && !this.private.withNutation) {
       let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
       let sc = this.sc.rotateZ(delta_psi);
@@ -362,7 +424,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchNutation() {
-    if (this.withNutation) {
+    if (this.enableNutation && this.private.withNutation) {
       let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
       let sc = this.sc.rotateZ(-delta_psi);
@@ -390,7 +452,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   patchAnnualAberration() {
-    if (!this.private.withAnnualAberration) { // 需要修正周年光行差
+    if (this.enableAnnualAberration && !this.private.withAnnualAberration) { // 需要修正周年光行差
       let aa = this.AACorrection;
 
       this.private.sc.phi = this.private.sc.phi + aa.a;
@@ -408,7 +470,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchAnnualAberration() {
-    if (this.private.withAnnualAberration) {
+    if (this.enableAnnualAberration && this.private.withAnnualAberration) {
       let aa = this.AACorrection;
 
       this.private.sc.phi = this.private.sc.phi - aa.a;
@@ -426,7 +488,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   patchGravitationalDeflection() {
-    if (!this.private.withGravitationalDeflection) {
+    if (this.enableGravitationalDeflection && !this.private.withGravitationalDeflection) {
       let gd = this.GDCorrection;
 
       this.private.sc.phi = this.private.sc.phi + gd.a;
@@ -444,7 +506,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchGravitationalDeflection() {
-    if (this.private.withGravitationalDeflection) {
+    if (this.enableGravitationalDeflection && this.private.withGravitationalDeflection) {
       let gd = this.GDCorrection;
 
       this.private.sc.phi = this.private.sc.phi - gd.a;
@@ -462,7 +524,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {SphericalCoordinate3D} 天球球坐标
    */
   patchFK5() {
-    if (!this.private.onFK5) {
+    if (this.enableFK5 && !this.private.onFK5) {
       let fk5 = this.FK5Correction;
 
       this.private.sc.phi = this.private.sc.phi + fk5.a;
@@ -480,7 +542,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * @return {SphericalCoordinate3D} 天球球坐标
    */
   unpatchFK5() {
-    if (this.private.onFK5) {
+    if (this.enableFK5 && this.private.onFK5) {
       let fk5 = this.FK5Correction;
 
       this.private.sc.phi = this.private.sc.phi - fk5.a;
@@ -501,7 +563,7 @@ class EclipticCoordinate extends CommonCoordinate {
     if (this.private.centerMode === 'heliocentric') {
       let earth_hecc_sc = this.earthHECC.sc;
 
-      if (this.private.withNutation) {
+      if (this.enableNutation && this.private.withNutation) {
         let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
         earth_hecc_sc.rotateZ(-delta_psi);
@@ -529,7 +591,7 @@ class EclipticCoordinate extends CommonCoordinate {
     if (this.private.centerMode === 'geocentric') {
       let earth_hecc_sc = this.earthHECC.sc;
 
-      if (this.private.withNutation) {
+      if (this.enableNutation && this.private.withNutation) {
         let delta_psi = angle.setMilliseconds(this.Nutation.longitude).getRadian();
 
         earth_hecc_sc.rotateZ(-delta_psi);
@@ -605,22 +667,60 @@ class EclipticCoordinate extends CommonCoordinate {
   }
 
   /**
-   * 获取 章动修正状态
+   * 获取 章动修正功能启用状态
    * 
-   * @return {Boolean} 是否修正章动
+   * @return {Boolean} 章动修正功能启用状态
+   */
+  get enableNutation() {
+    return this.private.enableNutation;
+  }
+
+  /**
+   * 设置 章动修正功能启用状态
+   * 
+   * @param {Boolean} value 章动修正功能启用状态
+   */
+  set enableNutation(value) {
+    this.private.enableNutation = !! value;
+  }
+
+  /**
+   * 获取 当前坐标是否含有章动修正
+   * 
+   * @return {Boolean} 当前坐标是否含有章动修正
    */
   get withNutation() {
     return this.private.withNutation;
   }
 
   /**
-   * 设置 章动修正状态
+   * 设置 当前坐标是否含有章动修正
    * 
-   * @param {Boolean} value 是否修正章动
+   * @param {Boolean} value 当前坐标是否含有章动修正
    */
   set withNutation(value) {
-    if (value) this.patchNutation();
-    else this.unpatchNutation();
+    if (this.enableNutation) { 
+      if (value) this.patchNutation();
+      else this.unpatchNutation();
+    } else this.private.withNutation = !! value;
+  }
+
+  /**
+   * 获取 周年光行差功能启用状态
+   * 
+   * @return {Boolean} 周年光行差功能启用状态
+   */
+  get enableAnnualAberration() {
+    return this.private.enableAnnualAberration;
+  }
+
+  /**
+   * 设置 周年光行差功能启用状态
+   * 
+   * @param {Boolean} value 周年光行差功能启用状态
+   */
+  set enableAnnualAberration(value) {
+    this.private.enableAnnualAberration = !! value;
   }
 
   /**
@@ -638,8 +738,28 @@ class EclipticCoordinate extends CommonCoordinate {
    * @param {Boolean} value 周年光行差修正状态
    */
   set withAnnualAberration(value) {
-    if (value) this.patchAnnualAberration();
-    else this.unpatchAnnualAberration();
+    if (this.enableAnnualAberration) { 
+      if (value) this.patchAnnualAberration();
+      else this.unpatchAnnualAberration();
+    } else this.private.withAnnualAberration = !! value;
+  }
+
+  /**
+   * 获取 引力偏转功能启用状态
+   * 
+   * @return {Boolean} 引力偏转功能启用状态
+   */
+  get enableGravitationalDeflection() {
+    return this.private.enableGravitationalDeflection;
+  }
+
+  /**
+   * 设置 引力偏转功能启用状态
+   * 
+   * @param {Boolean} value 引力偏转功能启用状态
+   */
+  set enableGravitationalDeflection(value) {
+    this.private.enableGravitationalDeflection = !! value;
   }
 
   /**
@@ -657,8 +777,28 @@ class EclipticCoordinate extends CommonCoordinate {
    * @param {Boolean} value 引力偏转修正状态
    */
   set withGravitationalDeflection(value) {
-    if (value) this.patchGravitationalDeflection();
-    else this.unpatchGravitationalDeflection();
+    if (this.enableGravitationalDeflection) { 
+      if (value) this.patchGravitationalDeflection();
+      else this.unpatchGravitationalDeflection();
+    } else this.private.withGravitationalDeflection = !! value;
+  }
+
+  /**
+   * 获取 FK5 修正功能启用状态
+   * 
+   * @return {Boolean} FK5 修正功能启用状态
+   */
+  get enableFK5() {
+    return this.private.enableFK5;
+  }
+
+  /**
+   * 设置 FK5 修正功能启用状态
+   * 
+   * @param {Boolean} value FK5 修正功能启用状态
+   */
+  set enableFK5(value) {
+    this.private.enableFK5 = !! value;
   }
 
   /**
@@ -676,8 +816,10 @@ class EclipticCoordinate extends CommonCoordinate {
    * @param {Boolean} value FK5 修正状态
    */
   set onFK5(value) {
-    if (value) this.patchFK5();
-    else this.unpatchFK5();
+    if (this.enableFK5) { 
+      if (value) this.patchFK5();
+      else this.unpatchFK5();
+    } else this.private.onFK5 = !! value;
   }
 
   /**

@@ -406,7 +406,18 @@ describe('#EquinoctialCoordinate', () => {
         withGravitationalDeflection: true,
       });
 
-      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'withGravitationalDeflection', 'withAnnualAberration', 'onFK5');
+      expect(res).to.have.all.key(
+        'sc', 
+        'epoch', 
+        'enableNutation', 
+        'withNutation', 
+        'enableGravitationalDeflection',
+        'withGravitationalDeflection', 
+        'enableAnnualAberration',
+        'withAnnualAberration', 
+        'enableFK5',
+        'onFK5'
+      );
     
       expect(res.withNutation).to.equal(true);
       expect(res.onFK5).to.equal(true);
@@ -462,6 +473,7 @@ describe('#EquinoctialCoordinate', () => {
         dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
+      eqc.enableNutation = true;
       eqc.patchNutation();
 
       expect(eqc.withNutation).to.equal(true);
@@ -471,7 +483,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 41.5555635,
         dec: 49.3503415,
-        epoch: new JDateRepository(2462088.69, 'jde')
+        epoch: new JDateRepository(2462088.69, 'jde'),
+        withNutation: false,
       });
 
       eqc.withNutation = true;
@@ -660,6 +673,7 @@ describe('#EquinoctialCoordinate', () => {
         ra: 123.32,
         dec: 33.233,
         radius: 1.4332,
+        withNutation: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -702,7 +716,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        onFK5: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -755,7 +770,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 2.09382
+        radius: 2.09382,
+        withGravitationalDeflection: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -808,7 +824,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 2.09382
+        radius: 2.09382,
+        withAnnualAberration: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -864,7 +881,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        onFK5: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -923,7 +941,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        withGravitationalDeflection: false,
       });
 
       let phi0 = eqc.sc.phi,
@@ -982,7 +1001,8 @@ describe('#EquinoctialCoordinate', () => {
       let eqc = new EquinoctialCoordinate({
         ra: 122.3223,
         dec: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        withAnnualAberration: false,
       });
 
       let phi0 = eqc.sc.phi,

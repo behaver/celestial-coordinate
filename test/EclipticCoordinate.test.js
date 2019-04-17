@@ -235,9 +235,9 @@ describe('#EclipticCoordinate', () => {
 
       expect(ec.l.getDegrees()).to.closeTo(313.08151, 0.0002);
 
-      let SS = new SystemSwitcher(ec);
+      let SS = new SystemSwitcher;
 
-      let eqc = SS.to('eqc').sc;
+      let eqc = SS.from(ec).to('eqc').sc;
 
       expect(angle.setRadian(eqc.phi, 'r').getDegrees()).to.closeTo(angle.parseHACString('21h 04m 41.454s').getDegrees(), 0.00002);
       expect(angle.setRadian(Math.PI / 2 - eqc.theta, 'r').getDegrees()).to.closeTo(angle.parseDACString('-18°53′16.84″').getDegrees(), 0.0001);
@@ -480,7 +480,19 @@ describe('#EclipticCoordinate', () => {
         centerMode: 'heliocentric',
       });
 
-      expect(res).to.have.all.key('sc', 'epoch', 'withNutation', 'centerMode', 'onFK5', 'withAnnualAberration', 'withGravitationalDeflection');
+      expect(res).to.have.all.key(
+        'sc', 
+        'epoch', 
+        'centerMode', 
+        'enableNutation',
+        'withNutation', 
+        'enableFK5',
+        'onFK5', 
+        'enableAnnualAberration',
+        'withAnnualAberration', 
+        'enableGravitationalDeflection',
+        'withGravitationalDeflection',
+      );
     
       expect(res.withNutation).to.equal(true);
       expect(res.onFK5).to.equal(true);
@@ -549,6 +561,7 @@ describe('#EclipticCoordinate', () => {
         b: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
+      ecc.enableNutation = true;
       ecc.patchNutation();
 
       expect(ecc.withNutation).to.equal(true);
@@ -719,6 +732,7 @@ describe('#EclipticCoordinate', () => {
         l: 123.32,
         b: 33.233,
         radius: 1.4332,
+        withNutation: false,
       });
 
       let phi0 = ecc.sc.phi;
@@ -746,7 +760,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        onFK5: false,
       });
 
       let phi0 = ecc.sc.phi,
@@ -799,7 +814,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 2.09382
+        radius: 2.09382,
+        withGravitationalDeflection: false,
       });
 
       let phi0 = ecc.sc.phi,
@@ -852,7 +868,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 2.09382
+        radius: 2.09382,
+        withAnnualAberration: false,
       });
 
       let phi0 = ecc.sc.phi,
@@ -908,7 +925,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        onFK5: false,
       });
 
       let phi0 = ecc.sc.phi,
@@ -967,7 +985,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        withGravitationalDeflection: false,
       });
 
       let phi0 = ecc.sc.phi,
@@ -1026,7 +1045,8 @@ describe('#EclipticCoordinate', () => {
       let ecc = new EclipticCoordinate({
         l: 122.3223,
         b: 23.223,
-        radius: 1.09382
+        radius: 1.09382,
+        withAnnualAberration: false,
       });
 
       let phi0 = ecc.sc.phi,

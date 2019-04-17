@@ -70,6 +70,8 @@ let withAnnualAberration = ec.withAnnualAberration;
 
 设定起始天球赤道坐标。
 
+* options.epoch 坐标历元
+
 坐标参数：
 
 * options.sc 球坐标
@@ -82,11 +84,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 
 其他参数：
 
-* options.epoch 坐标历元
-* options.withNutation 是否修正了章动
-* options.withAnnualAberration 是否修正周年光行差
-* options.withGravitationalDeflection 是否修正太阳引力偏转
-* options.onFK5 是否修正 FK5
+* options.enableNutation 章动修正功能启用状态
+* options.enableAnnualAberration 周年光行差功能启用状态
+* options.enableGravitationalDeflection 引力偏转功能启用状态
+* options.enableFK5 FK5 修正功能启用状态
+* options.withNutation 坐标是否含有章动修正
+* options.withAnnualAberration 坐标是否含有周年光行差
+* options.withGravitationalDeflection 坐标是否含有引力偏转
+* options.onFK5 坐标是否含有 FK5 修正
 
 `on(options)`
 
@@ -95,7 +100,17 @@ let withAnnualAberration = ec.withAnnualAberration;
 接受参数：
 
 * options.epoch 坐标历元
-* options.withNutation 坐标是否修复章动
+
+修正项参数：
+
+* options.enableNutation 章动修正功能启用状态
+* options.enableAnnualAberration 周年光行差功能启用状态
+* options.enableGravitationalDeflection 引力偏转功能启用状态
+* options.enableFK5 FK5 修正功能启用状态
+* options.withNutation 坐标是否含有章动修正
+* options.withAnnualAberration 坐标是否含有周年光行差
+* options.withGravitationalDeflection 坐标是否含有引力偏转
+* options.onFK5 坐标是否含有 FK5 修正
 
 `position(options)`
 
@@ -118,19 +133,30 @@ let withAnnualAberration = ec.withAnnualAberration;
 接受参数：
 
 * options.epoch 坐标历元
-* options.withNutation 坐标是否修复章动
-* options.withAnnualAberration 是否修正周年光行差
-* options.withGravitationalDeflection 是否修正太阳引力偏转
-* options.onFK5 是否修正 FK5
+
+修正项参数：
+
+* options.enableNutation 章动修正功能启用状态
+* options.enableAnnualAberration 周年光行差功能启用状态
+* options.enableGravitationalDeflection 引力偏转功能启用状态
+* options.enableFK5 FK5 修正功能启用状态
+* options.withNutation 坐标是否含有章动修正
+* options.withAnnualAberration 坐标是否含有周年光行差
+* options.withGravitationalDeflection 坐标是否含有引力偏转
+* options.onFK5 坐标是否含有 FK5 修正
 
 返回结果对象的属性：
 
 * sc 球坐标
 * epoch 坐标历元
+* enableNutation 章动修正功能启用状态
+* enableAnnualAberration 周年光行差功能启用状态
+* enableGravitationalDeflection 引力偏转功能启用状态
+* enableFK5 FK5 修正功能启用状态
 * withNutation 是否修正了章动
-* withAnnualAberration 是否修正周年光行差
-* withGravitationalDeflection 是否修正太阳引力偏转
-* onFK5 是否修正 FK5
+* withAnnualAberration 坐标是否含有周年光行差
+* withGravitationalDeflection 坐标是否含有引力偏转
+* onFK5 坐标是否含有 FK5 修正
 
 `onJ2000()`
 
@@ -204,6 +230,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 
 设置 历元对象
 
+`get enableNutation()`
+
+获取 章动修正功能启用状态
+
+`set enableNutation(value)`
+
+设置 章动修正功能启用状态
+
 `get withNutation()`
 
 获取 章动修正状态
@@ -211,6 +245,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 `set withNutation(value)`
 
 设置 章动修正状态
+
+`get enableAnnualAberration()`
+
+获取 周年光行差功能启用状态
+
+`set enableAnnualAberration(value)`
+
+设置 周年光行差功能启用状态
 
 `get withAnnualAberration()`
 
@@ -220,6 +262,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 
 设置 周年光行差修正状态
 
+`get enableGravitationalDeflection()`
+
+获取 引力偏转功能启用状态
+
+`set enableGravitationalDeflection(value)`
+
+设置 引力偏转功能启用状态
+
 `get withGravitationalDeflection()`
 
 获取 引力偏转修正状态
@@ -227,6 +277,14 @@ let withAnnualAberration = ec.withAnnualAberration;
 `set withGravitationalDeflection(value)`
 
 设置 引力偏转修正状态
+
+`get enableFK5()`
+
+获取 FK5 修正功能启用状态
+
+`set enableFK5(value)`
+
+设置 FK5 修正功能启用状态
 
 `get onFK5()`
 

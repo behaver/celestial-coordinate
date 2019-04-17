@@ -34,7 +34,8 @@ class HorizontalCoordinate extends CommonCoordinate {
    * @param  {Number}                options.a               方位角，单位：度，值域：[0, 360)
    * @param  {Number}                options.radius          坐标距离半径，值域：[10e-8, +∞)
    * @param  {String}                options.centerMode      中心模式：geocentric（地心坐标）、topocentric（站心坐标）
-   * @param  {Boolean}               options.withAR          是否已经过大气折射
+   * @param  {Boolean}               options.enableAR        大气折射修正启用状态
+   * @param  {Boolean}               options.withAR          坐标是否含有大气折射
    * 
    * @return {EquinoctialCoordinate}                         返回 this 引用
    */
@@ -49,6 +50,7 @@ class HorizontalCoordinate extends CommonCoordinate {
     z,
     radius,
     centerMode,
+    enableAR,
     withAR,
   }) {
 
@@ -70,8 +72,10 @@ class HorizontalCoordinate extends CommonCoordinate {
       throw Error('The param centerMode should just be geocentric or topocentric.');
     }
 
-    if (withAR === undefined) withAR = false;
-    else withAR = !!withAR;
+    if (enableAR === undefined) {
+      if (withAR === undefined) enableAR = false;
+      else enableAR = true;
+    }
 
     this.SiderealTime = new SiderealTime(obTime, obGeoLong);
 
@@ -82,7 +86,8 @@ class HorizontalCoordinate extends CommonCoordinate {
       obGeoLat,
       obElevation,
       centerMode,
-      withAR,
+      enableAR: !! enableAR,
+      withAR: !! withAR,
     };
 
     this.position({
@@ -104,7 +109,8 @@ class HorizontalCoordinate extends CommonCoordinate {
    * @param  {Number}                options.obGeoLat    观测点地理纬度
    * @param  {Number}                options.obElevation 观测点海拔高度，单位：米，值域：值域：[-12000, 3e7]
    * @param  {String}                options.centerMode  中心模式：geocentric（地心坐标）、topocentric（站心坐标）
-   * @param  {Boolean}               options.withAR      是否已经过大气折射
+   * @param  {Boolean}               options.enableAR    大气折射修正启用状态
+   * @param  {Boolean}               options.withAR      坐标是否含有大气折射
    * 
    * @return {EquinoctialCoordinate}                     返回 this 引用
    */
@@ -114,6 +120,7 @@ class HorizontalCoordinate extends CommonCoordinate {
     obGeoLat,
     obElevation,
     centerMode,
+    enableAR,
     withAR,
   }) {
     let changeObTime = false;
@@ -139,8 +146,8 @@ class HorizontalCoordinate extends CommonCoordinate {
     if (centerMode === undefined) centerMode = this.private.centerMode;
     else if (centerMode !== 'geocentric' && centerMode !== 'topocentric') throw Error('The param centerMode should just be geocentric or topocentric.');
 
-    if (withAR === undefined) withAR = this.private.withAR;
-    else withAR = !!withAR;
+    if (enableAR !== undefined) this.enableAR = enableAR;
+    if (withAR !== undefined) this.withAR = withAR;
 
     // 将原始坐标转换成地心坐标
     this.onGeocentric();
@@ -159,9 +166,6 @@ class HorizontalCoordinate extends CommonCoordinate {
         sc: this.sc,
         epoch: this.obTime,
         withNutation: true,
-        withAnnualAberration: true,
-        withGravitationalDeflection: true,
-        onFK5: true,
         isContinuous: true,
       });
 
@@ -194,7 +198,7 @@ class HorizontalCoordinate extends CommonCoordinate {
       this.onTopocentric();
 
       // 添加大气折射
-      if (withAR) this.patchAR();
+      if (enableAR && withAR) this.patchAR();
     }
 
     return this;
@@ -232,7 +236,7 @@ class HorizontalCoordinate extends CommonCoordinate {
    */
   onGeocentric() {
     if (this.private.centerMode === 'topocentric') {
-      this.unpatchAR();
+      if (this.enableAR) this.unpatchAR();
 
       let dp = new DiurnalParallax({
         tc: this.sc,
@@ -257,7 +261,7 @@ class HorizontalCoordinate extends CommonCoordinate {
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
   patchAR() {
-    if (!this.private.withAR) {
+    if (this.enableAR && !this.private.withAR) {
       let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
       
       if (h > 0) {
@@ -286,7 +290,7 @@ class HorizontalCoordinate extends CommonCoordinate {
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
   unpatchAR() {
-    if (this.private.withAR) {
+    if (this.enableAR && this.private.withAR) {
       let h = angle.setRadian(Math.PI / 2 - this.private.sc.theta).getDegrees();
       
       if (h > 0) {
@@ -382,17 +386,19 @@ class HorizontalCoordinate extends CommonCoordinate {
         obGeoLat: this.obGeoLat, 
         obElevation: this.obElevation,
         centerMode: this.centerMode,
+        enableAR: this.enableAR,
         withAR: this.withAR,
       };
     } else {
       // 记录原坐标和条件，输出目标坐标后恢复
-      let sc_0 = this.sc;
-      let obTime_0 = this.obTime;
-      let obGeoLong_0 = this.obGeoLong;
-      let obGeoLat_0 = this.obGeoLat;
-      let obElevation_0 = this.obElevation;
-      let centerMode_0 = this.centerMode;
-      let withAR_0 = this.withAR;
+      let sc_0 = this.sc,
+          obTime_0 = this.obTime,
+          obGeoLong_0 = this.obGeoLong,
+          obGeoLat_0 = this.obGeoLat,
+          obElevation_0 = this.obElevation,
+          centerMode_0 = this.centerMode,
+          enableAR_0 = this.enableAR,
+          withAR_0 = this.withAR;
 
       this.on(options);
 
@@ -404,6 +410,7 @@ class HorizontalCoordinate extends CommonCoordinate {
         obGeoLat: this.obGeoLat.getDegrees(),
         obElevation: this.obElevation,
         centerMode: this.centerMode,
+        enableAR: this.enableAR,
         withAR: this.withAR,
       };
 
@@ -414,6 +421,7 @@ class HorizontalCoordinate extends CommonCoordinate {
       this.private.obGeoLat = obGeoLat_0.getDegrees();
       this.private.obElevation = obElevation_0;
       this.private.centerMode = centerMode_0;
+      this.private.enableAR = enableAR_0;
       this.private.withAR = withAR_0;
       this.SiderealTime = new SiderealTime(obTime_0, obGeoLong_0.getDegrees());
 
@@ -502,22 +510,42 @@ class HorizontalCoordinate extends CommonCoordinate {
   }
 
   /**
-   * 获取 是否考虑大气折射影响 设定
+   * 获取 大气折射功能启用状态
    * 
-   * @return {Boolean} 是否考虑大气折射影响 设定
+   * @return {Boolean} 大气折射功能启用状态
+   */
+  get enableAR() {
+    return this.private.enableAR;
+  }
+
+  /**
+   * 设置 大气折射功能启用状态
+   * 
+   * @param {Boolean} value 大气折射功能启用状态
+   */
+  set enableAR(value) {
+    this.private.enableAR = !! value;
+  }
+
+  /**
+   * 获取 当前坐标是否含有大气折射修正
+   * 
+   * @return {Boolean} 当前坐标是否含有大气折射修正
    */
   get withAR() {
     return this.private.withAR;
   }
 
   /**
-   * 设置 是否考虑大气折射影响 设定
+   * 设置 当前坐标是否含有大气折射修正
    * 
-   * @param {Boolean} value 是否考虑大气折射影响 设定
+   * @param {Boolean} value 当前坐标是否含有大气折射修正
    */
   set withAR(value) {
-    if (value) this.patchAR();
-    else this.unpatchAR();
+    if (this.enableAR) { 
+      if (value) this.patchAR();
+      else this.unpatchAR();
+    } else this.private.withAR = !! value;
   }
 
   /**

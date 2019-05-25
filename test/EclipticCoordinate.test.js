@@ -1116,4 +1116,14 @@ describe('#EclipticCoordinate', () => {
       expect(ecc.AACorrection).to.have.all.keys('a', 'b');
     });
   });
+
+  describe('#overall', () => {
+    it('Three method to change coord correction should be equal.', () => {
+      let ecc = new EclipticCoordinate({
+        l: 122.3223,
+        b: 23.223,
+        radius: 1.09382
+      });
+    });
+  });
 });

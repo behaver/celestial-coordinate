@@ -31,7 +31,7 @@
     "@behaver/angle": "^2.0.3",
     "@behaver/annual-aberration": "^1.0.3",
     "@behaver/atmospheric-refraction": "^1.0.2",
-    "@behaver/coordinate": "^3.3.3",
+    "@behaver/coordinate": "^3.4.0",
     "@behaver/diurnal-parallax": "^1.1.5",
     "@behaver/fk5-deflection": "^1.0.2",
     "@behaver/gravitational-deflection": "^1.1.3",

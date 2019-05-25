@@ -1,6 +1,6 @@
 {
   "name": "@behaver/celestial-coordinate",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "The package for handling celestial coordinate.",
   "main": "index.js",
   "directories": {

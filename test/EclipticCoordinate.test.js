@@ -27,76 +27,46 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         new EclipticCoordinate({
-          l: '232'
+          longitude: '232'
         })
       }).to.throw();
       expect(() => {
         new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
       }).not.to.throw();
     });
 
-    // it('The param l should be in [0, 360).', () => {
-    //   expect(() => {
-    //     new EclipticCoordinate({
-    //       l: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new EclipticCoordinate({
-    //       l: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param b should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         new EclipticCoordinate({
-          l: 132.2332,
-          b: '22'
+          longitude: 132.2332,
+          latitude: '22'
         });
       }).to.throw();
       expect(() => {
         new EclipticCoordinate({
-          l: 112.2323,
-          b: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         });
       }).not.to.throw()
     });
 
-    // it('The param b should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     new EclipticCoordinate({
-    //       l: 23,
-    //       b: - 90.232
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new EclipticCoordinate({
-    //       l: 12.32,
-    //       b: 90.23
-    //     });
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         new EclipticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: '233'
         });
       }).to.throw();
       expect(() => {
         new EclipticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 1.09382
         });
       }).not.to.throw();
@@ -105,8 +75,8 @@ describe('#EclipticCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         new EclipticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 0
         });
       }).to.throw();
@@ -115,16 +85,16 @@ describe('#EclipticCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         new EclipticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: '2231232'
         });
       }).to.throw();
 
       expect(() => {
         new EclipticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: new JDateRepository(2000.0, 'jepoch')
         });
       }).not.to.throw();
@@ -133,14 +103,14 @@ describe('#EclipticCoordinate', () => {
     it('The param centerMode should be geocentric or heliocentric.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332,
+          longitude: 123.2332,
           centerMode: 'heliocentric',
         });
       }).not.to.throw();
 
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332,
+          longitude: 123.2332,
           centerMode: 'abc',
         });
       }).to.throw();
@@ -151,7 +121,7 @@ describe('#EclipticCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         let ec  = new EclipticCoordinate({
-          l: 122.3223,
+          longitude: 122.3223,
         });
 
         ec.on({
@@ -163,7 +133,7 @@ describe('#EclipticCoordinate', () => {
     it('The param centerMode should be worked.', () => {
       expect(() => {
         let ec  = new EclipticCoordinate({
-          l: 122.3223,
+          longitude: 122.3223,
         });
 
         ec.on({
@@ -175,7 +145,7 @@ describe('#EclipticCoordinate', () => {
 
     it('When absent coordinate terms, run normally.', () => {
       let ec  = new EclipticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
       });
 
       expect(() => {
@@ -189,16 +159,16 @@ describe('#EclipticCoordinate', () => {
 
     it('Verify with Jean Meeus Astronomical algorithms 21.c', () => {
       let ec  = new EclipticCoordinate({
-        l: 149.48194,
-        b: 1.76549,
+        longitude: 149.48194,
+        latitude: 1.76549,
       });
 
       ec.on({
         epoch: new JDateRepository(1643074.5, 'jde'),
       });
 
-      expect(ec.l.getDegrees()).to.closeTo(118.704, 0.001);
-      expect(ec.b.getDegrees()).to.closeTo(1.615, 0.001);
+      expect(ec.longitude.getDegrees()).to.closeTo(118.704, 0.001);
+      expect(ec.latitude.getDegrees()).to.closeTo(1.615, 0.001);
     });
 
     it('Verify 天文算法 32.a', () => {
@@ -219,8 +189,8 @@ describe('#EclipticCoordinate', () => {
         centerMode: 'geocentric',
       });
 
-      expect(ec.l.getDegrees()).to.closeTo(313.08102, 0.0002);
-      expect(ec.b.getDegrees()).to.closeTo(-2.08488, 0.00022);
+      expect(ec.longitude.getDegrees()).to.closeTo(313.08102, 0.0002);
+      expect(ec.latitude.getDegrees()).to.closeTo(-2.08488, 0.00022);
       expect(ec.radius).to.closeTo(0.910947, 0.000002);
 
       ec.on({
@@ -228,12 +198,12 @@ describe('#EclipticCoordinate', () => {
       });
 
       ec.position({
-        l: ec.l.getDegrees() - 0.00413 - 0.00003,
-        b: ec.b.getDegrees() - 0.00015 + 0.00001,
+        longitude: ec.longitude.getDegrees() - 0.00413 - 0.00003,
+        latitude: ec.latitude.getDegrees() - 0.00015 + 0.00001,
         radius: ec.radius,
       });
 
-      expect(ec.l.getDegrees()).to.closeTo(313.08151, 0.0002);
+      expect(ec.longitude.getDegrees()).to.closeTo(313.08151, 0.0002);
 
       let SS = new SystemSwitcher;
 
@@ -249,7 +219,7 @@ describe('#EclipticCoordinate', () => {
     it('The param sc if existed should be a SphericalCoordinate3D.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
@@ -259,7 +229,7 @@ describe('#EclipticCoordinate', () => {
 
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
@@ -268,119 +238,73 @@ describe('#EclipticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: '232'
+          longitude: '232'
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 232
+          longitude: 232
         })
       }).not.to.throw();
     });
 
-    // it('The param l should be in [0, 360).', () => {
-    //   expect(() => {
-    //     let ec = new EclipticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     ec.position({
-    //       l: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let ec = new EclipticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     ec.position({
-    //       l: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param b should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 112.2323,
-          b: '23.22'
+          longitude: 112.2323,
+          latitude: '23.22'
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 112.2323,
-          b: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         })
       }).not.to.throw()
     });
 
-    // it('The param b should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     let ec = new EclipticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     ec.position({
-    //       l: 112.2323,
-    //       b: -90.232
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let ec = new EclipticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     ec.position({
-    //       l: 112.2323,
-    //       b: 90.232
-    //     })
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: '1.09382',
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 1.09382,
         })
       }).not.to.throw();
@@ -389,12 +313,12 @@ describe('#EclipticCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         let ec = new EclipticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 0,
         })
       }).to.throw();
@@ -402,16 +326,30 @@ describe('#EclipticCoordinate', () => {
 
     it('The properties after using position should update.', () => {
       let ec = new EclipticCoordinate({
-        l: 123.2332
+        longitude: 123.2332
       });
 
       ec.position({
-        l: 112.2323,
-        b: 23.22,
+        longitude: 112.2323,
+        latitude: 23.22,
         radius: 1,
       })
 
-      expect(ec.l.getDegrees()).to.equal(112.2323);
+      expect(ec.longitude.getDegrees()).to.equal(112.2323);
+    });
+
+    it('set methods.', () => {
+      let ec = new EclipticCoordinate({
+        longitude: 123.2332
+      });
+
+      ec.longitude = 90;
+      ec.latitude = 30;
+      ec.radius = 2;
+
+      expect(ec.longitude.getDegrees()).to.equal(90);
+      expect(ec.latitude.getDegrees()).to.closeTo(30, 1e-10);
+      expect(ec.radius).to.equal(2);
     });
   });
 
@@ -419,7 +357,7 @@ describe('#EclipticCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         let ec  = new EclipticCoordinate({
-          l: 122.3223,
+          longitude: 122.3223,
         });
 
         ec.get({
@@ -431,7 +369,7 @@ describe('#EclipticCoordinate', () => {
     it('The param centerMode should not to throw', () => {
       expect(() => {
         let ec  = new EclipticCoordinate({
-          l: 122.3223,
+          longitude: 122.3223,
           enterMode: 'heliocentric',
         });
 
@@ -443,7 +381,7 @@ describe('#EclipticCoordinate', () => {
 
     it('This method wont change the origin condition property.', () => {
       let ec = new EclipticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
         epoch: new JDateRepository(2000.0, 'jepoch'),
         withNutation: false,
         onFK5: false,
@@ -468,7 +406,7 @@ describe('#EclipticCoordinate', () => {
 
     it('The return should be a right structure.', () => {
       let ec = new EclipticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
       });
 
       let res = ec.get({
@@ -505,8 +443,8 @@ describe('#EclipticCoordinate', () => {
   describe('#onJ2000', () => {
     it('The property epoch after onJ2000 should equal J2000.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
         epoch: new JDateRepository(1950.0, 'bepoch'),
       });
 
@@ -520,8 +458,8 @@ describe('#EclipticCoordinate', () => {
     it('The param epoch should be a JDateRepository.', () => {
       expect(() => {
         let ecc = new EclipticCoordinate({
-          l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-          b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+          longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+          latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
         });
         
         ecc.onEpoch(2322232);
@@ -530,8 +468,8 @@ describe('#EclipticCoordinate', () => {
 
     it('The property epoch after onEpoch should equal the epoch setted.', () => {
       let eqc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
       
       let epoch = new JDateRepository(1950.0, 'bepoch');
@@ -543,22 +481,22 @@ describe('#EclipticCoordinate', () => {
 
     it('verify.', () => {
       let ec  = new EclipticCoordinate({
-        l: 149.48194,
-        b: 1.76549,
+        longitude: 149.48194,
+        latitude: 1.76549,
       });
 
       ec.onEpoch(new JDateRepository(1643074.5, 'jde'));
 
-      expect(ec.l.getDegrees()).to.closeTo(118.704, 0.001);
-      expect(ec.b.getDegrees()).to.closeTo(1.615, 0.001);
+      expect(ec.longitude.getDegrees()).to.closeTo(118.704, 0.001);
+      expect(ec.latitude.getDegrees()).to.closeTo(1.615, 0.001);
     })
   });
 
   describe('#patchNutation', () => {
     it('The property withNutation after patchNutation should be true.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       ecc.enableNutation = true;
@@ -571,8 +509,8 @@ describe('#EclipticCoordinate', () => {
   describe('#unpatchNutation', () => {
     it('The property withNutation after unpatchNutation should be false.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       ecc.unpatchNutation();
@@ -584,73 +522,73 @@ describe('#EclipticCoordinate', () => {
   describe('#onGeocentric', () => {
     it('The properties after onGeocentric should be changed.', () => {
       let ec  = new EclipticCoordinate({
-        l: 149.48194,
-        b: 1.76549,
+        longitude: 149.48194,
+        latitude: 1.76549,
         centerMode: 'heliocentric',
       });
 
       ec.onGeocentric();
 
       expect(ec.centerMode).to.equal('geocentric');
-      expect(ec.l.getDegrees()).not.to.equal(149.48194);
-      expect(ec.b.getDegrees()).not.to.equal(1.76549);
+      expect(ec.longitude.getDegrees()).not.to.equal(149.48194);
+      expect(ec.latitude.getDegrees()).not.to.equal(1.76549);
     });
   });
 
   describe('#onHeliocentric', () => {
     it('The properties after onHeliocentric should be changed.', () => {
       let ec  = new EclipticCoordinate({
-        l: 149.48194,
-        b: 1.76549,
+        longitude: 149.48194,
+        latitude: 1.76549,
         centerMode: 'geocentric',
       });
 
       ec.onHeliocentric();
 
       expect(ec.centerMode).to.equal('heliocentric');
-      expect(ec.l.getDegrees()).not.to.equal(149.48194);
-      expect(ec.b.getDegrees()).not.to.equal(1.76549);
+      expect(ec.longitude.getDegrees()).not.to.equal(149.48194);
+      expect(ec.latitude.getDegrees()).not.to.equal(1.76549);
     });
   });
 
   describe('#get sc', () => {
     it('The return should be a SphericalCoordinate3D.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(ecc.sc).to.be.instanceof(SphericalCoordinate3D);
     });
   });
 
-  describe('#get l', () => {
+  describe('#get longitude', () => {
     it('The return should be a Angle.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(ecc.l).to.be.instanceof(Angle);
+      expect(ecc.longitude).to.be.instanceof(Angle);
     })
   });
 
-  describe('#get b', () => {
+  describe('#get latitude', () => {
     it('The return should be a Angle.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(ecc.b).to.be.instanceof(Angle);
+      expect(ecc.latitude).to.be.instanceof(Angle);
     })
   });
 
   describe('#get radius', () => {
     it('The return should be a Number.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(ecc.radius).to.be.a('Number');
@@ -660,8 +598,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get epoch', () => {
     it('The return should be a JDateRepository.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(ecc.epoch).to.be.instanceof(JDateRepository);
@@ -671,8 +609,8 @@ describe('#EclipticCoordinate', () => {
   describe('#set epoch', () => {
     it('Run normally, throw no error.', () => {
       let ecc = new EclipticCoordinate({
-        l: 123.45,
-        b: 34.567,
+        longitude: 123.45,
+        latitude: 34.567,
         radius: 2.34,
       });
 
@@ -683,8 +621,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After set epoch, the properties should be changed.', () => {
       let ecc = new EclipticCoordinate({
-        l: 123.34,
-        b: 22.34,
+        longitude: 123.34,
+        latitude: 22.34,
         radius: 1.23,
       });
 
@@ -705,8 +643,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get withNutation', () => {
     it('The return should be a Boolean.', () => {
       let ecc = new EclipticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(ecc.withNutation).to.be.a('Boolean');
@@ -716,8 +654,8 @@ describe('#EclipticCoordinate', () => {
   describe('#set withNutation', () => {
     it('Run normally, throw no error.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.22,
-        b: 56.2,
+        longitude: 122.22,
+        latitude: 56.2,
         radius: 2.012,
       });
 
@@ -729,8 +667,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After set withNutation, the property sc should be changed.', () => {
       let ecc = new EclipticCoordinate({
-        l: 123.32,
-        b: 33.233,
+        longitude: 123.32,
+        latitude: 33.233,
         radius: 1.4332,
         withNutation: false,
       });
@@ -746,8 +684,8 @@ describe('#EclipticCoordinate', () => {
   describe('#set onFK5(value)', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(() => {
@@ -758,8 +696,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After setting onFK5, the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         onFK5: false,
       });
@@ -783,8 +721,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get onFK5()', () => {
     it('Get and set run normally.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -799,8 +737,8 @@ describe('#EclipticCoordinate', () => {
   describe('#set withGravitationalDeflection(value)', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -812,8 +750,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After setting withGravitationalDeflection, the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 2.09382,
         withGravitationalDeflection: false,
       });
@@ -837,8 +775,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get withGravitationalDeflection()', () => {
     it('Get and set run normally.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -853,8 +791,8 @@ describe('#EclipticCoordinate', () => {
   describe('#set withAnnualAberration(value)', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -866,8 +804,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After setting withAnnualAberration, the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 2.09382,
         withAnnualAberration: false,
       });
@@ -891,8 +829,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get withAnnualAberration()', () => {
     it('Get and set run normally.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -907,8 +845,8 @@ describe('#EclipticCoordinate', () => {
   describe('#patchFK5(), unpatchFK5()', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -923,8 +861,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After patchFK5(), the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         onFK5: false,
       });
@@ -967,8 +905,8 @@ describe('#EclipticCoordinate', () => {
   describe('#patchGravitationalDeflection(), unpatchGravitationalDeflection()', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -983,8 +921,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After patchGravitationalDeflection(), the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         withGravitationalDeflection: false,
       });
@@ -1027,8 +965,8 @@ describe('#EclipticCoordinate', () => {
   describe('#patchAnnualAberration(), unpatchAnnualAberration()', () => {
     it('Run normally, no error throw.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -1043,8 +981,8 @@ describe('#EclipticCoordinate', () => {
 
     it('After patchAnnualAberration(), the property sc should be change.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         withAnnualAberration: false,
       });
@@ -1087,8 +1025,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get FK5Correction', () => {
     it('The return should be a object.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(ecc.FK5Correction).to.have.all.keys('a', 'b');
@@ -1098,8 +1036,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get GDCorrection', () => {
     it('The return should be a object.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(ecc.GDCorrection).to.have.all.keys('a', 'b');
@@ -1109,8 +1047,8 @@ describe('#EclipticCoordinate', () => {
   describe('#get AACorrection', () => {
     it('The return should be a object.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(ecc.AACorrection).to.have.all.keys('a', 'b');
@@ -1120,8 +1058,8 @@ describe('#EclipticCoordinate', () => {
   describe('#overall', () => {
     it('Three method to change coord correction should be equal.', () => {
       let ecc = new EclipticCoordinate({
-        l: 122.3223,
-        b: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
     });

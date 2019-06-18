@@ -16,8 +16,8 @@ const { JDateRepository } = require('@behaver/jdate');
 
 // 实例化 J2000 分点天球银道坐标
 let gc = new GalacticCoordinate({
-  l: 123.2343,
-  b: -3.3248,
+  longitude: 123.2343,
+  latitude: -3.3248,
   radius: 1.0324,
 });
 
@@ -28,9 +28,9 @@ gc.on({
   epoch: jdr,
 });
 
-let l = gc.l.getDegrees();
+let longitude = gc.longitude.getDegrees();
 
-let b = gc.b.getDegrees();
+let latitude = gc.latitude.getDegrees();
 
 let radius = gc.radius;
 
@@ -40,6 +40,22 @@ let epoch = gc.epoch;
 ```
 
 ## API
+
+### 属性
+
+`epoch` 观测历元
+
+`sc` 天球球坐标
+
+`longitude` 经度
+
+`latitude` 纬度
+
+`radius` 中心距离
+
+`isContinuous` 结果值连续性
+
+### 方法
 
 `constructor(options)`
 
@@ -59,8 +75,8 @@ let epoch = gc.epoch;
 
 或
 
-* options.l 银经，单位：度，值域：[0, 360)
-* options.b 银纬，单位：度，值域：[-90, 90]
+* options.longitude 银经，单位：度
+* options.latitude 银纬，单位：度
 * options.radius 距离半径，值域：[10e-8, +∞)
 
 其他参数：
@@ -85,8 +101,8 @@ let epoch = gc.epoch;
 
 或
 
-* options.l 银经，单位：度，值域：[0, 360)
-* options.b 银纬，单位：度，值域：[-90, 90]
+* options.longitude 银经，单位：度
+* options.latitude 银纬，单位：度
 * options.radius 距离半径，值域：[10e-8, +∞)
 
 `get(options)`
@@ -106,38 +122,6 @@ let epoch = gc.epoch;
 
 转换坐标至 目标历元
 
-`get sc()`
-
-获取 天球球坐标
-
-`get l()`
-
-获取 银经 角度对象
-
-`get b()`
-
-获取 银纬 角度对象
-
-`get radius()`
-
-获取 距离
-
-`get epoch()`
-
-获取 历元对象
-
-`set epoch(value)`
-
-设置 历元对象
-
-`get isContinuous()`
-
-获取 结果值连续性设定
-
-`set isContinuous(value)`
-
-设置 结果值的连续性
-
 ## 许可证书
 
-The MIT license.
+The ISC license.

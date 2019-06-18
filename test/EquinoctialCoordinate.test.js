@@ -25,76 +25,46 @@ describe('#EquinoctialCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param ra should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         new EquinoctialCoordinate({
-          ra: '232'
+          longitude: '232'
         })
       }).to.throw();
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
       }).not.to.throw();
     });
 
-    // it('The param ra should be in [0, 360).', () => {
-    //   expect(() => {
-    //     new EquinoctialCoordinate({
-    //       ra: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new EquinoctialCoordinate({
-    //       ra: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param dec should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 132.2332,
-          dec: '22'
+          longitude: 132.2332,
+          latitude: '22'
         });
       }).to.throw();
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 112.2323,
-          dec: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         });
       }).not.to.throw()
     });
 
-    // it('The param dec should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     new EquinoctialCoordinate({
-    //       ra: 23,
-    //       dec: - 90.232
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new EquinoctialCoordinate({
-    //       ra: 12.32,
-    //       dec: 90.23
-    //     });
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 122.3223,
-          dec: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: '233'
         });
       }).to.throw();
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 122.3223,
-          dec: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 1.09382
         });
       }).not.to.throw();
@@ -103,8 +73,8 @@ describe('#EquinoctialCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 122.3223,
-          dec: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 0
         });
       }).to.throw();
@@ -113,16 +83,16 @@ describe('#EquinoctialCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 122.3223,
-          dec: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: '2231232'
         });
       }).to.throw();
 
       expect(() => {
         new EquinoctialCoordinate({
-          ra: 122.3223,
-          dec: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: new JDateRepository(2000.0, 'jepoch')
         });
       }).not.to.throw();
@@ -133,7 +103,7 @@ describe('#EquinoctialCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         let ec  = new EquinoctialCoordinate({
-          ra: 122.3223,
+          longitude: 122.3223,
         });
 
         ec.on({
@@ -144,7 +114,7 @@ describe('#EquinoctialCoordinate', () => {
 
     it('When absent coordinate terms, run normally.', () => {
       let ec  = new EquinoctialCoordinate({
-        ra: 122.3223,
+        longitude: 122.3223,
       });
 
       expect(() => {
@@ -158,30 +128,30 @@ describe('#EquinoctialCoordinate', () => {
 
     it('Verify 天文算法 例20.a', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('10h 08m 22.3s').getDegrees(),
-        dec: angle.parseDACString('11°58′02″').getDegrees(),
+        longitude: angle.parseHACString('10h 08m 22.3s').getDegrees(),
+        latitude: angle.parseDACString('11°58′02″').getDegrees(),
       })
 
       eqc.on({
         epoch: new JDateRepository(1978.0, 'jepoch')
       })
 
-      expect(eqc.ra.getSeconds() + 22 * 0.0169 * 15).to.closeTo(angle.parseHACString('10h 07m 12.1s').getSeconds(), 1);
-      expect(eqc.dec.getSeconds() - 22 * 0.006).to.closeTo(angle.parseDACString('12°04′31″').getSeconds(), 1);
+      expect(eqc.longitude.getSeconds() + 22 * 0.0169 * 15).to.closeTo(angle.parseHACString('10h 07m 12.1s').getSeconds(), 1);
+      expect(eqc.latitude.getSeconds() - 22 * 0.006).to.closeTo(angle.parseDACString('12°04′31″').getSeconds(), 1);
     })
 
     it('Verify 天文算法 例20.b', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('2h 44m 11.986s').getDegrees(),
-        dec: angle.parseDACString('49°13′42.48″').getDegrees(),
+        longitude: angle.parseHACString('2h 44m 11.986s').getDegrees(),
+        latitude: angle.parseDACString('49°13′42.48″').getDegrees(),
       })
 
       eqc.on({
         epoch: new JDateRepository(2462088.69, 'jde')
       })
 
-      expect(eqc.ra.getSeconds() + 28.86705 * 0.03425 * 15).to.closeTo(angle.parseHACString('2h 46m 11.331s').getSeconds(), 1);
-      expect(eqc.dec.getSeconds() - 28.86705 * 0.0895).to.closeTo(angle.parseDACString('49°20′54.54″').getSeconds(), 1);
+      expect(eqc.longitude.getSeconds() + 28.86705 * 0.03425 * 15).to.closeTo(angle.parseHACString('2h 46m 11.331s').getSeconds(), 1);
+      expect(eqc.latitude.getSeconds() - 28.86705 * 0.0895).to.closeTo(angle.parseDACString('49°20′54.54″').getSeconds(), 1);
     })
   });
 
@@ -189,7 +159,7 @@ describe('#EquinoctialCoordinate', () => {
     it('The param sc if existed should be a SphericalCoordinate3D.', () => {
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
@@ -199,7 +169,7 @@ describe('#EquinoctialCoordinate', () => {
 
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
@@ -208,119 +178,73 @@ describe('#EquinoctialCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param ra should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: '232'
+          longitude: '232'
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 232
+          longitude: 232
         })
       }).not.to.throw();
     });
 
-    // it('The param ra should be in [0, 360).', () => {
-    //   expect(() => {
-    //     let ec = new EquinoctialCoordinate({
-    //       ra: 123.2332
-    //     });
-
-    //     ec.position({
-    //       ra: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let ec = new EquinoctialCoordinate({
-    //       ra: 123.2332
-    //     });
-
-    //     ec.position({
-    //       ra: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param dec should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 112.2323,
-          dec: '23.22'
+          longitude: 112.2323,
+          latitude: '23.22'
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 112.2323,
-          dec: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         })
       }).not.to.throw()
     });
 
-    // it('The param dec should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     let ec = new EquinoctialCoordinate({
-    //       ra: 123.2332
-    //     });
-
-    //     ec.position({
-    //       ra: 112.2323,
-    //       dec: -90.232
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let ec = new EquinoctialCoordinate({
-    //       ra: 123.2332
-    //     });
-
-    //     ec.position({
-    //       ra: 112.2323,
-    //       dec: 90.232
-    //     })
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 112.2323,
-          dec: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: '1.09382',
         })
       }).to.throw();
 
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 112.2323,
-          dec: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 1.09382,
         })
       }).not.to.throw();
@@ -329,12 +253,12 @@ describe('#EquinoctialCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         let ec = new EquinoctialCoordinate({
-          ra: 123.2332
+          longitude: 123.2332
         });
 
         ec.position({
-          ra: 112.2323,
-          dec: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 0,
         })
       }).to.throw();
@@ -342,16 +266,16 @@ describe('#EquinoctialCoordinate', () => {
 
     it('The property after using position should update.', () => {
       let ec = new EquinoctialCoordinate({
-        ra: 123.2332
+        longitude: 123.2332
       });
 
       ec.position({
-        ra: 112.2323,
-        dec: 23.22,
+        longitude: 112.2323,
+        latitude: 23.22,
         radius: 1,
       })
 
-      expect(ec.ra.getDegrees()).to.equal(112.2323);
+      expect(ec.longitude.getDegrees()).to.equal(112.2323);
     });
   });
 
@@ -359,7 +283,7 @@ describe('#EquinoctialCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         let ec  = new EquinoctialCoordinate({
-          ra: 122.3223,
+          longitude: 122.3223,
         });
 
         ec.get({
@@ -370,7 +294,7 @@ describe('#EquinoctialCoordinate', () => {
 
     it('This method wont change the origin condition property.', () => {
       let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
+        longitude: 122.3223,
         epoch: new JDateRepository(2000.0, 'jepoch'),
         withNutation: false,
         onFK5: false,
@@ -395,7 +319,7 @@ describe('#EquinoctialCoordinate', () => {
 
     it('The return should be a right structure.', () => {
       let ec = new EquinoctialCoordinate({
-        ra: 122.3223,
+        longitude: 122.3223,
       });
 
       let res = ec.get({
@@ -429,8 +353,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#onJ2000', () => {
     it('The property epoch after onJ2000 should equal J2000.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
         epoch: new JDateRepository(1950.0, 'bepoch'),
       });
 
@@ -444,8 +368,8 @@ describe('#EquinoctialCoordinate', () => {
     it('The param epoch should be a JDateRepository.', () => {
       expect(() => {
         let eqc = new EquinoctialCoordinate({
-          ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-          dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+          longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+          latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
         });
         
         eqc.onEpoch(2322232);
@@ -454,8 +378,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('The property epoch after onEpoch should equal the epoch setted.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
       
       let epoch = new JDateRepository(1950.0, 'bepoch');
@@ -469,8 +393,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#patchNutation', () => {
     it('The property withNutation after patchNutation should be true.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       eqc.enableNutation = true;
@@ -481,24 +405,24 @@ describe('#EquinoctialCoordinate', () => {
 
     it('#Verify 《天文算法》P124 例22.b', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 41.5555635,
-        dec: 49.3503415,
+        longitude: 41.5555635,
+        latitude: 49.3503415,
         epoch: new JDateRepository(2462088.69, 'jde'),
         withNutation: false,
       });
 
       eqc.withNutation = true;
 
-      expect(eqc.ra.getDegrees()).to.closeTo(41.5599646, 0.000001);
-      expect(eqc.dec.getDegrees()).to.closeTo(49.3520685, 0.000001);
+      expect(eqc.longitude.getDegrees()).to.closeTo(41.5599646, 0.000001);
+      expect(eqc.latitude.getDegrees()).to.closeTo(49.3520685, 0.000001);
     });
   });
 
   describe('#unpatchNutation', () => {
     it('The property withNutation after unpatchNutation should be false.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       eqc.unpatchNutation();
@@ -510,41 +434,41 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get sc', () => {
     it('The return should be a SphericalCoordinate3D.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(eqc.sc).to.be.instanceof(SphericalCoordinate3D);
     });
   });
 
-  describe('#get ra', () => {
+  describe('#get longitude', () => {
     it('The return should be a Angle.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(eqc.ra).to.be.instanceof(Angle);
+      expect(eqc.longitude).to.be.instanceof(Angle);
     })
   });
 
-  describe('#get dec', () => {
+  describe('#get latitude', () => {
     it('The return should be a Angle.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(eqc.dec).to.be.instanceof(Angle);
+      expect(eqc.latitude).to.be.instanceof(Angle);
     })
   });
 
   describe('#get radius', () => {
     it('The return should be a Number.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(eqc.radius).to.be.a('Number');
@@ -554,8 +478,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get FK5Correction', () => {
     it('The return should be a object.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(eqc.FK5Correction).to.have.all.keys('a', 'b');
@@ -565,8 +489,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get GDCorrection', () => {
     it('The return should be a object.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(eqc.GDCorrection).to.have.all.keys('a', 'b');
@@ -576,8 +500,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get AACorrection', () => {
     it('The return should be a object.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -588,8 +512,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get PrecessionCorrection', () => {
     it('The return should be a object.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -600,8 +524,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get NutationCorrection', () => {
     it('The return should be a object.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -612,8 +536,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get epoch', () => {
     it('The return should be a JDateRepository.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(eqc.epoch).to.be.instanceof(JDateRepository);
@@ -623,8 +547,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#set epoch', () => {
     it('Run normally, throw no error.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 123.45,
-        dec: 34.567,
+        longitude: 123.45,
+        latitude: 34.567,
         radius: 2.34,
       });
 
@@ -635,8 +559,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After set epoch, the properties should be changed.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 123.34,
-        dec: 22.34,
+        longitude: 123.34,
+        latitude: 22.34,
         radius: 1.23,
       });
 
@@ -657,8 +581,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#set withNutation', () => {
     it('Run normally, throw no error.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.22,
-        dec: 56.2,
+        longitude: 122.22,
+        latitude: 56.2,
         radius: 2.012,
       });
 
@@ -670,8 +594,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After set withNutation, the property sc should be changed.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 123.32,
-        dec: 33.233,
+        longitude: 123.32,
+        latitude: 33.233,
         radius: 1.4332,
         withNutation: false,
       });
@@ -691,8 +615,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get withNutation', () => {
     it('The return should be a Boolean.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        dec: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(eqc.withNutation).to.be.a('Boolean');
@@ -702,8 +626,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#set onFK5(value)', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
       expect(() => {
@@ -714,8 +638,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After setting onFK5, the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         onFK5: false,
       });
@@ -739,8 +663,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get onFK5()', () => {
     it('Get and set run normally.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -755,8 +679,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#set withGravitationalDeflection(value)', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -768,8 +692,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After setting withGravitationalDeflection, the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 2.09382,
         withGravitationalDeflection: false,
       });
@@ -793,8 +717,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get withGravitationalDeflection()', () => {
     it('Get and set run normally.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -809,8 +733,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#set withAnnualAberration(value)', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -822,8 +746,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After setting withAnnualAberration, the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 2.09382,
         withAnnualAberration: false,
       });
@@ -847,8 +771,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#get withAnnualAberration()', () => {
     it('Get and set run normally.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -863,8 +787,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#patchFK5(), unpatchFK5()', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -879,8 +803,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After patchFK5(), the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         onFK5: false,
       });
@@ -923,8 +847,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#patchGravitationalDeflection(), unpatchGravitationalDeflection()', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -939,8 +863,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After patchGravitationalDeflection(), the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         withGravitationalDeflection: false,
       });
@@ -983,8 +907,8 @@ describe('#EquinoctialCoordinate', () => {
   describe('#patchAnnualAberration(), unpatchAnnualAberration()', () => {
     it('Run normally, no error throw.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382
       });
 
@@ -999,8 +923,8 @@ describe('#EquinoctialCoordinate', () => {
 
     it('After patchAnnualAberration(), the property sc should be change.', () => {
       let eqc = new EquinoctialCoordinate({
-        ra: 122.3223,
-        dec: 23.223,
+        longitude: 122.3223,
+        latitude: 23.223,
         radius: 1.09382,
         withAnnualAberration: false,
       });

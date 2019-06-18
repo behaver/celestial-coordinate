@@ -42,7 +42,7 @@ const Switchers = {
     // 实例化生成对应状态的赤道坐标对象
     let eqc = new EquinoctialCoordinate({
       sc,
-      epoch: coord.obTime,
+      epoch: coord.epoch,
       withNutation: options.withNutation === undefined ? true : options.withNutation,
       withAnnualAberration: options.withAnnualAberration === undefined ? true : options.withAnnualAberration,
       withGravitationalDeflection: options.withGravitationalDeflection === undefined ? true : options.withGravitationalDeflection,
@@ -73,7 +73,7 @@ const Switchers = {
     // 实例化生成对应状态的赤道坐标对象
     let eqc = new EquinoctialCoordinate({
       sc,
-      epoch: coord.obTime,
+      epoch: coord.epoch,
       withNutation: options.withNutation === undefined ? true : options.withNutation,
       withAnnualAberration: options.withAnnualAberration === undefined ? true : options.withAnnualAberration,
       withGravitationalDeflection: options.withGravitationalDeflection === undefined ? true : options.withGravitationalDeflection,
@@ -178,11 +178,11 @@ const Switchers = {
    */
   EQC2HC: function(coord, options) {
 
-    let { obTime, obGeoLong, obGeoLat, obElevation, withAR, centerMode, enableAR } = options;
+    let { epoch, obGeoLong, obGeoLat, obElevation, withAR, centerMode, enableAR } = options;
 
     // 参数预处理
-    if (obTime === undefined) obTime = coord.epoch;
-    else if (!(obTime instanceof JDateRepository)) throw Error('The param options.obTime should be a instance of JDateRepository');
+    if (epoch === undefined) epoch = coord.epoch;
+    else if (!(epoch instanceof JDateRepository)) throw Error('The param options.epoch should be a instance of JDateRepository');
     
     if (typeof(obGeoLong) !== 'number') throw Error('The param options.obGeoLong should be a Number');
     else if (obGeoLong < -180 || obGeoLong > 180) throw Error('The param options.obGeoLong should be in [-180, 180]');
@@ -195,7 +195,7 @@ const Switchers = {
 
     // 获取可转换状态下的 赤道坐标
     let { sc } = coord.get({ 
-      epoch: obTime, 
+      epoch: epoch, 
       withNutation: true,
       withAnnualAberration: true,
       withGravitationalDeflection: true,
@@ -203,7 +203,7 @@ const Switchers = {
     });
 
     // 获取观测者恒星时
-    let ST = new SiderealTime(obTime, obGeoLong);
+    let ST = new SiderealTime(epoch, obGeoLong);
     
     // 真恒星时
     let trueST = angle.setSeconds(ST.trueVal).getRadian();
@@ -216,7 +216,7 @@ const Switchers = {
     // 实例化生成对应状态的地平坐标对象
     let hc = new HorizontalCoordinate({
       sc, 
-      obTime, 
+      epoch, 
       obGeoLong, 
       obGeoLat, 
       obElevation,
@@ -240,17 +240,17 @@ const Switchers = {
    */
   EQC2HAC: function(coord, options) {
 
-    let { obTime, obGeoLong } = options;
+    let { epoch, obGeoLong } = options;
 
     // 参数预处理
-    if (obTime === undefined) obTime = coord.epoch;
-    else if (!(obTime instanceof JDateRepository)) throw Error('The param options.epoch should be a instance of JDateRepository');
+    if (epoch === undefined) epoch = coord.epoch;
+    else if (!(epoch instanceof JDateRepository)) throw Error('The param options.epoch should be a instance of JDateRepository');
     
     if (typeof(obGeoLong) !== 'number') throw Error('The param options.obGeoLong should be a Number');
 
     // 获取可转换状态下的 时角球坐标
     let { sc } = coord.get({ 
-      epoch: obTime, 
+      epoch: epoch, 
       withNutation: true,
       withAnnualAberration: true,
       withGravitationalDeflection: true,
@@ -258,7 +258,7 @@ const Switchers = {
     });
 
     // 获取观测者恒星时
-    let ST = new SiderealTime(obTime, obGeoLong);
+    let ST = new SiderealTime(epoch, obGeoLong);
 
     // 真恒星时
     let trueST = angle.setSeconds(ST.trueVal).getRadian();
@@ -270,7 +270,7 @@ const Switchers = {
     // 实例化生成对应状态的时角坐标对象
     let hac = HourAngleCoordinate({
       sc, 
-      obTime, 
+      epoch, 
       obGeoLong,
       isContinuous: coord.isContinuous,
     });
@@ -368,7 +368,7 @@ const Switchers = {
 /**
  * SystemSwitcher
  * 
- * SystemSwitcher 是一个用于天球坐标系统转换的组件
+ * 天球坐标系统转换器
  *
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
@@ -378,7 +378,12 @@ class SystemSwitcher {
   /**
    * 构造函数
    * 
-   * @param {CommonCoordinate} coord 天球坐标实例
+   * @param {CommonCoordinate} options.coord                         天球坐标实例
+   * @param {Boolean}          options.enableNutation                章动修正功能启用状态
+   * @param {Boolean}          options.enableAnnualAberration        周年光行差功能启用状态
+   * @param {Boolean}          options.enableGravitationalDeflection 引力偏转功能启用状态
+   * @param {Boolean}          options.enableFK5                     FK5 修正功能启用状态
+   * @param {Boolean}          options.enableAR                      大气折射功能启用状态
    */
   constructor({
     coord, 

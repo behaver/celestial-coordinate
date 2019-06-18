@@ -16,10 +16,10 @@ describe('#HorizontalCoordinate', () => {
   });
 
   describe('#from', () => {
-    it('The param obTime should exist and be a JDateRepository.', () => {
+    it('The param epoch should exist and be a JDateRepository.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -36,7 +36,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: 112233,
+          epoch: 112233,
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -47,7 +47,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should exist and be a Number.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
@@ -55,7 +55,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: '120',
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -66,7 +66,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should be in [-180, 180].', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: -181,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -75,7 +75,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 181,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -86,7 +86,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should exist and be a Number.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
@@ -94,7 +94,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: '30',
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -105,7 +105,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should be in [-90, 90].', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: -91,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -114,7 +114,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 91,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -125,7 +125,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param sc if existed should be a SphericalCoordinate3D.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: 'asdf',
@@ -134,7 +134,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -142,144 +142,56 @@ describe('#HorizontalCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param a if existed should be a Number.', () => {
+    it('The param longitude if existed should be a Number.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
       }).not.to.throw();
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: '120',
-          h: 60,
+          longitude: '120',
+          latitude: 60,
         });
       }).to.throw();
     });
 
-    // it('The param a should be in [0, 360).', () => {
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: -1,
-    //       h: 60,
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 361,
-    //       h: 60,
-    //     });
-    //   }).to.throw();
-    // });
-
-    it('The param h if existed should be a Number.', () => {
+    it('The param latitude if existed should be a Number.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
-          h: 60,
+          longitude: 120,
+          latitude: 60,
         });
       }).not.to.throw();
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
-          h: '60',
+          longitude: 120,
+          latitude: '60',
         });
       }).to.throw();
     });
-
-    // it('The param h should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //       h: -91,
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //       h: 91,
-    //     });
-    //   }).to.throw();
-    // });
-
-    it('The param z if existed should be a Number.', () => {
-      expect(() => {
-        new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          obGeoLat: 30,
-          a: 120,
-          z: 60,
-        });
-      }).not.to.throw();
-
-      expect(() => {
-        new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          obGeoLat: 30,
-          a: 120,
-          z: '60',
-        });
-      }).to.throw();
-    });
-
-    // it('The param z should be in [0, 180].', () => {
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //       z: -1,
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //       z: 181,
-    //     });
-    //   }).to.throw();
-    // });
 
     it('The param radius if existed should be a Number.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
           z: 60,
           radius: 1.23,
         });
@@ -287,10 +199,10 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
           z: 60,
           radius: '1.23',
         });
@@ -300,10 +212,10 @@ describe('#HorizontalCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
           z: 60,
           radius: 0,
         });
@@ -312,17 +224,17 @@ describe('#HorizontalCoordinate', () => {
   })
 
   describe('#on', () => {
-    it('The param obTime should be a JDateRepository.', () => {
+    it('The param epoch should be a JDateRepository.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.on({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: -120,
           obGeoLat: -30,
         });
@@ -330,14 +242,14 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.on({
-          obTime: 2462088.69,
+          epoch: 2462088.69,
         });
       }).to.throw();
     });
@@ -345,14 +257,14 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.on({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: '120',
           obGeoLat: -30,
         });
@@ -362,7 +274,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should be in [-180, 180].', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -375,7 +287,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -391,14 +303,14 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.on({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: 120,
           obGeoLat: '30',
         });
@@ -408,7 +320,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should be in [-90, 90].', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -421,7 +333,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -442,10 +354,10 @@ describe('#HorizontalCoordinate', () => {
     it('The param sc if existed should be a SphericalCoordinate3D.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 123,
+          longitude: 123,
         });
 
         hc.position({
@@ -455,10 +367,10 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120.123,
+          longitude: 120.123,
         });
 
         hc.position({
@@ -467,222 +379,91 @@ describe('#HorizontalCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param a if existed should be a Number.', () => {
+    it('The param longitude if existed should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210
+          longitude: 210
         })
       }).not.to.throw();
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: '210'
-        })
-      }).to.throw();
-
-      expect(() => {
-        let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          obGeoLat: 30,
-          a: 120,
-        });
-
-        hc.position({
-          z: 30,
+          longitude: '210'
         })
       }).to.throw();
     });
 
-    // it('The param a should be in [0, 360).', () => {
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: 361
-    //     })
-    //   }).to.throw();
-    // });
-
-    it('The param h if existed should be a Number.', () => {
+    it('The param latitude if existed should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210,
-          h: 30,
+          longitude: 210,
+          latitude: 30,
         })
       }).not.to.throw();
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210,
-          h: '30',
+          longitude: 210,
+          latitude: '30',
         })
       }).to.throw();
     });
-
-    // it('The param h should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: 210,
-    //       h: -91,
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: 210,
-    //       h: 91,
-    //     })
-    //   }).to.throw();
-    // });
-
-    it('The param z if existed should be a Number.', () => {
-      expect(() => {
-        let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          obGeoLat: 30,
-          a: 120,
-        });
-
-        hc.position({
-          a: 210,
-          z: 60,
-        })
-      }).not.to.throw();
-
-      expect(() => {
-        let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
-          obGeoLong: 120,
-          obGeoLat: 30,
-          a: 120,
-        });
-
-        hc.position({
-          a: 210,
-          z: '60',
-        })
-      }).to.throw();
-    });
-
-    // it('The param z should be in [0, 180].', () => {
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: 210,
-    //       z: -1,
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let hc = new HorizontalCoordinate({
-    //       obTime: new JDateRepository(2000.0, 'jepoch'),
-    //       obGeoLong: 120,
-    //       obGeoLat: 30,
-    //       a: 120,
-    //     });
-
-    //     hc.position({
-    //       a: 210,
-    //       z: 181, 
-    //     })
-    //   }).to.throw();
-    // });
 
     it('The param radius if existed should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210,
-          z: 30,
+          longitude: 210,
+          latitude: 30,
           radius: 1.23,
         })
       }).not.to.throw();
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210,
-          z: 30,
+          longitude: 210,
+          latitude: 30,
           radius: '1.23',
         })
       }).to.throw();
@@ -691,14 +472,14 @@ describe('#HorizontalCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
-          a: 120,
+          longitude: 120,
         });
 
         hc.position({
-          a: 210,
+          longitude: 210,
           radius: 0,
         })
       }).to.throw();
@@ -706,34 +487,34 @@ describe('#HorizontalCoordinate', () => {
 
     it('The property after using position should update.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
-        a: 120,
+        longitude: 120,
       });
 
       hc.position({
-        a: 210,
+        longitude: 210,
         radius: 1,
       })
 
-      expect(hc.a.getDegrees()).to.equal(210);
+      expect(hc.longitude.getDegrees()).to.equal(210);
       expect(hc.obGeoLong.getDegrees()).to.equal(120);
     });
   })
 
   describe('#get', () => {
-    it('The param obTime should be a JDateRepository.', () => {
+    it('The param epoch should be a JDateRepository.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.get({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: -120,
           obGeoLat: -30,
         });
@@ -741,14 +522,14 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.get({
-          obTime: 2462088.69,
+          epoch: 2462088.69,
         });
       }).to.throw();
     });
@@ -756,14 +537,14 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.get({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: '120',
           obGeoLat: -30,
         });
@@ -773,7 +554,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLong should be in [-180, 180].', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -786,7 +567,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -802,14 +583,14 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should be a Number.', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
         });
 
         hc.get({
-          obTime: new JDateRepository(2462088.69, 'jde'),
+          epoch: new JDateRepository(2462088.69, 'jde'),
           obGeoLong: 120,
           obGeoLat: '30',
         });
@@ -819,7 +600,7 @@ describe('#HorizontalCoordinate', () => {
     it('The param obGeoLat should be in [-90, 90].', () => {
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -832,7 +613,7 @@ describe('#HorizontalCoordinate', () => {
 
       expect(() => {
         let hc = new HorizontalCoordinate({
-          obTime: new JDateRepository(2000.0, 'jepoch'),
+          epoch: new JDateRepository(2000.0, 'jepoch'),
           obGeoLong: 120,
           obGeoLat: 30,
           sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -846,38 +627,38 @@ describe('#HorizontalCoordinate', () => {
 
     it('This method wont change the origin condition property.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
       });
 
       hc.get({
-        obTime: new JDateRepository(2050.0, 'jepoch'),
+        epoch: new JDateRepository(2050.0, 'jepoch'),
         obGeoLong: -120,
         obGeoLat: -30,
       });
 
-      expect(hc.obTime.JEpoch).to.equal(2000);
+      expect(hc.epoch.JEpoch).to.equal(2000);
       expect(hc.obGeoLong.getDegrees()).to.equal(120);
       expect(hc.obGeoLat.getDegrees()).to.equal(30);
     });
 
     it('The return should be a right structure.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
       });
 
       let res = hc.get({
-        obTime: new JDateRepository(2050.0, 'jepoch'),
+        epoch: new JDateRepository(2050.0, 'jepoch'),
         obGeoLong: -120,
         obGeoLat: -30,
       });
 
-      expect(res).to.have.all.key('sc', 'obTime', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'enableAR', 'withAR');
+      expect(res).to.have.all.key('sc', 'epoch', 'obGeoLong', 'obGeoLat', 'obElevation', 'centerMode', 'enableAR', 'withAR');
     })
   });
 
@@ -909,7 +690,7 @@ describe('#HorizontalCoordinate', () => {
 
       // 地平地心坐标
       let hgc = SS.from(ec).to('hc', {
-        obTime: jdate,
+        epoch: jdate,
         obGeoLong,
         obGeoLat,
         obElevation: 1713,
@@ -927,7 +708,7 @@ describe('#HorizontalCoordinate', () => {
 
       let hc = new HorizontalCoordinate({
         sc: hgc,
-        obTime: jdate,
+        epoch: jdate,
         obGeoLong,
         obGeoLat,
         obElevation: 1713,
@@ -940,22 +721,22 @@ describe('#HorizontalCoordinate', () => {
       });
 
       expect(htc.r).to.closeTo(hc.radius, 1e-12);
-      expect(htc.theta).to.equal(hc.z.getRadian());
-      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.a.getRadian(), 10e-10);
+      expect(htc.theta).to.equal(Math.PI / 2 - hc.latitude.getRadian());
+      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.longitude.getRadian(), 10e-10);
 
       hc.on({
         centerMode: 'geocentric',
       });
 
       expect(hgc.r).to.closeTo(hc.radius, 0.000001);
-      expect(hgc.theta).to.closeTo(hc.z.getRadian(), 10e-10);
-      expect(hgc.phi).to.closeTo(hc.a.getRadian(), 10e-10);
+      expect(hgc.theta).to.closeTo(Math.PI / 2 - hc.latitude.getRadian(), 10e-10);
+      expect(hgc.phi).to.closeTo(hc.longitude.getRadian(), 10e-10);
 
       hc.onTopocentric();
 
       expect(htc.r).to.closeTo(hc.radius, 0.000001);
-      expect(htc.theta).to.closeTo(hc.z.getRadian(), 10e-10);
-      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.a.getRadian(), 10e-10);
+      expect(htc.theta).to.closeTo(Math.PI / 2 - hc.latitude.getRadian(), 10e-10);
+      expect(angle.setRadian(htc.phi).inRound().getRadian()).to.closeTo(hc.longitude.getRadian(), 10e-10);
 
       hc.isContinuous = false;
       
@@ -970,7 +751,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#onTopocentric', () => {
     it('Running with no error.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -984,7 +765,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After calling onTopocentric, The properties should be changed autolly.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1008,7 +789,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#onGeocentric', () => {
     it('Running with no error.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1022,7 +803,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After calling onGeocentric, The properties should be changed autolly.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1046,7 +827,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#onObservedView', () => {
     it('Running with no error.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1060,7 +841,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After calling onObservedView, The properties should be changed autolly.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1086,7 +867,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#patchAR', () => {
     it('Running with no error.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1101,7 +882,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After calling patchAR, The properties should be changed autolly.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 1.3, 1.34326),
@@ -1122,7 +903,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#unpatchAR', () => {
     it('Running with no error.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1137,7 +918,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After calling unpatchAR, The properties should be changed autolly.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 1.2, 1.34326),
@@ -1155,23 +936,23 @@ describe('#HorizontalCoordinate', () => {
     });
   });
 
-  describe('#get obTime', () => {
+  describe('#get epoch', () => {
     it('The return should be a JDateRepository.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
       });
 
-      expect(hc.obTime).to.be.instanceof(JDateRepository);
+      expect(hc.epoch).to.be.instanceof(JDateRepository);
     });
   });
 
   describe('#get obGeoLong', () => {
     it('The return should be obGeoLong Angle.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1184,7 +965,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#get obGeoLat', () => {
     it('The return should be obGeoLat Angle.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1197,7 +978,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#get obElevation', () => {
     it('The return should be a Number.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         obElevation: 1224,
@@ -1211,7 +992,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#get withAR', () => {
     it('The return should be a boolean.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         obElevation: 1224,
@@ -1225,7 +1006,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#set withAR(value)', () => {
     it('After setting withAR, the properties should be changed.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 1.2, 1.34326),
@@ -1252,7 +1033,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#get centerMode', () => {
     it('The return should be a right string.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         obElevation: 1224,
@@ -1267,7 +1048,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#set centerMode(value)', () => {
     it('The param value should be a right string.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1287,7 +1068,7 @@ describe('#HorizontalCoordinate', () => {
 
     it('After setting centerMode, the properties should be changed.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1316,7 +1097,7 @@ describe('#HorizontalCoordinate', () => {
   describe('#get sc', () => {
     it('The return should be a SphericalCoordinate3D.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
@@ -1326,49 +1107,36 @@ describe('#HorizontalCoordinate', () => {
     });
   });
 
-  describe('#get a', () => {
+  describe('#get longitude', () => {
     it('The return should be a Angle.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
       });
 
-      expect(hc.a).to.be.instanceof(Angle);
+      expect(hc.longitude).to.be.instanceof(Angle);
     })
   });
 
-  describe('#get h', () => {
+  describe('#get latitude', () => {
     it('The return should be a Angle.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
       });
 
-      expect(hc.h).to.be.instanceof(Angle);
-    })
-  });
-
-  describe('#get z', () => {
-    it('The return should be a Angle.', () => {
-      let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
-        obGeoLong: 120,
-        obGeoLat: 30,
-        sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),
-      });
-
-      expect(hc.z).to.be.instanceof(Angle);
+      expect(hc.latitude).to.be.instanceof(Angle);
     })
   });
 
   describe('#get radius', () => {
     it('The return should be a Number.', () => {
       let hc = new HorizontalCoordinate({
-        obTime: new JDateRepository(2000.0, 'jepoch'),
+        epoch: new JDateRepository(2000.0, 'jepoch'),
         obGeoLong: 120,
         obGeoLat: 30,
         sc: new SphericalCoordinate3D(1, 3.03252, 1.34326),

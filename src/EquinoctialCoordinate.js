@@ -1,6 +1,5 @@
 'use strict';
 
-const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const Precession = require('@behaver/precession');
 const Nutation = require('@behaver/nutation');
 const { JDateRepository, CacheSpaceOnJDate } = require('@behaver/jdate');
@@ -15,7 +14,7 @@ const angle = new Angle;
 /**
  * EquinoctialCoordinate
  * 
- * EquinoctialCoordinate 是天球赤道坐标对象
+ * 天球赤道坐标对象
  *
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
@@ -26,8 +25,8 @@ class EquinoctialCoordinate extends CommonCoordinate {
    * 设定起始天球赤道坐标
    * 
    * @param  {SphericalCoordinate3D} options.sc                            球坐标
-   * @param  {Number}                options.ra                            坐标赤经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.dec                           坐标赤纬，单位：度，值域：[-90, 90]
+   * @param  {Number}                options.longitude                     坐标赤经，单位：度
+   * @param  {Number}                options.latitude                      坐标赤纬，单位：度
    * @param  {Number}                options.radius                        坐标距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch                         坐标历元
    * @param  {Boolean}               options.enableNutation                章动修正启用状态
@@ -43,8 +42,8 @@ class EquinoctialCoordinate extends CommonCoordinate {
    */
   from({
     sc, 
-    ra,
-    dec,
+    longitude,
+    latitude,
     radius,
     epoch, 
     enableNutation,
@@ -100,8 +99,8 @@ class EquinoctialCoordinate extends CommonCoordinate {
 
     this.position({
       sc, 
-      ra,
-      dec,
+      longitude,
+      latitude,
       radius,
     });
 
@@ -157,55 +156,19 @@ class EquinoctialCoordinate extends CommonCoordinate {
   }
 
   /**
-   * 设定当前系统条件下的坐标点位置
-   * 
-   * @param  {SphericalCoordinate3D} options.sc     球坐标
-   * @param  {Number}                options.ra     赤经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.dec    赤纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius 距离半径，值域：[10e-8, +∞)
-   * @return {EquinoctialCoordinate}                返回 this 引用
-   */
-  position({
-    sc, 
-    ra,
-    dec,
-    radius,
-  }) {
-    if (sc === undefined) { // 通过参数 ra, dec, radius 设定坐标值
-      if (ra === undefined) throw Error('One of the param sc or ra should be given.');
-      else if (typeof(ra) !== 'number') throw Error('The param ra should be a Number.');
-      // else if (ra >= 360 || ra < 0) throw Error('The param ra should be in [0, 360)');
-      
-      if (dec === undefined) dec = 0;
-      else if (typeof(dec) !== 'number') throw Error('The param dec should be a Number.');
-      // else if (dec < -90 || dec > 90) throw Error('The param dec should be in [-90, 90]');
-      
-      if (radius === undefined) radius = 1;
-      else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');
-      else if (radius < 10e-8) throw Error('The param radius should be gt 10e-8');
-
-      // 生成 球坐标 对象
-      let theta = dec ? angle.setDegrees(90 - dec).getRadian() : Math.PI / 2;
-      let phi = angle.setDegrees(ra).getRadian();
-      
-      sc = new SphericalCoordinate3D(radius, theta, phi);
-    } else { // 通过参数 sc 设定坐标值
-      if (!(sc instanceof SphericalCoordinate3D)) throw Error('The param sc should be a instance of SphericalCoordinate3D.');
-    }
-
-    this.private.sc = sc;
-
-    // 清空缓存
-    this.cache.clear();
-
-    return this;
-  }
-
-  /**
    * 获取指定系统参数的坐标结果
    * 
-   * @param  {Object}         options               坐标系统参数
-   * @return {Object}                               坐标结果对象
+   * @param  {JDateRepository}       options.epoch                         坐标历元
+   * @param  {Boolean}               options.enableNutation                章动修正启用状态
+   * @param  {Boolean}               options.withNutation                  坐标是否含有章动修正
+   * @param  {Boolean}               options.enableAnnualAberration        周年光行差修正启用状态
+   * @param  {Boolean}               options.withAnnualAberration          坐标是否含有周年光行差
+   * @param  {Boolean}               options.enableGravitationalDeflection 引力偏转修正启用状态
+   * @param  {Boolean}               options.withGravitationalDeflection   坐标是否含有引力偏转
+   * @param  {Boolean}               options.enableFK5                     FK5 修正启用状态
+   * @param  {Boolean}               options.onFK5                         坐标是否基于 FK5 系统
+   * 
+   * @return {EquinoctialCoordinate}                                       返回 this 引用
    */
   get(options) {
     if (options === undefined) {
@@ -328,6 +291,7 @@ class EquinoctialCoordinate extends CommonCoordinate {
    * 会将当前坐标转化成目标历元平坐标
    * 
    * @param  {JDateRepository}       epoch 目标历元
+   * 
    * @return {EquinoctialCoordinate} 返回 this 引用
    */
   onEpoch(epoch) {
@@ -500,7 +464,7 @@ class EquinoctialCoordinate extends CommonCoordinate {
   /**
    * 修正至 FK5 系统
    * 
-   * @return {SphericalCoordinate3D} 天球球坐标
+   * @return {EquinoctialCoordinate} 返回 this 引用
    */
   patchFK5() {
     if (this.enableFK5 && !this.private.onFK5) {
@@ -518,7 +482,7 @@ class EquinoctialCoordinate extends CommonCoordinate {
   /**
    * 解除 FK5 修正
    * 
-   * @return {SphericalCoordinate3D} 天球球坐标
+   * @return {EquinoctialCoordinate} 返回 this 引用
    */
   unpatchFK5() {
     if (this.enableFK5 && this.private.onFK5) {
@@ -531,42 +495,6 @@ class EquinoctialCoordinate extends CommonCoordinate {
     }
 
     return this;
-  }
-
-  /**
-   * 获取 赤经 角度对象
-   * 
-   * @return {Angle} 赤经 角度对象
-   */
-  get ra() {
-    return new Angle(this.sc.phi, 'r');
-  }
-
-  /**
-   * 获取 赤纬 角度对象
-   * 
-   * @return {Angle} 赤纬 角度对象
-   */
-  get dec() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
-  }
-
-  /**
-   * 获取 历元对象
-   * 
-   * @return {JDateRepository} 历元对象
-   */
-  get epoch() {
-    return new JDateRepository(this.private.epoch.JD);
-  }
-
-  /**
-   * 设置 历元对象
-   * 
-   * @param  {JDateRepository} value 目标历元对象
-   */
-  set epoch(value) {
-    this.onEpoch(value);
   }
 
   /**

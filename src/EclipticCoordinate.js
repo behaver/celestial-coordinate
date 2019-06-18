@@ -1,6 +1,6 @@
 'use strict';
 
-const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
+const CommonCoordinate = require('./CommonCoordinate');
 const Precession = require('@behaver/precession');
 const Nutation = require('@behaver/nutation');
 const { JDateRepository, CacheSpaceOnJDate } = require('@behaver/jdate');
@@ -8,7 +8,6 @@ const { EarthHECC } = require('@behaver/solar-planets-hecc');
 const AnnualAberration = require('@behaver/annual-aberration');
 const GravitationalDeflection = require('@behaver/gravitational-deflection');
 const FK5Deflection = require('@behaver/fk5-deflection');
-const CommonCoordinate = require('./CommonCoordinate');
 const Angle = require('@behaver/angle');
 
 const angle = new Angle;
@@ -16,7 +15,7 @@ const angle = new Angle;
 /**
  * EclipticCoordinate
  * 
- * EclipticCoordinate 是天球黄道坐标对象
+ * 天球黄道坐标对象
  *
  * @author 董 三碗 <qianxing@yeah.net>
  * @version 1.0.0
@@ -27,8 +26,8 @@ class EclipticCoordinate extends CommonCoordinate {
    * 设定起始天球黄道坐标
    * 
    * @param  {SphericalCoordinate3D} options.sc                            球坐标
-   * @param  {Number}                options.l                             黄经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b                             黄纬，单位：度，值域：[-90, 90]
+   * @param  {Number}                options.longitude                     黄经，单位：度
+   * @param  {Number}                options.latitude                      黄纬，单位：度
    * @param  {Number}                options.radius                        距离半径，值域：[10e-8, +∞)
    * @param  {JDateRepository}       options.epoch                         坐标历元
    * @param  {String}                options.centerMode                    中心模式：geocentric（地心坐标）、heliocentric（日心坐标）
@@ -45,8 +44,8 @@ class EclipticCoordinate extends CommonCoordinate {
    */
   from({
     sc, 
-    l,
-    b,
+    longitude,
+    latitude,
     radius,
     epoch, 
     centerMode,
@@ -107,8 +106,8 @@ class EclipticCoordinate extends CommonCoordinate {
 
     this.position({
       sc, 
-      l,
-      b,
+      longitude,
+      latitude,
       radius,
     });
 
@@ -170,51 +169,6 @@ class EclipticCoordinate extends CommonCoordinate {
     if (withNutation !== undefined) this.withNutation = withNutation;
 
     if (centerMode === 'heliocentric') this.onHeliocentric();
-
-    return this;
-  }
-
-  /**
-   * 设定当前系统条件下的坐标点位置
-   * 
-   * @param  {SphericalCoordinate3D} options.sc     球坐标
-   * @param  {Number}                options.l      黄经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b      黄纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius 距离半径，值域：[10e-8, +∞)
-   * @return {EclipticCoordinate}                   返回 this 引用
-   */
-  position({
-    sc, 
-    l,
-    b,
-    radius,
-  }) {
-    if (sc === undefined) { // 通过参数 l, b, radius 设定坐标值
-      if (l === undefined) throw Error('One of the param sc or l should be given.');
-      else if (typeof(l) !== 'number') throw Error('The param l should be a Number.');
-      // else if (l >= 360 || l < 0) throw Error('The param l should be in [0, 360)');
-      
-      if (b === undefined) b = 0;
-      else if (typeof(b) !== 'number') throw Error('The param b should be a Number.');
-      // else if (b < -90 || b > 90) throw Error('The param b should be in [-90, 90]');
-      
-      if (radius === undefined) radius = 1;
-      else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');
-      else if (radius < 10e-8) throw Error('The param radius should be gt 10e-8');
-
-      // 生成 球坐标 对象
-      let theta = b ? angle.setDegrees(90 - b).getRadian() : Math.PI / 2;
-      let phi = angle.setDegrees(l).getRadian();
-      
-      sc = new SphericalCoordinate3D(radius, theta, phi);
-    } else { // 通过参数 sc 设定坐标值
-      if (!(sc instanceof SphericalCoordinate3D)) throw Error('The param sc should be a instance of SphericalCoordinate3D.');
-    }
-
-    this.private.sc = sc;
-
-    // 清空缓存
-    this.cache.clear();
 
     return this;
   }
@@ -353,6 +307,7 @@ class EclipticCoordinate extends CommonCoordinate {
    * 会将当前坐标转化成目标历元平坐标
    * 
    * @param  {JDateRepository}    epoch 目标历元
+   * 
    * @return {EclipticCoordinate}       返回 this 引用
    */
   onEpoch(epoch) {
@@ -521,7 +476,7 @@ class EclipticCoordinate extends CommonCoordinate {
   /**
    * 修正至 FK5 系统
    * 
-   * @return {SphericalCoordinate3D} 天球球坐标
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   patchFK5() {
     if (this.enableFK5 && !this.private.onFK5) {
@@ -539,7 +494,7 @@ class EclipticCoordinate extends CommonCoordinate {
   /**
    * 解除 FK5 修正
    * 
-   * @return {SphericalCoordinate3D} 天球球坐标
+   * @return {EclipticCoordinate} 返回 this 引用
    */
   unpatchFK5() {
     if (this.enableFK5 && this.private.onFK5) {
@@ -608,42 +563,6 @@ class EclipticCoordinate extends CommonCoordinate {
     }
 
     return this;
-  }
-
-  /**
-   * 获取 黄经 角度对象
-   * 
-   * @return {Angle} 黄经 角度对象
-   */
-  get l() {
-    return new Angle(this.sc.phi, 'r');
-  }
-
-  /**
-   * 获取 黄纬 角度对象
-   * 
-   * @return {Angle} 黄纬 角度对象
-   */
-  get b() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
-  }
-
-  /**
-   * 获取 历元对象
-   * 
-   * @return {JDateRepository} 历元对象
-   */
-  get epoch() {
-    return new JDateRepository(this.private.epoch.JD);
-  }
-
-  /**
-   * 设置 历元对象
-   * 
-   * @param  {JDateRepository} value 目标历元对象
-   */
-  set epoch(value) {
-    this.onEpoch(value);
   }
 
   /**

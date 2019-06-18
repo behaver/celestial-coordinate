@@ -1,16 +1,16 @@
 'use strict';
 
+const CommonCoordinate = require('./CommonCoordinate');
+const EquinoctialCoordinate = require('./EquinoctialCoordinate');
 const { SphericalCoordinate3D } = require('@behaver/coordinate/3d');
 const { JDateRepository } = require('@behaver/jdate');
 const Angle = require('@behaver/angle');
-const EquinoctialCoordinate = require('./EquinoctialCoordinate');
-const CommonCoordinate = require('./CommonCoordinate');
 const angle = new Angle;
 
 /**
  * GalacticCoordinate
  *
- * GalacticCoordinate 是天球银道坐标对象
+ * 天球银道坐标对象
  * 
  * 1958年以前﹐采用银道升交点作为银道坐标系的主点﹐过该点的银经圈就是这一坐标系的主圈。
  * 在1958年以前，天文界定银道与天赤道的交角为62°，这也是银轴与地轴的交角，亦是银极与天极的角距离；
@@ -34,18 +34,18 @@ class GalacticCoordinate extends CommonCoordinate {
   /**
    * 设定起始天球银道坐标
    * 
-   * @param  {SphericalCoordinate3D} options.sc              球坐标
-   * @param  {Number}                options.l               银经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b               银纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius          距离半径，值域：[10e-8, +∞)
-   * @param  {JDateRepository}       options.epoch           坐标历元
+   * @param  {SphericalCoordinate3D} options.sc        球坐标
+   * @param  {Number}                options.longitude 银经，单位：度
+   * @param  {Number}                options.latitude  银纬，单位：度
+   * @param  {Number}                options.radius    距离半径，值域：[10e-8, +∞)
+   * @param  {JDateRepository}       options.epoch     坐标历元
    * 
-   * @return {GalacticCoordinate}                            返回 this 引用
+   * @return {GalacticCoordinate}                      返回 this 引用
    */
   from({
     sc,
-    l,
-    b,
+    longitude,
+    latitude,
     radius,
     epoch,
   }) {
@@ -54,14 +54,14 @@ class GalacticCoordinate extends CommonCoordinate {
 
     // 北银极点赤道坐标
     this.npseqc = new EquinoctialCoordinate({
-      ra: 192.85948,
-      dec: 27.12825,
+      longitude: 192.85948,
+      latitude: 27.12825,
     });
 
     // 银心赤道坐标
     this.gceqc = new EquinoctialCoordinate({
-      ra: 266.405,
-      dec: -28.936,
+      longitude: 266.405,
+      latitude: -28.936,
     });
 
     // 将北银极、银心坐标从 J2000 历元 转换至 目标历元
@@ -75,8 +75,8 @@ class GalacticCoordinate extends CommonCoordinate {
 
     this.position({
       sc,
-      l,
-      b,
+      longitude,
+      latitude,
       radius,
     });
 
@@ -87,6 +87,7 @@ class GalacticCoordinate extends CommonCoordinate {
    * 转换当前坐标的系统参数
    * 
    * @param  {JDateRepository}    options.epoch 坐标历元
+   * 
    * @return {GalacticCoordinate}               返回 this 引用
    */
   on({
@@ -98,120 +99,11 @@ class GalacticCoordinate extends CommonCoordinate {
   }
 
   /**
-   * 转换坐标至 目标历元
-   *
-   * 会将当前坐标转化成目标历元平坐标
-   * 
-   * @param  {JDateRepository}    epoch 目标历元
-   * @return {GalacticCoordinate}       返回 this 引用
-   */
-  onEpoch(epoch) {
-    if (!(epoch instanceof JDateRepository)) throw Error('The param epoch should be a instance of JDateRepository');
-
-    if (epoch.J2000 !== this.epoch.J2000) { // 进行历元转换
-      // 初始 北银极赤经、赤纬
-      let nps_ra0 = this.npseqc.ra.getRadian(),
-          nps_dec0 = this.npseqc.dec.getRadian(),
-          gc_ra0 = this.gceqc.ra.getRadian(),
-          gc_dec0 = this.gceqc.dec.getRadian(),
-          a0 = Math.PI / 2 - (gc_ra0 - nps_ra0),
-          theta0 = Math.acos(Math.cos(a0) * Math.cos(gc_dec0)),
-          sc0 = new SphericalCoordinate3D(this.private.sc.r, this.private.sc.theta, this.private.sc.phi);
-
-      // 将银道坐标转换为 初始历元下的天球赤道坐标
-      let sc1 = this.sc
-        .rotateZ(-theta0)
-        .rotateX(Math.PI / 2 - nps_dec0)
-        .rotateZ(nps_ra0 + Math.PI / 2);
-
-      // 保持数值连续性处理
-      let delta_phi = angle.setRadian(sc1.phi - sc0.phi).inRound(-180).getRadian(),
-          delta_theta = angle.setRadian(sc1.theta - sc0.theta).inRound(-180).getRadian();
-
-      let eqc = new EquinoctialCoordinate({
-        sc: new SphericalCoordinate3D(sc0.r, sc0.theta + delta_theta, sc0.phi + delta_phi),
-        epoch: this.epoch,
-        isContinuous: true,
-      });
-
-      eqc.on({ epoch });
-
-      // 获取目标历元天球赤道球坐标
-      let sc = eqc.sc,
-          sc_t = eqc.sc;
-
-      this.npseqc.on({ epoch });
-      this.gceqc.on({ epoch });
-
-      // 目标 北银极赤经、赤纬
-      let nps_ra = this.npseqc.ra.getRadian(),
-          nps_dec = this.npseqc.dec.getRadian(),
-          gc_ra = this.gceqc.ra.getRadian(),
-          gc_dec = this.gceqc.dec.getRadian(),
-          a = Math.PI / 2 - (gc_ra - nps_ra),
-          theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
-
-      sc_t.rotateZ(- nps_ra - Math.PI / 2)
-        .rotateX(- Math.PI / 2 + nps_dec)
-        .rotateZ(theta);
-
-      let dt_phi = angle.setRadian(sc_t.phi - sc.phi).inRound(-180).getRadian(),
-          dt_theta = angle.setRadian(sc_t.theta - sc.theta).inRound(-180).getRadian();
-
-      this.private.sc = new SphericalCoordinate3D(sc.r, sc.theta + dt_theta, sc.phi + dt_phi);
-      this.private.epoch = epoch;
-
-      return this;
-    }
-  }
-
-  /**
-   * 设定当前系统条件下的坐标点位置
-   * 
-   * @param  {SphericalCoordinate3D} options.sc     球坐标
-   * @param  {Number}                options.l      银经，单位：度，值域：[0, 360)
-   * @param  {Number}                options.b      银纬，单位：度，值域：[-90, 90]
-   * @param  {Number}                options.radius 距离半径，值域：[10e-8, +∞)
-   * @return {GalacticCoordinate}                   返回 this 引用
-   */
-  position({
-    sc,
-    l,
-    b,
-    radius,
-  }) {
-    if (sc === undefined) { // 通过参数 l, b, radius 设定坐标值
-      if (l === undefined) throw Error('One of the param sc or l should be given.');
-      else if (typeof(l) !== 'number') throw Error('The param l should be a Number.');
-      // else if (l >= 360 || l < 0) throw Error('The param l should be in [0, 360)');
-      
-      if (b === undefined) b = 0;
-      else if (typeof(b) !== 'number') throw Error('The param b should be a Number.');
-      // else if (b < -90 || b > 90) throw Error('The param b should be in [-90, 90]');
-      
-      if (radius === undefined) radius = 1;
-      else if (typeof(radius) !== 'number') throw Error('The param radius should be a Number.');
-      else if (radius < 10e-8) throw Error('The param radius should be gt 10e-8');
-
-      // 生成 球坐标 对象
-      let theta = b ? angle.setDegrees(90 - b).getRadian() : Math.PI / 2;
-      let phi = angle.setDegrees(l).getRadian();
-      
-      sc = new SphericalCoordinate3D(radius, theta, phi);
-    } else { // 通过参数 sc 设定坐标值
-      if (!(sc instanceof SphericalCoordinate3D)) throw Error('The param sc should be a instance of SphericalCoordinate3D.');
-    }
-
-    this.private.sc = sc;
-
-    return this;
-  }
-
-  /**
    * 获取指定系统参数的坐标结果
    * 
-   * @param  {Object} options 坐标系统参数
-   * @return {Object}         坐标结果对象
+   * @param  {JDateRepository}    options.epoch 坐标历元
+   * 
+   * @return {GalacticCoordinate}               返回 this 引用
    */
   get(options) {
     if (options === undefined) {
@@ -245,39 +137,72 @@ class GalacticCoordinate extends CommonCoordinate {
   }
 
   /**
-   * 获取 银经 角度对象
+   * 转换坐标至 目标历元
+   *
+   * 会将当前坐标转化成目标历元平坐标
    * 
-   * @return {Angle} 银经 角度对象
+   * @param  {JDateRepository}    epoch 目标历元
+   * 
+   * @return {GalacticCoordinate}       返回 this 引用
    */
-  get l() {
-    return new Angle(this.sc.phi, 'r');
-  }
+  onEpoch(epoch) {
+    if (!(epoch instanceof JDateRepository)) throw Error('The param epoch should be a instance of JDateRepository');
 
-  /**
-   * 获取 银纬 角度对象
-   * 
-   * @return {Angle} 银纬 角度对象
-   */
-  get b() {
-    return (new Angle(Math.PI / 2 - this.sc.theta, 'r'));
-  }
+    if (epoch.J2000 !== this.epoch.J2000) { // 进行历元转换
+      // 初始 北银极赤经、赤纬
+      let nps_ra0 = this.npseqc.longitude.getRadian(),
+          nps_dec0 = this.npseqc.latitude.getRadian(),
+          gc_ra0 = this.gceqc.longitude.getRadian(),
+          gc_dec0 = this.gceqc.latitude.getRadian(),
+          a0 = Math.PI / 2 - (gc_ra0 - nps_ra0),
+          theta0 = Math.acos(Math.cos(a0) * Math.cos(gc_dec0)),
+          sc0 = new SphericalCoordinate3D(this.private.sc.r, this.private.sc.theta, this.private.sc.phi);
 
-  /**
-   * 获取 历元对象
-   * 
-   * @return {JDateRepository} 历元对象
-   */
-  get epoch() {
-    return new JDateRepository(this.private.epoch.JD);
-  }
+      // 将银道坐标转换为 初始历元下的天球赤道坐标
+      let sc1 = this.sc
+        .rotateZ(-theta0)
+        .rotateX(Math.PI / 2 - nps_dec0)
+        .rotateZ(nps_ra0 + Math.PI / 2);
 
-  /**
-   * 设置 历元对象
-   * 
-   * @param  {JDateRepository} value 目标历元对象
-   */
-  set epoch(value) {
-    this.onEpoch(value);
+      // 保持数值连续性处理
+      let delta_phi = angle.setRadian(sc1.phi - sc0.phi).inRound(-180).getRadian(),
+          delta_theta = angle.setRadian(sc1.theta - sc0.theta).inRound(-180).getRadian();
+
+      let eqc = new EquinoctialCoordinate({
+        sc: new SphericalCoordinate3D(sc0.r, sc0.theta + delta_theta, sc0.phi + delta_phi),
+        epoch: this.epoch,
+        isContinuous: true,
+      });
+
+      eqc.on({ epoch });
+
+      // 获取目标历元天球赤道球坐标
+      let sc = eqc.sc,
+          sc_t = eqc.sc;
+
+      this.npseqc.on({ epoch });
+      this.gceqc.on({ epoch });
+
+      // 目标 北银极赤经、赤纬
+      let nps_ra = this.npseqc.longitude.getRadian(),
+          nps_dec = this.npseqc.latitude.getRadian(),
+          gc_ra = this.gceqc.longitude.getRadian(),
+          gc_dec = this.gceqc.latitude.getRadian(),
+          a = Math.PI / 2 - (gc_ra - nps_ra),
+          theta = Math.acos(Math.cos(a) * Math.cos(gc_dec));
+
+      sc_t.rotateZ(- nps_ra - Math.PI / 2)
+        .rotateX(- Math.PI / 2 + nps_dec)
+        .rotateZ(theta);
+
+      let dt_phi = angle.setRadian(sc_t.phi - sc.phi).inRound(-180).getRadian(),
+          dt_theta = angle.setRadian(sc_t.theta - sc.theta).inRound(-180).getRadian();
+
+      this.private.sc = new SphericalCoordinate3D(sc.r, sc.theta + dt_theta, sc.phi + dt_phi);
+      this.private.epoch = epoch;
+
+      return this;
+    }
   }
 }
 

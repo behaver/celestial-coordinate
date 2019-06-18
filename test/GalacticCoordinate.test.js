@@ -26,76 +26,46 @@ describe('#GalacticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         new GalacticCoordinate({
-          l: '232'
+          longitude: '232'
         })
       }).to.throw();
       expect(() => {
         new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
       }).not.to.throw();
     });
 
-    // it('The param l should be in [0, 360).', () => {
-    //   expect(() => {
-    //     new GalacticCoordinate({
-    //       l: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new GalacticCoordinate({
-    //       l: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param b should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         new GalacticCoordinate({
-          l: 132.2332,
-          b: '22'
+          longitude: 132.2332,
+          latitude: '22'
         });
       }).to.throw();
       expect(() => {
         new GalacticCoordinate({
-          l: 112.2323,
-          b: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         });
       }).not.to.throw()
     });
 
-    // it('The param b should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     new GalacticCoordinate({
-    //       l: 23,
-    //       b: - 90.232
-    //     });
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     new GalacticCoordinate({
-    //       l: 12.32,
-    //       b: 90.23
-    //     });
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         new GalacticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: '233'
         });
       }).to.throw();
       expect(() => {
         new GalacticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 1.09382
         });
       }).not.to.throw();
@@ -104,8 +74,8 @@ describe('#GalacticCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         new GalacticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           radius: 0
         });
       }).to.throw();
@@ -114,16 +84,16 @@ describe('#GalacticCoordinate', () => {
     it('The param epoch should be a JDateRepository', () => {
       expect(() => {
         new GalacticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: '2231232'
         });
       }).to.throw();
 
       expect(() => {
         new GalacticCoordinate({
-          l: 122.3223,
-          b: 23.223,
+          longitude: 122.3223,
+          latitude: 23.223,
           epoch: new JDateRepository(2000.0, 'jepoch')
         });
       }).not.to.throw();
@@ -133,7 +103,7 @@ describe('#GalacticCoordinate', () => {
   describe('#on', () => {
     it('The param epoch should be a JDateRepository', () => {
       let gc  = new GalacticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
       });
 
       expect(() => {
@@ -158,7 +128,7 @@ describe('#GalacticCoordinate', () => {
     it('The param sc if existed should be a SphericalCoordinate3D.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
@@ -168,7 +138,7 @@ describe('#GalacticCoordinate', () => {
 
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
@@ -177,119 +147,73 @@ describe('#GalacticCoordinate', () => {
       }).not.to.throw();
     });
 
-    it('The param l should be a Number.', () => {
+    it('The param longitude should be a Number.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: '232'
+          longitude: '232'
         })
       }).to.throw();
 
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 232
+          longitude: 232
         })
       }).not.to.throw();
     });
 
-    // it('The param l should be in [0, 360).', () => {
-    //   expect(() => {
-    //     let gc = new GalacticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     gc.position({
-    //       l: -1
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let gc = new GalacticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     gc.position({
-    //       l: 360
-    //     })
-    //   }).to.throw();
-    // })
-
-    it('The param b should be a Number.', () => {
+    it('The param latitude should be a Number.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 112.2323,
-          b: '23.22'
+          longitude: 112.2323,
+          latitude: '23.22'
         })
       }).to.throw();
 
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 112.2323,
-          b: 23.22
+          longitude: 112.2323,
+          latitude: 23.22
         })
       }).not.to.throw()
     });
 
-    // it('The param b should be in [-90, 90].', () => {
-    //   expect(() => {
-    //     let gc = new GalacticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     gc.position({
-    //       l: 112.2323,
-    //       b: -90.232
-    //     })
-    //   }).to.throw();
-
-    //   expect(() => {
-    //     let gc = new GalacticCoordinate({
-    //       l: 123.2332
-    //     });
-
-    //     gc.position({
-    //       l: 112.2323,
-    //       b: 90.232
-    //     })
-    //   }).to.throw();
-    // })
-
     it('The param radius should be a Number.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: '1.09382',
         })
       }).to.throw();
 
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 1.09382,
         })
       }).not.to.throw();
@@ -298,12 +222,12 @@ describe('#GalacticCoordinate', () => {
     it('The param radius should be greater than 10e-8.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: 123.2332
+          longitude: 123.2332
         });
 
         gc.position({
-          l: 112.2323,
-          b: 23.22,
+          longitude: 112.2323,
+          latitude: 23.22,
           radius: 0,
         })
       }).to.throw();
@@ -311,23 +235,23 @@ describe('#GalacticCoordinate', () => {
 
     it('The property after using position should update.', () => {
       let gc = new GalacticCoordinate({
-        l: 123.2332
+        longitude: 123.2332
       });
 
       gc.position({
-        l: 112.2323,
-        b: 23.22,
+        longitude: 112.2323,
+        latitude: 23.22,
         radius: 1,
       })
 
-      expect(gc.l.getDegrees()).to.equal(112.2323);
+      expect(gc.longitude.getDegrees()).to.equal(112.2323);
     });
   });
 
   describe('#get', () => {
     it('The param epoch should be a JDateRepository', () => {
       let gc  = new GalacticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
       });
 
       expect(() => {
@@ -345,7 +269,7 @@ describe('#GalacticCoordinate', () => {
 
     it('This method wont change the origin condition property.', () => {
       let gc = new GalacticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
         epoch: new JDateRepository(2000.0, 'jepoch'),
       });
 
@@ -358,7 +282,7 @@ describe('#GalacticCoordinate', () => {
 
     it('The return should be a right structure.', () => {
       let gc = new GalacticCoordinate({
-        l: 122.3223,
+        longitude: 122.3223,
       });
 
       let res = gc.get({
@@ -373,8 +297,8 @@ describe('#GalacticCoordinate', () => {
     it('The param epoch should be a JDateRepository.', () => {
       expect(() => {
         let gc = new GalacticCoordinate({
-          l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-          b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+          longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+          latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
         });
         
         gc.onEpoch(2322232);
@@ -383,8 +307,8 @@ describe('#GalacticCoordinate', () => {
 
     it('The property epoch after onEpoch should equal the epoch setted.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
       
       let epoch = new JDateRepository(1950.0, 'bepoch');
@@ -398,41 +322,41 @@ describe('#GalacticCoordinate', () => {
   describe('#get sc', () => {
     it('The return should be a SphericalCoordinate3D.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(gc.sc).to.be.instanceof(SphericalCoordinate3D);
     });
   });
 
-  describe('#get l', () => {
+  describe('#get longitude', () => {
     it('The return should be a Angle.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(gc.l).to.be.instanceof(Angle);
+      expect(gc.longitude).to.be.instanceof(Angle);
     })
   });
 
-  describe('#get b', () => {
+  describe('#get latitude', () => {
     it('The return should be a Angle.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
-      expect(gc.b).to.be.instanceof(Angle);
+      expect(gc.latitude).to.be.instanceof(Angle);
     })
   });
 
   describe('#get radius', () => {
     it('The return should be a Number.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(gc.radius).to.be.a('Number');
@@ -442,8 +366,8 @@ describe('#GalacticCoordinate', () => {
   describe('#get epoch', () => {
     it('The return should be a JDateRepository.', () => {
       let gc = new GalacticCoordinate({
-        l: angle.parseHACString('17h 48m 59.74s').getDegrees(),
-        b: angle.parseDACString('-14°43′08.2″').getDegrees(),
+        longitude: angle.parseHACString('17h 48m 59.74s').getDegrees(),
+        latitude: angle.parseDACString('-14°43′08.2″').getDegrees(),
       });
 
       expect(gc.epoch).to.be.instanceof(JDateRepository);
@@ -453,8 +377,8 @@ describe('#GalacticCoordinate', () => {
   describe('#set epoch', () => {
     it('Run normally, throw no error.', () => {
       let gc = new GalacticCoordinate({
-        l: 123.45,
-        b: 34.567,
+        longitude: 123.45,
+        latitude: 34.567,
       });
 
       expect(() => {
@@ -464,8 +388,8 @@ describe('#GalacticCoordinate', () => {
 
     it('After set epoch, the properties should be changed.', () => {
       let gc = new GalacticCoordinate({
-        l: 123.34,
-        b: 22.34,
+        longitude: 123.34,
+        latitude: 22.34,
       });
 
       let epoch0 = gc.epoch,

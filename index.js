@@ -1,5 +1,7 @@
 'use strict';
 
+const CelestialCoordinate = require('./src/CelestialCoordinate');
+const CelestialLocator = require('./src/CelestialLocator');
 const SystemSwitcher = require('./src/SystemSwitcher');
 const HorizontalCoordinate = require('./src/HorizontalCoordinate');
 const HourAngleCoordinate = require('./src/HourAngleCoordinate');
@@ -8,6 +10,8 @@ const EclipticCoordinate = require('./src/EclipticCoordinate');
 const GalacticCoordinate = require('./src/GalacticCoordinate');
 
 module.exports = { 
+  CelestialCoordinate,
+  CelestialLocator,
   SystemSwitcher, 
   HorizontalCoordinate, 
   HourAngleCoordinate, 

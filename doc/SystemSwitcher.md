@@ -21,8 +21,8 @@ let epoch = new JDateRepository(new Date('1987/04/11 03:21:00'), 'date');
 
 // 实例化赤道坐标对象
 let EQC = new EquinoctialCoordinate({
-  ra: angle.parseHACString('23h 09m 16.641s').getDegrees(),
-  dec: angle.parseDACString('-6°43′11.61″').getDegrees(),
+  longitude: angle.parseHACString('23h 09m 16.641s').getDegrees(),
+  latitude: angle.parseDACString('-6°43′11.61″').getDegrees(),
   epoch: epoch,
   withNutation: true,
   withAnnualAberration: true,
@@ -35,35 +35,66 @@ let Switcher = new SystemSwitcher(EQC);
 
 // 转换坐标为地平坐标
 let HC = Switcher.to('hc', {
-  obTime: epoch,
+  epoch: epoch,
   obGeoLong: angle.parseDACString('77°03′56″').getDegrees(),
   obGeoLat: angle.parseDACString('38°55′17″').getDegrees(),
 });
 
 // 获取地平坐标方位角，单位：°
-let A = HC.a.getDegrees();
+let A = HC.longitude.getDegrees();
 
 // 获取地平坐标地平角，单位：°
-let H = HC.h.getDegrees();
+let H = HC.latitude.getDegrees();
 ```
 
 ## API
 
-`constructor(coord)`
+### 属性
 
-构造函数
+`enableAR` 大气折射功能启用状态
 
-* coord 天球坐标实例
+`enableFK5` FK5 修正功能启用状态
 
-`from(coord)`
+`enableGravitationalDeflection` 引力偏转功能启用状态
 
-设定转换过程的源坐标
+`enableAnnualAberration` 周年光行差功能启用状态
+
+`enableNutation` 章动修正功能启用状态
+
+### 方法
+
+`constructor(options)`
+
+构造函数：
+
+* options.coord                         天球坐标实例
+* options.enableNutation                章动修正功能启用状态
+* options.enableAnnualAberration        周年光行差功能启用状态
+* options.enableGravitationalDeflection 引力偏转功能启用状态
+* options.enableFK5                     FK5 修正功能启用状态
+* options.enableAR                      大气折射功能启用状态
+
+`options(options)`
+
+设定当前系统参数：
+
+* options.enableNutation                章动修正功能启用状态
+* options.enableAnnualAberration        周年光行差功能启用状态
+* options.enableGravitationalDeflection 引力偏转功能启用状态
+* options.enableFK5                     FK5 修正功能启用状态
+* options.enableAR                      大气折射功能启用状态
+
+
+`from(coord, options)`
+
+设定转换过程的源坐标：
 
 * coord 源天球坐标实例
+* options 对应赤道系统参数设定
 
 `to(sysCode, options)`
 
-转换至目标坐标系统
+转换至目标坐标系统：
 
 * sysCode 目标坐标系统字串标识
 * options 目标系统设定参数

@@ -16,10 +16,10 @@ const { JDateRepository } = require('@behaver/jdate');
 
 // 实例化 天球时角坐标
 let hac = new HourAngleCoordinate({
-  obTime: new JDateRepository(2462088.69, 'jde'),
+  epoch: new JDateRepository(2462088.69, 'jde'),
   obGeoLong: 118.8167,
-  t: 123.2343,
-  dec: -3.3248,
+  longitude: 123.2343,
+  latitude: -3.3248,
   radius: 1.0324,
 });
 
@@ -29,10 +29,10 @@ hac.on({
 });
 
 // 时角
-let t = hac.t.makeHACString();
+let longitude = hac.longitude.makeHACString();
 
 // 赤纬
-let dec = hac.dec.getDegrees();
+let latitude = hac.latitude.getDegrees();
 
 // 距离
 let radius = hac.radius;
@@ -41,13 +41,31 @@ let radius = hac.radius;
 let sc = hac.sc;
 
 // 观测历元
-let obTime = hac.obTime;
+let epoch = hac.epoch;
 
 // 观测点地理经度
 let obGeoLong = hac.obGeoLong.getDegrees();
 ```
 
 ## API
+
+### 属性
+
+`epoch` 观测历元
+
+`sc` 天球球坐标
+
+`longitude` 经度
+
+`latitude` 纬度
+
+`radius` 中心距离
+
+`isContinuous` 结果值连续性
+
+`obGeoLong` 观测经度
+
+### 方法
 
 `constructor(options)`
 
@@ -63,7 +81,7 @@ let obGeoLong = hac.obGeoLong.getDegrees();
 
 观测参数：
 
-* options.obTime 观测历元
+* options.epoch 观测历元
 * options.obGeoLong 观测点地理经度，单位：度，值域：[180, 180]
 
 坐标参数：
@@ -72,8 +90,8 @@ let obGeoLong = hac.obGeoLong.getDegrees();
 
 或
 
-* options.t 时角，单位：度，值域：[0, 360)
-* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.longitude 时角，单位：度
+* options.latitude 赤纬，单位：度
 * options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 `on(options)`
@@ -82,7 +100,7 @@ let obGeoLong = hac.obGeoLong.getDegrees();
 
 接受参数：
 
-* options.obTime 观测历元
+* options.epoch 观测历元
 * options.obGeoLong 观测点地理经度
 
 `position(options)`
@@ -95,8 +113,8 @@ let obGeoLong = hac.obGeoLong.getDegrees();
 
 或
 
-* options.t 时角，单位：度，值域：[0, 360)
-* options.dec 赤纬，单位：度，值域：[-90, 90]
+* options.longitude 时角，单位：度
+* options.latitude 赤纬，单位：度
 * options.radius 坐标距离半径，值域：[10e-8, +∞)
 
 `get(options)`
@@ -105,47 +123,15 @@ let obGeoLong = hac.obGeoLong.getDegrees();
 
 接受参数：
 
-* options.obTime 观测历元
+* options.epoch 观测历元
 * options.obGeoLong 观测点地理经度
 
 返回结果对象的属性：
 
 * sc 球坐标
-* obTime 观测历元
+* epoch 观测历元
 * obGeoLong 观测点地理经度
-
-`get obTime()`
-
-获取 观测历元 儒略时间对象
-
-`get obGeoLong()`
-
-获取 观测经度 角度对象
-
-`get sc()`
-
-获取 天球球坐标
-
-`get t()`
-
-获取 时角 角度对象
-
-`get dec()`
-
-获取 赤纬 角度对象
-
-`get radius()`
-
-获取 距离
-
-`get isContinuous()`
-
-获取 结果值连续性设定
-
-`set isContinuous(value)`
-
-设置 结果值的连续性
 
 ## 许可证书
 
-The MIT license.
+The ISC license.

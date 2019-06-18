@@ -27,8 +27,8 @@ const { JDateRepository } = require('@behaver/jdate');
 
 // 实例化 J2000 分点天球平黄道坐标
 let ec = new EclipticCoordinate({
-  l: 123.2343,
-  b: -3.3248,
+  longitude: 123.2343,
+  latitude: -3.3248,
   radius: 1.0324,
 });
 
@@ -40,9 +40,9 @@ ec.on({
   withNutation: true,
 });
 
-let l = ec.l.getDegrees();
+let longitude = ec.longitude.getDegrees();
 
-let b = ec.b.getDegrees();
+let latitude = ec.latitude.getDegrees();
 
 let radius = ec.radius;
 
@@ -54,6 +54,52 @@ let withNutation = ec.withNutation;
 ```
 
 ## API
+
+### 属性
+
+`epoch` 观测历元
+
+`sc` 天球球坐标
+
+`longitude` 经度
+
+`latitude` 纬度
+
+`radius` 中心距离
+
+`isContinuous` 结果值连续性
+
+`centerMode` 中心点模式字串
+
+`enableNutation` 章动修正功能启用状态
+
+`enableAnnualAberration` 周年光行差功能启用状态
+
+`enableGravitationalDeflection` 引力偏转功能启用状态
+
+`enableFK5` FK5 修正功能启用状态
+
+`withNutation` 章动修正状态
+
+`withAnnualAberration` 周年光行差修正状态
+
+`withGravitationalDeflection` 引力偏转修正状态
+
+`onFK5` FK5 修正状态
+
+只读属性：
+
+`PrecessionCorrection` 岁差 偏转修正值
+
+`NutationCorrection` 章动 偏转修正值
+
+`AACorrection` 周年光行差修正值
+
+`GDCorrection` 太阳引力偏转修正值
+
+`FK5Correction` FK5 偏转修正值
+
+### 方法
 
 `constructor(options)`
 
@@ -76,8 +122,8 @@ let withNutation = ec.withNutation;
 
 或
 
-* options.l 黄经，单位：度，值域：[0, 360)
-* options.b 黄纬，单位：度，值域：[-90, 90]
+* options.longitude 黄经，单位：度
+* options.latitude 黄纬，单位：度
 * options.radius 距离半径，值域：[10e-8, +∞)
 
 修正项参数：
@@ -119,8 +165,8 @@ let withNutation = ec.withNutation;
 
 或
 
-* options.l 黄经，单位：度，值域：[0, 360)
-* options.b 黄纬，单位：度，值域：[-90, 90]
+* options.longitude 黄经，单位：度
+* options.latitude 黄纬，单位：度
 * options.radius 距离半径，值域：[10e-8, +∞)
 
 `get(options)`
@@ -203,122 +249,6 @@ let withNutation = ec.withNutation;
 
 解除 FK5 修正
 
-`get sc()`
-
-获取 天球球坐标
-
-`get l()`
-
-获取 黄经 角度对象
-
-`get b()`
-
-获取 黄纬 角度对象
-
-`get radius()`
-
-获取 距离
-
-`get isContinuous()`
-
-获取 结果值连续性设定
-
-`set isContinuous(value)`
-
-设置 结果值的连续性
-
-`get epoch()`
-
-获取 历元对象
-
-`set epoch(value)`
-
-设置 历元对象
-
-`get centerMode()`
-
-获取 中心点模式字串
-
-`set centerMode(value)`
-
-设置 中心点模式字串
-
-`get enableNutation()`
-
-获取 章动修正功能启用状态
-
-`set enableNutation(value)`
-
-设置 章动修正功能启用状态
-
-`get withNutation()`
-
-获取 章动修正状态
-
-`set withNutation(value)`
-
-设置 章动修正状态
-
-`get enableAnnualAberration()`
-
-获取 周年光行差功能启用状态
-
-`set enableAnnualAberration(value)`
-
-设置 周年光行差功能启用状态
-
-`get withAnnualAberration()`
-
-获取 周年光行差修正状态
-
-`set withAnnualAberration(value)`
-
-设置 周年光行差修正状态
-
-`get enableGravitationalDeflection()`
-
-获取 引力偏转功能启用状态
-
-`set enableGravitationalDeflection(value)`
-
-设置 引力偏转功能启用状态
-
-`get withGravitationalDeflection()`
-
-获取 引力偏转修正状态
-
-`set withGravitationalDeflection(value)`
-
-设置 引力偏转修正状态
-
-`get enableFK5()`
-
-获取 FK5 修正功能启用状态
-
-`set enableFK5(value)`
-
-设置 FK5 修正功能启用状态
-
-`get onFK5()`
-
-获取 FK5 修正状态
-
-`set onFK5(value)`
-
-设置 FK5 修正状态
-
-`get AACorrection()`
-
-获取 周年光行差修正值
-
-`get GDCorrection()`
-
-获取 太阳引力偏转修正值
-
-`get FK5Correction()`
-
-获取 FK5 偏转修正值
-
 ## 许可证书
 
-The MIT license.
+The ISC license.
